@@ -1,0 +1,8 @@
+build/
+devel/
+src/CMakeLists.txt
+.catkin_tools/
+**/.vscode/
+**/cmake-build-debug/
+.catkin_workspace
+.idea/

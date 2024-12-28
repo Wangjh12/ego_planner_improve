@@ -1,0 +1,291 @@
+[0.215s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'list', '-p', '--base-paths', '/home/wjh/code/ego-planner']
+[0.215s] DEBUG:colcon:Parsed command line arguments: Namespace(allow_overriding=[], base_paths=['/home/wjh/code/ego-planner'], build_base='build', ignore_user_meta=False, log_base=None, log_level=None, main=<bound method ListVerb.main of <colcon_package_information.verb.list.ListVerb object at 0x7f4f7a00d7c0>>, metas=['./colcon.meta'], names_only=False, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_end=None, packages_ignore=None, packages_ignore_regex=None, packages_select=None, packages_select_build_failed=False, packages_select_by_dep=None, packages_select_regex=None, packages_select_test_failures=False, packages_skip=None, packages_skip_build_finished=False, packages_skip_by_dep=None, packages_skip_regex=None, packages_skip_test_passed=False, packages_skip_up_to=None, packages_start=None, packages_up_to=None, packages_up_to_regex=None, paths=None, paths_only=True, topological_graph=False, topological_graph_density=False, topological_graph_dot=False, topological_graph_dot_cluster=False, topological_graph_dot_include_skipped=False, topological_graph_legend=False, topological_order=False, verb_extension=<colcon_package_information.verb.list.ListVerb object at 0x7f4f7a00d7c0>, verb_name='list', verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0x7f4f79e52df0>)
+[0.404s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.405s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.405s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.405s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.405s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.405s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/wjh/code/ego-planner'
+[0.405s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extensions ['ignore', 'ignore_ament_install']
+[0.405s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extension 'ignore'
+[0.405s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extension 'ignore_ament_install'
+[0.405s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extensions ['colcon_pkg']
+[0.405s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extension 'colcon_pkg'
+[0.406s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extensions ['colcon_meta']
+[0.406s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extension 'colcon_meta'
+[0.406s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extensions ['ros']
+[0.406s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extension 'ros'
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extensions ['cmake', 'python']
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extension 'cmake'
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extension 'python'
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extensions ['python_setup_py']
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner) by extension 'python_setup_py'
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/build) by extensions ['ignore', 'ignore_ament_install']
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/build) by extension 'ignore'
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/build) by extension 'ignore_ament_install'
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/build) by extensions ['colcon_pkg']
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/build) by extension 'colcon_pkg'
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/build) by extensions ['colcon_meta']
+[0.420s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/build) by extension 'colcon_meta'
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/build) by extensions ['ros']
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/build) by extension 'ros'
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/build) ignored
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/devel) by extensions ['ignore', 'ignore_ament_install']
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/devel) by extension 'ignore'
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/devel) by extension 'ignore_ament_install'
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/devel) ignored
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/log) by extensions ['ignore', 'ignore_ament_install']
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/log) by extension 'ignore'
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/log) ignored
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extensions ['ignore', 'ignore_ament_install']
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extension 'ignore'
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extension 'ignore_ament_install'
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extensions ['colcon_pkg']
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extension 'colcon_pkg'
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extensions ['colcon_meta']
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extension 'colcon_meta'
+[0.421s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extensions ['ros']
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extension 'ros'
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extensions ['cmake', 'python']
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extension 'cmake'
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extension 'python'
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extensions ['python_setup_py']
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/pictures) by extension 'python_setup_py'
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extensions ['ignore', 'ignore_ament_install']
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extension 'ignore'
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extension 'ignore_ament_install'
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extensions ['colcon_pkg']
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extension 'colcon_pkg'
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extensions ['colcon_meta']
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extension 'colcon_meta'
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extensions ['ros']
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extension 'ros'
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extensions ['cmake', 'python']
+[0.422s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extension 'cmake'
+[0.435s] WARNING:colcon.colcon_cmake.package_identification.cmake:Ignoring '/home/wjh/code/ego-planner/src/CMakeLists.txt' since it seems to be a toplevel CMake file generated by 'catkin_make'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extension 'python'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extensions ['python_setup_py']
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src) by extension 'python_setup_py'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extensions ['ignore', 'ignore_ament_install']
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extension 'ignore'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extension 'ignore_ament_install'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extensions ['colcon_pkg']
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extension 'colcon_pkg'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extensions ['colcon_meta']
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extension 'colcon_meta'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extensions ['ros']
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extension 'ros'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extensions ['cmake', 'python']
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extension 'cmake'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extension 'python'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extensions ['python_setup_py']
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner) by extension 'python_setup_py'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/bspline_opt) by extensions ['ignore', 'ignore_ament_install']
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/bspline_opt) by extension 'ignore'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/bspline_opt) by extension 'ignore_ament_install'
+[0.436s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/bspline_opt) by extensions ['colcon_pkg']
+[0.437s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/bspline_opt) by extension 'colcon_pkg'
+[0.437s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/bspline_opt) by extensions ['colcon_meta']
+[0.437s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/bspline_opt) by extension 'colcon_meta'
+[0.437s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/bspline_opt) by extensions ['ros']
+[0.437s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/bspline_opt) by extension 'ros'
+[0.439s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/planner/bspline_opt' with type 'ros.catkin' and name 'bspline_opt'
+[0.440s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/path_searching) by extensions ['ignore', 'ignore_ament_install']
+[0.440s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/path_searching) by extension 'ignore'
+[0.440s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/path_searching) by extension 'ignore_ament_install'
+[0.440s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/path_searching) by extensions ['colcon_pkg']
+[0.440s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/path_searching) by extension 'colcon_pkg'
+[0.440s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/path_searching) by extensions ['colcon_meta']
+[0.440s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/path_searching) by extension 'colcon_meta'
+[0.440s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/path_searching) by extensions ['ros']
+[0.440s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/path_searching) by extension 'ros'
+[0.441s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/planner/path_searching' with type 'ros.catkin' and name 'path_searching'
+[0.441s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_env) by extensions ['ignore', 'ignore_ament_install']
+[0.441s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_env) by extension 'ignore'
+[0.441s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_env) by extension 'ignore_ament_install'
+[0.441s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_env) by extensions ['colcon_pkg']
+[0.441s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_env) by extension 'colcon_pkg'
+[0.441s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_env) by extensions ['colcon_meta']
+[0.441s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_env) by extension 'colcon_meta'
+[0.441s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_env) by extensions ['ros']
+[0.441s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_env) by extension 'ros'
+[0.442s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/planner/plan_env' with type 'ros.catkin' and name 'plan_env'
+[0.442s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_manage) by extensions ['ignore', 'ignore_ament_install']
+[0.442s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_manage) by extension 'ignore'
+[0.442s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_manage) by extension 'ignore_ament_install'
+[0.442s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_manage) by extensions ['colcon_pkg']
+[0.442s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_manage) by extension 'colcon_pkg'
+[0.442s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_manage) by extensions ['colcon_meta']
+[0.443s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_manage) by extension 'colcon_meta'
+[0.443s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_manage) by extensions ['ros']
+[0.443s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/plan_manage) by extension 'ros'
+[0.443s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/planner/plan_manage' with type 'ros.catkin' and name 'ego_planner'
+[0.443s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/traj_utils) by extensions ['ignore', 'ignore_ament_install']
+[0.443s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/traj_utils) by extension 'ignore'
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/traj_utils) by extension 'ignore_ament_install'
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/traj_utils) by extensions ['colcon_pkg']
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/traj_utils) by extension 'colcon_pkg'
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/traj_utils) by extensions ['colcon_meta']
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/traj_utils) by extension 'colcon_meta'
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/traj_utils) by extensions ['ros']
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/planner/traj_utils) by extension 'ros'
+[0.444s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/planner/traj_utils' with type 'ros.catkin' and name 'traj_utils'
+[0.444s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extensions ['ignore', 'ignore_ament_install']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extension 'ignore'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extension 'ignore_ament_install'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extensions ['colcon_pkg']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extension 'colcon_pkg'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extensions ['colcon_meta']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extension 'colcon_meta'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extensions ['ros']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extension 'ros'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extensions ['cmake', 'python']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extension 'cmake'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extension 'python'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extensions ['python_setup_py']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator) by extension 'python_setup_py'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extensions ['ignore', 'ignore_ament_install']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extension 'ignore'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extension 'ignore_ament_install'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extensions ['colcon_pkg']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extension 'colcon_pkg'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extensions ['colcon_meta']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extension 'colcon_meta'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extensions ['ros']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extension 'ros'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extensions ['cmake', 'python']
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extension 'cmake'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extension 'python'
+[0.445s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extensions ['python_setup_py']
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils) by extension 'python_setup_py'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/cmake_utils) by extensions ['ignore', 'ignore_ament_install']
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/cmake_utils) by extension 'ignore'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/cmake_utils) by extension 'ignore_ament_install'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/cmake_utils) by extensions ['colcon_pkg']
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/cmake_utils) by extension 'colcon_pkg'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/cmake_utils) by extensions ['colcon_meta']
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/cmake_utils) by extension 'colcon_meta'
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/cmake_utils) by extensions ['ros']
+[0.446s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/cmake_utils) by extension 'ros'
+[0.447s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/Utils/cmake_utils' with type 'ros.catkin' and name 'cmake_utils'
+[0.447s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/multi_map_server) by extensions ['ignore', 'ignore_ament_install']
+[0.447s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/multi_map_server) by extension 'ignore'
+[0.447s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/multi_map_server) by extension 'ignore_ament_install'
+[0.447s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/multi_map_server) by extensions ['colcon_pkg']
+[0.447s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/multi_map_server) by extension 'colcon_pkg'
+[0.447s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/multi_map_server) by extensions ['colcon_meta']
+[0.447s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/multi_map_server) by extension 'colcon_meta'
+[0.447s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/multi_map_server) by extensions ['ros']
+[0.447s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/multi_map_server) by extension 'ros'
+[0.449s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/Utils/multi_map_server' with type 'ros.catkin' and name 'multi_map_server'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/odom_visualization) by extensions ['ignore', 'ignore_ament_install']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/odom_visualization) by extension 'ignore'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/odom_visualization) by extension 'ignore_ament_install'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/odom_visualization) by extensions ['colcon_pkg']
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/odom_visualization) by extension 'colcon_pkg'
+[0.449s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/odom_visualization) by extensions ['colcon_meta']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/odom_visualization) by extension 'colcon_meta'
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/odom_visualization) by extensions ['ros']
+[0.450s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/odom_visualization) by extension 'ros'
+[0.451s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/Utils/odom_visualization' with type 'ros.catkin' and name 'odom_visualization'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/pose_utils) by extensions ['ignore', 'ignore_ament_install']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/pose_utils) by extension 'ignore'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/pose_utils) by extension 'ignore_ament_install'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/pose_utils) by extensions ['colcon_pkg']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/pose_utils) by extension 'colcon_pkg'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/pose_utils) by extensions ['colcon_meta']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/pose_utils) by extension 'colcon_meta'
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/pose_utils) by extensions ['ros']
+[0.451s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/pose_utils) by extension 'ros'
+[0.452s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/Utils/pose_utils' with type 'ros.catkin' and name 'pose_utils'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/quadrotor_msgs) by extensions ['ignore', 'ignore_ament_install']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/quadrotor_msgs) by extension 'ignore'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/quadrotor_msgs) by extension 'ignore_ament_install'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/quadrotor_msgs) by extensions ['colcon_pkg']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/quadrotor_msgs) by extension 'colcon_pkg'
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/quadrotor_msgs) by extensions ['colcon_meta']
+[0.452s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/quadrotor_msgs) by extension 'colcon_meta'
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/quadrotor_msgs) by extensions ['ros']
+[0.453s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/quadrotor_msgs) by extension 'ros'
+[0.453s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/Utils/quadrotor_msgs' with type 'ros.catkin' and name 'quadrotor_msgs'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/rviz_plugins) by extensions ['ignore', 'ignore_ament_install']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/rviz_plugins) by extension 'ignore'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/rviz_plugins) by extension 'ignore_ament_install'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/rviz_plugins) by extensions ['colcon_pkg']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/rviz_plugins) by extension 'colcon_pkg'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/rviz_plugins) by extensions ['colcon_meta']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/rviz_plugins) by extension 'colcon_meta'
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/rviz_plugins) by extensions ['ros']
+[0.454s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/rviz_plugins) by extension 'ros'
+[0.456s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/Utils/rviz_plugins' with type 'ros.catkin' and name 'rviz_plugins'
+[0.457s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/uav_utils) by extensions ['ignore', 'ignore_ament_install']
+[0.457s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/uav_utils) by extension 'ignore'
+[0.457s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/uav_utils) by extension 'ignore_ament_install'
+[0.457s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/uav_utils) by extensions ['colcon_pkg']
+[0.457s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/uav_utils) by extension 'colcon_pkg'
+[0.457s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/uav_utils) by extensions ['colcon_meta']
+[0.457s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/uav_utils) by extension 'colcon_meta'
+[0.457s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/uav_utils) by extensions ['ros']
+[0.457s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/uav_utils) by extension 'ros'
+[0.458s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/Utils/uav_utils' with type 'ros.catkin' and name 'uav_utils'
+[0.458s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/waypoint_generator) by extensions ['ignore', 'ignore_ament_install']
+[0.458s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/waypoint_generator) by extension 'ignore'
+[0.458s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/waypoint_generator) by extension 'ignore_ament_install'
+[0.458s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/waypoint_generator) by extensions ['colcon_pkg']
+[0.458s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/waypoint_generator) by extension 'colcon_pkg'
+[0.459s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/waypoint_generator) by extensions ['colcon_meta']
+[0.459s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/waypoint_generator) by extension 'colcon_meta'
+[0.459s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/waypoint_generator) by extensions ['ros']
+[0.459s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/Utils/waypoint_generator) by extension 'ros'
+[0.460s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/Utils/waypoint_generator' with type 'ros.catkin' and name 'waypoint_generator'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/local_sensing) by extensions ['ignore', 'ignore_ament_install']
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/local_sensing) by extension 'ignore'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/local_sensing) by extension 'ignore_ament_install'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/local_sensing) by extensions ['colcon_pkg']
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/local_sensing) by extension 'colcon_pkg'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/local_sensing) by extensions ['colcon_meta']
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/local_sensing) by extension 'colcon_meta'
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/local_sensing) by extensions ['ros']
+[0.460s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/local_sensing) by extension 'ros'
+[0.462s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/local_sensing' with type 'ros.catkin' and name 'local_sensing_node'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/map_generator) by extensions ['ignore', 'ignore_ament_install']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/map_generator) by extension 'ignore'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/map_generator) by extension 'ignore_ament_install'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/map_generator) by extensions ['colcon_pkg']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/map_generator) by extension 'colcon_pkg'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/map_generator) by extensions ['colcon_meta']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/map_generator) by extension 'colcon_meta'
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/map_generator) by extensions ['ros']
+[0.462s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/map_generator) by extension 'ros'
+[0.463s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/map_generator' with type 'ros.catkin' and name 'map_generator'
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/mockamap) by extensions ['ignore', 'ignore_ament_install']
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/mockamap) by extension 'ignore'
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/mockamap) by extension 'ignore_ament_install'
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/mockamap) by extensions ['colcon_pkg']
+[0.463s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/mockamap) by extension 'colcon_pkg'
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/mockamap) by extensions ['colcon_meta']
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/mockamap) by extension 'colcon_meta'
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/mockamap) by extensions ['ros']
+[0.464s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/mockamap) by extension 'ros'
+[0.465s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/mockamap' with type 'ros.catkin' and name 'mockamap'
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_control) by extensions ['ignore', 'ignore_ament_install']
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_control) by extension 'ignore'
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_control) by extension 'ignore_ament_install'
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_control) by extensions ['colcon_pkg']
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_control) by extension 'colcon_pkg'
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_control) by extensions ['colcon_meta']
+[0.465s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_control) by extension 'colcon_meta'
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_control) by extensions ['ros']
+[0.466s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_control) by extension 'ros'
+[0.467s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/so3_control' with type 'ros.catkin' and name 'so3_control'
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_quadrotor_simulator) by extensions ['ignore', 'ignore_ament_install']
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_quadrotor_simulator) by extension 'ignore'
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_quadrotor_simulator) by extension 'ignore_ament_install'
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_quadrotor_simulator) by extensions ['colcon_pkg']
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_quadrotor_simulator) by extension 'colcon_pkg'
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_quadrotor_simulator) by extensions ['colcon_meta']
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_quadrotor_simulator) by extension 'colcon_meta'
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_quadrotor_simulator) by extensions ['ros']
+[0.467s] Level 1:colcon.colcon_core.package_identification:_identify(/home/wjh/code/ego-planner/src/uav_simulator/so3_quadrotor_simulator) by extension 'ros'
+[0.468s] DEBUG:colcon.colcon_core.package_identification:Package '/home/wjh/code/ego-planner/src/uav_simulator/so3_quadrotor_simulator' with type 'ros.catkin' and name 'so3_quadrotor_simulator'
+[0.468s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults

@@ -11,6 +11,8 @@
 #include <ros/ros.h>
 #include <traj_utils/planning_visualization.h>
 
+#include <plan_env/edt_environment.h>
+
 namespace ego_planner
 {
 
@@ -37,6 +39,10 @@ namespace ego_planner
 
     void initPlanModules(ros::NodeHandle &nh, PlanningVisualization::Ptr vis = NULL);
 
+    void planYaw(const Eigen::Vector3d& start_yaw);
+
+    void calcNextYaw(const double &last_yaw, double &yaw);
+
     PlanParameters pp_;
     LocalTrajData local_data_;
     GlobalTrajData global_data_;
@@ -47,6 +53,9 @@ namespace ego_planner
     PlanningVisualization::Ptr visualization_;
 
     BsplineOptimizer::Ptr bspline_optimizer_rebound_;
+
+    vector<BsplineOptimizer_QP::Ptr> bspline_optimizers_;
+
 
     int continous_failures_count_{0};
 

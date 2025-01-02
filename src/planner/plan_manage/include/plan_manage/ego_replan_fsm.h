@@ -18,6 +18,8 @@
 #include <plan_manage/planner_manager.h>
 #include <traj_utils/planning_visualization.h>
 
+#include <plan_env/edt_environment.h>
+
 using std::vector;
 
 namespace ego_planner

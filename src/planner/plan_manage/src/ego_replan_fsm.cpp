@@ -281,9 +281,11 @@ namespace ego_planner
       start_vel_ = odom_vel_;
       start_acc_.setZero();
 
-      // Eigen::Vector3d rot_x = odom_orient_.toRotationMatrix().block(0, 0, 3, 1);
-      // start_yaw_(0)         = atan2(rot_x(1), rot_x(0));
-      // start_yaw_(1) = start_yaw_(2) = 0.0;
+      //rot_x为x轴的旋转向量
+      //rot_x(0) 和 rot_x(1) 分别是旋转后的x轴向量在x轴和y轴上的分量。
+      Eigen::Vector3d rot_x = odom_orient_.toRotationMatrix().block(0, 0, 3, 1);
+      start_yaw_(0)         = atan2(rot_x(1), rot_x(0));
+      start_yaw_(1) = start_yaw_(2) = 0.0;
 
       bool flag_random_poly_init;
       if (timesOfConsecutiveStateCalls().first == 1)
@@ -399,6 +401,10 @@ namespace ego_planner
     start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_cur);
     start_acc_ = info->acceleration_traj_.evaluateDeBoorT(t_cur);
 
+    start_yaw_(0) = info->yaw_traj_.evaluateDeBoorT(t_cur)[0];
+    start_yaw_(1) = info->yawdot_traj_.evaluateDeBoorT(t_cur)[0];
+    start_yaw_(2) = info->yawdotdot_traj_.evaluateDeBoorT(t_cur)[0];
+
     bool success = callReboundReplan(false, false);
 
     if (!success)
@@ -493,6 +499,8 @@ namespace ego_planner
     if (plan_success)
     {
 
+      planner_manager_->planYaw(start_yaw_);
+
       auto info = &planner_manager_->local_data_;
 
       /* publish traj */
@@ -518,6 +526,13 @@ namespace ego_planner
       {
         bspline.knots.push_back(knots(i));
       }
+
+      Eigen::MatrixXd yaw_pts = info->yaw_traj_.getControlPoint();
+      for (int i = 0; i < yaw_pts.rows(); ++i) {
+        double yaw = yaw_pts(i, 0);
+        bspline.yaw_pts.push_back(yaw);
+      }
+      bspline.yaw_dt = info->yaw_traj_.getInterval();
 
       bspline_pub_.publish(bspline);
 

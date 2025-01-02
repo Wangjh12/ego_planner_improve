@@ -41,6 +41,13 @@ namespace ego_planner
     bspline_optimizer_rebound_->a_star_.reset(new AStar);
     bspline_optimizer_rebound_->a_star_->initGridMap(grid_map_, Eigen::Vector3i(100, 100, 100));//将该指针传入到a_star_->initGridMap
 
+    bspline_optimizers_.resize(10);
+    for (int i = 0; i < 10; ++i) {
+      bspline_optimizers_[i].reset(new BsplineOptimizer_QP);
+      bspline_optimizers_[i]->setParam(nh);
+      // bspline_optimizers_[i]->setEnvironment(edt_environment_);
+    }
+
     visualization_ = vis;
   }
 
@@ -556,5 +563,104 @@ namespace ego_planner
     }
     UniformBspline::parameterizeToBspline(dt, point_set, start_end_derivative, ctrl_pts);
   }
+
+
+
+  void EGOPlannerManager::planYaw(const Eigen::Vector3d& start_yaw) {
+    ROS_INFO("plan yaw");
+    auto t1 = ros::Time::now();
+    // calculate waypoints of heading
+
+    auto&  pos      = local_data_.position_traj_;
+    double duration = pos.getTimeSum();
+
+    double dt_yaw  = 0.3;
+    int    seg_num = ceil(duration / dt_yaw);
+    dt_yaw         = duration / seg_num;
+
+    const double            forward_t = 2.0;
+    double                  last_yaw  = start_yaw(0);
+    vector<Eigen::Vector3d> waypts;
+    vector<int>             waypt_idx;
+
+    // seg_num -> seg_num - 1 points for constraint excluding the boundary states
+
+    for (int i = 0; i < seg_num; ++i) {
+      double          tc = i * dt_yaw;
+      Eigen::Vector3d pc = pos.evaluateDeBoorT(tc);
+      double          tf = min(duration, tc + forward_t);
+      Eigen::Vector3d pf = pos.evaluateDeBoorT(tf);
+      Eigen::Vector3d pd = pf - pc;
+
+      Eigen::Vector3d waypt;
+      if (pd.norm() > 1e-6) {
+        waypt(0) = atan2(pd(1), pd(0));
+        waypt(1) = waypt(2) = 0.0;
+        calcNextYaw(last_yaw, waypt(0));
+      } else {
+        waypt = waypts.back();
+      }
+      waypts.push_back(waypt);
+      waypt_idx.push_back(i);
+    }
+
+    // calculate initial control points with boundary state constraints
+
+    Eigen::MatrixXd yaw(seg_num + 3, 1);
+    yaw.setZero();
+
+    Eigen::Matrix3d states2pts;
+    states2pts << 1.0, -dt_yaw, (1 / 3.0) * dt_yaw * dt_yaw, 1.0, 0.0, -(1 / 6.0) * dt_yaw * dt_yaw, 1.0,
+        dt_yaw, (1 / 3.0) * dt_yaw * dt_yaw;
+    yaw.block(0, 0, 3, 1) = states2pts * start_yaw;
+
+    Eigen::Vector3d end_v = local_data_.velocity_traj_.evaluateDeBoorT(duration - 0.1);
+    Eigen::Vector3d end_yaw(atan2(end_v(1), end_v(0)), 0, 0);
+    calcNextYaw(last_yaw, end_yaw(0));
+    yaw.block(seg_num, 0, 3, 1) = states2pts * end_yaw;
+
+    // solve
+    bspline_optimizers_[1]->setWaypoints(waypts, waypt_idx);
+    int cost_func = BsplineOptimizer_QP::SMOOTHNESS | BsplineOptimizer_QP::WAYPOINTS;
+    yaw           = bspline_optimizers_[1]->BsplineOptimizeTraj(yaw, dt_yaw, cost_func, 1, 1);
+
+    // update traj info
+    local_data_.yaw_traj_.setUniformBspline(yaw, 3, dt_yaw);
+    local_data_.yawdot_traj_    = local_data_.yaw_traj_.getDerivative();
+    local_data_.yawdotdot_traj_ = local_data_.yawdot_traj_.getDerivative();
+
+    vector<double> path_yaw;
+    for (int i = 0; i < waypts.size(); ++i) path_yaw.push_back(waypts[i][0]);
+    plan_data_.path_yaw_    = path_yaw;
+    plan_data_.dt_yaw_      = dt_yaw;
+    plan_data_.dt_yaw_path_ = dt_yaw;
+
+    std::cout << "plan heading: " << (ros::Time::now() - t1).toSec() << std::endl;
+  }
+
+  void EGOPlannerManager::calcNextYaw(const double& last_yaw, double& yaw) {
+    // round yaw to [-PI, PI]
+
+    double round_last = last_yaw;
+
+    while (round_last < -M_PI) {
+      round_last += 2 * M_PI;
+    }
+    while (round_last > M_PI) {
+      round_last -= 2 * M_PI;
+    }
+
+    double diff = yaw - round_last;
+
+    if (fabs(diff) <= M_PI) {
+      yaw = last_yaw + diff;
+    } else if (diff > M_PI) {
+      yaw = last_yaw + diff - 2 * M_PI;
+    } else if (diff < -M_PI) {
+      yaw = last_yaw + diff + 2 * M_PI;
+    }
+  }
+
+
 
 } // namespace ego_planner

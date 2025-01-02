@@ -211,7 +211,8 @@ namespace ego_planner
     double global_time_offset; // This is because when the local traj finished and is going to switch back to the global traj, the global traj time is no longer matches the world time.
     ros::Time start_time_;
     Eigen::Vector3d start_pos_;
-    UniformBspline position_traj_, velocity_traj_, acceleration_traj_;
+    UniformBspline position_traj_, velocity_traj_, acceleration_traj_,yaw_traj_, yawdot_traj_,
+      yawdotdot_traj_;
   };
 
 } // namespace ego_planner

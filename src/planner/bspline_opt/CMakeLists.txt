@@ -38,7 +38,9 @@ add_library( bspline_opt
     src/uniform_bspline.cpp 
     src/bspline_optimizer.cpp 
     src/gradient_descent_optimizer.cpp
+    src/bspline_optimizer_qp.cpp
     )
 target_link_libraries( bspline_opt
     ${catkin_LIBRARIES} 
+    ${NLOPT_LIBRARY}  
     )  

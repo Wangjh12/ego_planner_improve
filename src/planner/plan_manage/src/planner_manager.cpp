@@ -41,12 +41,12 @@ namespace ego_planner
     bspline_optimizer_rebound_->a_star_.reset(new AStar);
     bspline_optimizer_rebound_->a_star_->initGridMap(grid_map_, Eigen::Vector3i(100, 100, 100));//将该指针传入到a_star_->initGridMap
 
-    bspline_optimizers_.resize(10);
-    for (int i = 0; i < 10; ++i) {
-      bspline_optimizers_[i].reset(new BsplineOptimizer_QP);
-      bspline_optimizers_[i]->setParam(nh);
-      // bspline_optimizers_[i]->setEnvironment(edt_environment_);
-    }
+    // bspline_optimizers_.resize(10);
+    // for (int i = 0; i < 10; ++i) {
+    //   bspline_optimizers_[i].reset(new BsplineOptimizer_QP);
+    //   bspline_optimizers_[i]->setParam(nh);
+    //   // bspline_optimizers_[i]->setEnvironment(edt_environment_);
+    // }
 
     visualization_ = vis;
   }

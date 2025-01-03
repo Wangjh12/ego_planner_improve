@@ -13,6 +13,8 @@
 
 #include <plan_env/edt_environment.h>
 
+#include <bspline_opt/bspline_optimizer_qp.h>
+
 namespace ego_planner
 {
 
@@ -47,6 +49,8 @@ namespace ego_planner
     LocalTrajData local_data_;
     GlobalTrajData global_data_;
     GridMap::Ptr grid_map_;
+
+    MidPlanData plan_data_;
 
   private:
     /* main planning algorithms & modules */

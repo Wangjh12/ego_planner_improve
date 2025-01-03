@@ -215,6 +215,43 @@ namespace ego_planner
       yawdotdot_traj_;
   };
 
+  class MidPlanData {
+    public:
+      MidPlanData(/* args */) {}
+      ~MidPlanData() {}
+
+      vector<Eigen::Vector3d> global_waypoints_;
+
+      // initial trajectory segment
+      UniformBspline initial_local_segment_;
+      vector<Eigen::Vector3d> local_start_end_derivative_;
+
+      // // kinodynamic path
+      // vector<Eigen::Vector3d> kino_path_;
+
+      // // topological paths
+      // list<GraphNode::Ptr> topo_graph_;
+      // vector<vector<Eigen::Vector3d>> topo_paths_;
+      // vector<vector<Eigen::Vector3d>> topo_filtered_paths_;
+      // vector<vector<Eigen::Vector3d>> topo_select_paths_;
+
+      // // multiple topological trajectories
+      // vector<NonUniformBspline> topo_traj_pos1_;
+      // vector<NonUniformBspline> topo_traj_pos2_;
+      // vector<NonUniformBspline> refines_;
+
+      // visibility constraint
+      vector<Eigen::Vector3d> block_pts_;
+      Eigen::MatrixXd ctrl_pts_;
+
+      // heading planning
+      vector<double> path_yaw_;
+      double dt_yaw_;
+      double dt_yaw_path_;
+
+
+};
+
 } // namespace ego_planner
 
 #endif

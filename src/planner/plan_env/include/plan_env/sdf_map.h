@@ -38,6 +38,7 @@
 #include <tuple>
 #include <visualization_msgs/Marker.h>
 
+
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -48,27 +49,28 @@
 #include <message_filters/time_synchronizer.h>
 
 #include <plan_env/raycast.h>
+#include <plan_env/grid_map.h>
 
 #define logit(x) (log((x) / (1 - (x))))
 
 using namespace std;
 
 // voxel hashing
-template <typename T>
-struct matrix_hash : std::unary_function<T, size_t> {
-  std::size_t operator()(T const& matrix) const {
-    size_t seed = 0;
-    for (size_t i = 0; i < matrix.size(); ++i) {
-      auto elem = *(matrix.data() + i);
-      seed ^= std::hash<typename T::Scalar>()(elem) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    }
-    return seed;
-  }
-};
+// template <typename T>
+// struct matrix_hash : std::unary_function<T, size_t> {
+//   std::size_t operator()(T const& matrix) const {
+//     size_t seed = 0;
+//     for (size_t i = 0; i < matrix.size(); ++i) {
+//       auto elem = *(matrix.data() + i);
+//       seed ^= std::hash<typename T::Scalar>()(elem) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+//     }
+//     return seed;
+//   }
+// };
 
 // constant parameters
 
-struct MappingParameters {
+struct MappingParameters_QP {
 
   /* map properties */
   Eigen::Vector3d map_origin_, map_size_;
@@ -112,7 +114,7 @@ struct MappingParameters {
 
 // intermediate mapping data for fusion, esdf
 
-struct MappingData {
+struct MappingData_QP {
   // main map data, occupancy of each voxel and Euclidean distance
 
   std::vector<double> occupancy_buffer_;
@@ -229,8 +231,8 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-  MappingParameters mp_;
-  MappingData md_;
+  MappingParameters_QP mp_;
+  MappingData_QP md_;
 
   template <typename F_get_val, typename F_set_val>
   void fillESDF(F_get_val f_get_val, F_set_val f_set_val, int start, int end, int dim);

@@ -43,11 +43,13 @@ add_library( plan_env
     src/grid_map.cpp 
     src/raycast.cpp
     src/obj_predictor.cpp 
-    src/edt_environment.cpp 
+    src/edt_environment.cpp
+    src/sdf_map.cpp  
     )
 target_link_libraries( plan_env
     ${catkin_LIBRARIES} 
     ${PCL_LIBRARIES}
+    nlopt
     )  
 
 add_executable(obj_generator

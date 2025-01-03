@@ -20,6 +20,8 @@
 
 #include <plan_env/edt_environment.h>
 
+#include <bspline_opt/bspline_optimizer_qp.h>
+
 using std::vector;
 
 namespace ego_planner

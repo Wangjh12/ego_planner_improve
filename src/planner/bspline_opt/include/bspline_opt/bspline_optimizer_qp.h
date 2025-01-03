@@ -23,8 +23,8 @@
 
 
 
-#ifndef _BSPLINE_OPTIMIZER_H_
-#define _BSPLINE_OPTIMIZER_H_
+#ifndef _BSPLINE_OPTIMIZER_QP_H_
+#define _BSPLINE_OPTIMIZER_QP_H_
 
 #include <Eigen/Eigen>
 #include <plan_env/edt_environment.h>

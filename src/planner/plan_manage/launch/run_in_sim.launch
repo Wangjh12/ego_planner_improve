@@ -5,9 +5,9 @@
   <arg name="map_size_z" value=" 3.0"/>
 
   <!-- topic of your odometry such as VIO or LIO -->
-  <!--arg name="odom_topic" value="/visual_slam/odom" /-->
-  <arg name="odom_topic" value="/mavros/local_position/odom" />
-  <!-- main algorithm params 通过这个开ego_planner_node的节点和相关参数-->
+  <arg name="odom_topic" value="/visual_slam/odom" />
+
+  <!-- main algorithm params -->
   <include file="$(find ego_planner)/launch/advanced_param.xml">
 
     <arg name="map_size_x_" value="$(arg map_size_x)"/>
@@ -68,7 +68,7 @@
     
   </include>
 
-  <!-- trajectory server 起traj_server节点-->
+  <!-- trajectory server -->
   <node pkg="ego_planner" name="traj_server" type="traj_server" output="screen">
     <remap from="/position_cmd" to="planning/pos_cmd"/>
 
@@ -83,7 +83,7 @@
     <param name="waypoint_type" value="manual-lonely-waypoint"/>    
   </node>
 
-  <!-- use simulator 起simulator节点-->
+  <!-- use simulator -->
   <include file="$(find ego_planner)/launch/simulator.xml">
     <arg name="map_size_x_" value="$(arg map_size_x)"/>
     <arg name="map_size_y_" value="$(arg map_size_y)"/>

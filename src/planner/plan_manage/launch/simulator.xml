@@ -79,7 +79,7 @@
         <param name="simulator/init_state_y" value="$(arg init_y)"/>
         <param name="simulator/init_state_z" value="$(arg init_z)"/>
 
-        <remap from="~odom" to="/mavros/local_position/odom"/>
+        <remap from="~odom" to="/visual_slam/odom"/>
         <remap from="~cmd" to="so3_cmd"/>
         <remap from="~force_disturbance" to="force_disturbance"/>    
         <remap from="~moment_disturbance" to="moment_disturbance"/>        
@@ -89,7 +89,7 @@
         <param name="so3_control/init_state_x" value="$(arg init_x)"/>
         <param name="so3_control/init_state_y" value="$(arg init_y)"/>
         <param name="so3_control/init_state_z" value="$(arg init_z)"/>
-        <remap from="~odom" to="/mavros/local_position/odom"/>
+        <remap from="~odom" to="/visual_slam/odom"/>
         <remap from="~position_cmd" to="/planning/pos_cmd"/>
         <remap from="~motors" to="motors"/>
         <remap from="~corrections" to="corrections"/>
@@ -104,7 +104,7 @@
   </node>  
  
   <!--node pkg="so3_disturbance_generator" name="so3_disturbance_generator" type="so3_disturbance_generator" output="screen">
-        <remap from="~odom" to="/mavros/local_position/odom"/>             
+        <remap from="~odom" to="/visual_slam/odom"/>             
         <remap from="~noisy_odom" to="/state_ukf/odom"/>          
         <remap from="~correction" to="/visual_slam/correction"/>   
         <remap from="~force_disturbance" to="force_disturbance"/>        
@@ -112,7 +112,7 @@
   </node--> 
  
   <node pkg="odom_visualization" name="odom_visualization" type="odom_visualization" output="screen">
-        <remap from="~odom" to="/mavros/local_position/odom"/>
+        <remap from="~odom" to="/visual_slam/odom"/>
         <param name="color/a" value="1.0"/>    
         <param name="color/r" value="0.0"/>        
         <param name="color/g" value="0.0"/>        

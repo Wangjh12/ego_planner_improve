@@ -36,7 +36,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(odom_visualization)
 
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "-O3 -Wall -g")
 
 ## Find catkin macros and libraries

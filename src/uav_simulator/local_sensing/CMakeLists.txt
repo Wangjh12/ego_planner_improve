@@ -1,6 +1,6 @@
 PROJECT(local_sensing_node)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
-#SET(CMAKE_BUILD_TYPE Release) # Release, RelWithDebInfo
+#set(CMAKE_BUILD_TYPE Debug)Release) # Release, RelWithDebInfo
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ADD_COMPILE_OPTIONS(-std=c++11 )
 ADD_COMPILE_OPTIONS(-std=c++14 )

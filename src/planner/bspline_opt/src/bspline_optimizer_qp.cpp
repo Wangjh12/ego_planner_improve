@@ -41,34 +41,34 @@ const int BsplineOptimizer_QP::NORMAL_PHASE =
     BsplineOptimizer_QP::SMOOTHNESS | BsplineOptimizer_QP::DISTANCE | BsplineOptimizer_QP::FEASIBILITY;
 
 void BsplineOptimizer_QP::setParam(ros::NodeHandle& nh) {
-  nh.param("optimization/lambda1", lambda1_, -1.0);
-  nh.param("optimization/lambda2", lambda2_, -1.0);
-  nh.param("optimization/lambda3", lambda3_, -1.0);
-  nh.param("optimization/lambda4", lambda4_, -1.0);
-  nh.param("optimization/lambda5", lambda5_, -1.0);
-  nh.param("optimization/lambda6", lambda6_, -1.0);
-  nh.param("optimization/lambda7", lambda7_, -1.0);
+  nh.param("optimization/lambda1", lambda1_, 10.0);
+  nh.param("optimization/lambda2", lambda2_, 5.0);
+  nh.param("optimization/lambda3", lambda3_, 0.000);
+  nh.param("optimization/lambda4", lambda4_, 0.001);
+  nh.param("optimization/lambda5", lambda5_, 1.5);
+  nh.param("optimization/lambda6", lambda6_, 10.0);
+  nh.param("optimization/lambda7", lambda7_, 20.0);
   nh.param("optimization/lambda8", lambda8_, -1.0);
 
-  nh.param("optimization/dist0", dist0_, -1.0);
-  nh.param("optimization/max_vel", max_vel_, -1.0);
-  nh.param("optimization/max_acc", max_acc_, -1.0);
+  nh.param("optimization/dist0", dist0_, 0.4);
+  nh.param("optimization/max_vel", max_vel_, 2.0);
+  nh.param("optimization/max_acc", max_acc_, 2.0);
   nh.param("optimization/visib_min", visib_min_, -1.0);
   nh.param("optimization/dlmin", dlmin_, -1.0);
   nh.param("optimization/wnl", wnl_, -1.0);
 
-  nh.param("optimization/max_iteration_num1", max_iteration_num_[0], -1);
-  nh.param("optimization/max_iteration_num2", max_iteration_num_[1], -1);
+  nh.param("optimization/max_iteration_num1", max_iteration_num_[0], 2);
+  nh.param("optimization/max_iteration_num2", max_iteration_num_[1], 300);
   nh.param("optimization/max_iteration_num3", max_iteration_num_[2], -1);
   nh.param("optimization/max_iteration_num4", max_iteration_num_[3], -1);
-  nh.param("optimization/max_iteration_time1", max_iteration_time_[0], -1.0);
-  nh.param("optimization/max_iteration_time2", max_iteration_time_[1], -1.0);
+  nh.param("optimization/max_iteration_time1", max_iteration_time_[0], 0.0001);
+  nh.param("optimization/max_iteration_time2", max_iteration_time_[1], 0.005);
   nh.param("optimization/max_iteration_time3", max_iteration_time_[2], -1.0);
   nh.param("optimization/max_iteration_time4", max_iteration_time_[3], -1.0);
 
-  nh.param("optimization/algorithm1", algorithm1_, -1);
-  nh.param("optimization/algorithm2", algorithm2_, -1);
-  nh.param("optimization/order", order_, -1);
+  nh.param("optimization/algorithm1", algorithm1_, 15);
+  nh.param("optimization/algorithm2", algorithm2_, 11);
+  nh.param("optimization/order", order_, 3);
 }
 
 void BsplineOptimizer_QP::setEnvironment(const EDTEnvironment::Ptr& env) {
@@ -118,6 +118,8 @@ Eigen::MatrixXd BsplineOptimizer_QP::BsplineOptimizeTraj(const Eigen::MatrixXd& 
   setCostFunction(cost_function);
   setTerminateCond(max_num_id, max_time_id);
 
+  std::cout << "-----开始优化--------" << std::endl;
+
   optimize();
   return this->control_points_;
 }
@@ -135,6 +137,8 @@ void BsplineOptimizer_QP::optimize() {
   g_waypoints_.resize(pt_num);
   g_guide_.resize(pt_num);
 
+  std::cout << "---1-------" << std::endl;
+
   if (cost_function_ & ENDPOINT) {
     variable_num_ = dim_ * (pt_num - order_);
     // end position used for hard constraint
@@ -145,12 +149,16 @@ void BsplineOptimizer_QP::optimize() {
     variable_num_ = max(0, dim_ * (pt_num - 2 * order_)) ;
   }
 
+  std::cout << "---2-------" << std::endl;
+
   /* do optimization using NLopt slover */
-  nlopt::opt opt(nlopt::algorithm(isQuadratic() ? algorithm1_ : algorithm2_), variable_num_);
+  nlopt::opt opt(nlopt::algorithm(isQuadratic() ? algorithm1_ : algorithm2_), variable_num_); //youwenti!!!!!!!!
+  std::cout << "----------2.5-----" << std::endl;
   opt.set_min_objective(BsplineOptimizer_QP::costFunction, this);
   opt.set_maxeval(max_iteration_num_[max_num_id_]);
   opt.set_maxtime(max_iteration_time_[max_time_id_]);
   opt.set_xtol_rel(1e-5);
+    std::cout << "----------2.7-----" << std::endl;
 
   vector<double> q(variable_num_);
   for (int i = order_; i < pt_num; ++i) {
@@ -159,6 +167,8 @@ void BsplineOptimizer_QP::optimize() {
       q[dim_ * (i - order_) + j] = control_points_(i, j);
     }
   }
+
+  std::cout << "---3-------" << std::endl;
 
   if (dim_ != 1) {
     vector<double> lb(variable_num_), ub(variable_num_);
@@ -170,6 +180,8 @@ void BsplineOptimizer_QP::optimize() {
     opt.set_lower_bounds(lb);
     opt.set_upper_bounds(ub);
   }
+
+    std::cout << "---4-------" << std::endl;
 
   try {
     // cout << fixed << setprecision(7);
@@ -187,12 +199,20 @@ void BsplineOptimizer_QP::optimize() {
     cout << e.what() << endl;
   }
 
+  std::cout << "---6-------" << std::endl;
+
+  std::cout << "best_variable_ size: " << best_variable_.size() << std::endl;
+  std::cout << "control_points_ rows: " << control_points_.rows() << ", cols: " << control_points_.cols() << std::endl;
+
+
   for (int i = order_; i < control_points_.rows(); ++i) {
     if (!(cost_function_ & ENDPOINT) && i >= pt_num - order_) continue;
     for (int j = 0; j < dim_; j++) {
       control_points_(i, j) = best_variable_[dim_ * (i - order_) + j];
     }
   }
+
+  
 
   if (!(cost_function_ & GUIDE)) ROS_INFO_STREAM("iter num: " << iter_num_);
 }

@@ -19,7 +19,7 @@ namespace ego_planner
     p_ = order;
     interval_ = interval;
 
-    n_ = points.cols() - 1;
+    n_ = points.cols() - 1;    //这里
     m_ = n_ + p_ + 1;
 
     u_ = Eigen::VectorXd::Zero(m_ + 1);
@@ -47,7 +47,7 @@ void UniformBspline::setNonUniformBspline(const Eigen::MatrixXd& points, const i
   p_              = order;
   interval_       = interval;
 
-  n_ = points.rows() - 1;
+  n_ = points.rows() - 1;  //这里
   m_ = n_ + p_ + 1;
 
   u_ = Eigen::VectorXd::Zero(m_ + 1);

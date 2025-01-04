@@ -37,6 +37,8 @@ namespace ego_planner
 
     // initialize as an uniform B-spline
     void setUniformBspline(const Eigen::MatrixXd &points, const int &order, const double &interval);
+    void setNonUniformBspline(const Eigen::MatrixXd &points, const int &order,
+                              const double &interval);
 
     // get / set basic bspline info
 

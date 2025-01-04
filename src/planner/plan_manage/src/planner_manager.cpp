@@ -625,18 +625,36 @@ namespace ego_planner
     int cost_func = BsplineOptimizer_QP::SMOOTHNESS | BsplineOptimizer_QP::WAYPOINTS;
     yaw           = bspline_optimizers_[1]->BsplineOptimizeTraj(yaw, dt_yaw, cost_func, 1, 1);
 
+    for (int i = 0; i < yaw.rows(); ++i) {
+        std::cout << "yaw(" << i << ") = " << yaw(i, 0) << std::endl;
+    }
+
+    //ego planner 与 fastplanner中对b样条控制点的矩阵维度处理是相反的，即ego中的行和列，是fast中的列和行，所以这里将计算出的yaw调换一下维度
+    Eigen::MatrixXd yaw_tmp(1,seg_num + 3); 
+
+    for (int i = 0; i < seg_num + 3; ++i) 
+    {
+      yaw_tmp(0, i) = yaw(i, 0);  // 从列向量复制到行向量
+    }
+
+    yaw = yaw_tmp;
+
 
     // update traj info
     local_data_.yaw_traj_.setUniformBspline(yaw, 3, dt_yaw);
-      std::cout << "---2.3------" << std::endl;
-    local_data_.yawdot_traj_    = local_data_.yaw_traj_.getDerivative();
-    std::cout << "---2.4------" << std::endl;
-    // local_data_.yawdotdot_traj_ = local_data_.yawdot_traj_.getDerivative();
+    // local_data_.yaw_traj_.setNonUniformBspline(yaw, 3, dt_yaw);
 
-    std::cout << "---22222-------" << std::endl;
+    local_data_.yawdot_traj_    = local_data_.yaw_traj_.getDerivative();
+
+    local_data_.yawdotdot_traj_ = local_data_.yawdot_traj_.getDerivative();
+
+
+
+
 
     vector<double> path_yaw;
     for (int i = 0; i < waypts.size(); ++i) path_yaw.push_back(waypts[i][0]);
+
     plan_data_.path_yaw_    = path_yaw;
     plan_data_.dt_yaw_      = dt_yaw;
     plan_data_.dt_yaw_path_ = dt_yaw;

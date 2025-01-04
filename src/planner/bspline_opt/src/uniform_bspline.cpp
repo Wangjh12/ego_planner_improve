@@ -41,6 +41,29 @@ namespace ego_planner
     }
   }
 
+void UniformBspline::setNonUniformBspline(const Eigen::MatrixXd& points, const int& order,
+                                          const double& interval) {
+  control_points_ = points;
+  p_              = order;
+  interval_       = interval;
+
+  n_ = points.rows() - 1;
+  m_ = n_ + p_ + 1;
+
+  u_ = Eigen::VectorXd::Zero(m_ + 1);
+  for (int i = 0; i <= m_; ++i) {
+
+    if (i <= p_) {
+      u_(i) = double(-p_ + i) * interval_;
+    } else if (i > p_ && i <= m_ - p_) {
+      u_(i) = u_(i - 1) + interval_;
+    } else if (i > m_ - p_) {
+      u_(i) = u_(i - 1) + interval_;
+    }
+  }
+}
+
+
   void UniformBspline::setKnot(const Eigen::VectorXd &knot) { this->u_ = knot; }
 
   Eigen::VectorXd UniformBspline::getKnot() { return this->u_; }

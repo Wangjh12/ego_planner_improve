@@ -401,9 +401,9 @@ namespace ego_planner
     start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_cur);
     start_acc_ = info->acceleration_traj_.evaluateDeBoorT(t_cur);
 
-    // start_yaw_(0) = info->yaw_traj_.evaluateDeBoorT(t_cur)[0];
-    // start_yaw_(1) = info->yawdot_traj_.evaluateDeBoorT(t_cur)[0];
-    // start_yaw_(2) = info->yawdotdot_traj_.evaluateDeBoorT(t_cur)[0];
+    start_yaw_(0) = info->yaw_traj_.evaluateDeBoorT(t_cur)[0];
+    start_yaw_(1) = info->yawdot_traj_.evaluateDeBoorT(t_cur)[0];
+    start_yaw_(2) = info->yawdotdot_traj_.evaluateDeBoorT(t_cur)[0];
 
     bool success = callReboundReplan(false, false);
 
@@ -530,14 +530,14 @@ namespace ego_planner
       }
 
     std::cout << "------------12--------" << std::endl;
-      // Eigen::MatrixXd yaw_pts = info->yaw_traj_.getControlPoint();
-      // for (int i = 0; i < yaw_pts.rows(); ++i) {
-      //   double yaw = yaw_pts(i, 0);
-      //   bspline.yaw_pts.push_back(yaw);
-      // }
+      Eigen::MatrixXd yaw_pts = info->yaw_traj_.getControlPoint();
+      for (int i = 0; i < yaw_pts.rows(); ++i) {
+        double yaw = yaw_pts(i, 0);
+        bspline.yaw_pts.push_back(yaw);
+      }
 
-      //     std::cout << "------------113--------" << std::endl;
-      // bspline.yaw_dt = info->yaw_traj_.getInterval();
+      std::cout << "------------113--------" << std::endl;
+      bspline.yaw_dt = info->yaw_traj_.getInterval();
 
       bspline_pub_.publish(bspline);
 

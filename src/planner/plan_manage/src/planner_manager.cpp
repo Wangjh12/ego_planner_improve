@@ -601,11 +601,11 @@ namespace ego_planner
       } else {
         waypt = waypts.back();
       }
-      waypts.push_back(waypt);
+      waypts.push_back(waypt);  //此时为偏航角路径点
       waypt_idx.push_back(i);
     }
 
-    // calculate initial control points with boundary state constraints
+    // calculate initial control points with boundary state constraints  设置起点和终点偏航角的控制点
 
     Eigen::MatrixXd yaw(seg_num + 3, 1);
     yaw.setZero();
@@ -621,9 +621,9 @@ namespace ego_planner
     yaw.block(seg_num, 0, 3, 1) = states2pts * end_yaw;
 
     // solve
-    bspline_optimizers_[1]->setWaypoints(waypts, waypt_idx);
+    bspline_optimizers_[1]->setWaypoints(waypts, waypt_idx); //Waypoints设置路径点，controlpoint控制点注意区分
     int cost_func = BsplineOptimizer_QP::SMOOTHNESS | BsplineOptimizer_QP::WAYPOINTS;
-    yaw           = bspline_optimizers_[1]->BsplineOptimizeTraj(yaw, dt_yaw, cost_func, 1, 1);
+    yaw           = bspline_optimizers_[1]->BsplineOptimizeTraj(yaw, dt_yaw, cost_func, 1, 1); //优化出来的就是b样条控制点，所以是b样条优化
 
     for (int i = 0; i < yaw.rows(); ++i) {
         std::cout << "yaw(" << i << ") = " << yaw(i, 0) << std::endl;

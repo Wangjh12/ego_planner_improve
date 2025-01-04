@@ -499,7 +499,7 @@ namespace ego_planner
     if (plan_success)
     {
 
-      // planner_manager_->planYaw(start_yaw_);
+      planner_manager_->planYaw(start_yaw_);
 
       auto info = &planner_manager_->local_data_;
 

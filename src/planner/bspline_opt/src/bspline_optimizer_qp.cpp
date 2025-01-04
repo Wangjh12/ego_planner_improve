@@ -121,6 +121,8 @@ Eigen::MatrixXd BsplineOptimizer_QP::BsplineOptimizeTraj(const Eigen::MatrixXd& 
   std::cout << "-----开始优化--------" << std::endl;
 
   optimize();
+
+    std::cout << "-----优化结束--------" << std::endl;
   return this->control_points_;
 }
 
@@ -137,7 +139,7 @@ void BsplineOptimizer_QP::optimize() {
   g_waypoints_.resize(pt_num);
   g_guide_.resize(pt_num);
 
-  std::cout << "---1-------" << std::endl;
+ 
 
   if (cost_function_ & ENDPOINT) {
     variable_num_ = dim_ * (pt_num - order_);
@@ -149,16 +151,16 @@ void BsplineOptimizer_QP::optimize() {
     variable_num_ = max(0, dim_ * (pt_num - 2 * order_)) ;
   }
 
-  std::cout << "---2-------" << std::endl;
+  
 
   /* do optimization using NLopt slover */
   nlopt::opt opt(nlopt::algorithm(isQuadratic() ? algorithm1_ : algorithm2_), variable_num_); //youwenti!!!!!!!!
-  std::cout << "----------2.5-----" << std::endl;
+
   opt.set_min_objective(BsplineOptimizer_QP::costFunction, this);
   opt.set_maxeval(max_iteration_num_[max_num_id_]);
   opt.set_maxtime(max_iteration_time_[max_time_id_]);
   opt.set_xtol_rel(1e-5);
-    std::cout << "----------2.7-----" << std::endl;
+
 
   vector<double> q(variable_num_);
   for (int i = order_; i < pt_num; ++i) {
@@ -168,7 +170,7 @@ void BsplineOptimizer_QP::optimize() {
     }
   }
 
-  std::cout << "---3-------" << std::endl;
+
 
   if (dim_ != 1) {
     vector<double> lb(variable_num_), ub(variable_num_);
@@ -181,7 +183,6 @@ void BsplineOptimizer_QP::optimize() {
     opt.set_upper_bounds(ub);
   }
 
-    std::cout << "---4-------" << std::endl;
 
   try {
     // cout << fixed << setprecision(7);
@@ -198,8 +199,6 @@ void BsplineOptimizer_QP::optimize() {
     ROS_WARN("[Optimization]: nlopt exception");
     cout << e.what() << endl;
   }
-
-  std::cout << "---6-------" << std::endl;
 
   std::cout << "best_variable_ size: " << best_variable_.size() << std::endl;
   std::cout << "control_points_ rows: " << control_points_.rows() << ", cols: " << control_points_.cols() << std::endl;

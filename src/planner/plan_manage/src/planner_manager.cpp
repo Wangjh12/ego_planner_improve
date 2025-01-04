@@ -41,12 +41,13 @@ namespace ego_planner
     bspline_optimizer_rebound_->a_star_.reset(new AStar);
     bspline_optimizer_rebound_->a_star_->initGridMap(grid_map_, Eigen::Vector3i(100, 100, 100));//将该指针传入到a_star_->initGridMap
 
-    // bspline_optimizers_.resize(10);
-    // for (int i = 0; i < 10; ++i) {
-    //   bspline_optimizers_[i].reset(new BsplineOptimizer_QP);
-    //   bspline_optimizers_[i]->setParam(nh);
-    //   // bspline_optimizers_[i]->setEnvironment(edt_environment_);
-    // }
+    bspline_optimizers_.resize(10);
+    for (int i = 0; i < 10; ++i) {
+      bspline_optimizers_[i].reset(new BsplineOptimizer_QP);
+      bspline_optimizers_[i]->setParam(nh);
+      // bspline_optimizers_[i]->setEnvironment(edt_environment_);
+      // std::cout << "------------" << i << std::endl;
+    }
 
     visualization_ = vis;
   }
@@ -624,10 +625,15 @@ namespace ego_planner
     int cost_func = BsplineOptimizer_QP::SMOOTHNESS | BsplineOptimizer_QP::WAYPOINTS;
     yaw           = bspline_optimizers_[1]->BsplineOptimizeTraj(yaw, dt_yaw, cost_func, 1, 1);
 
+
     // update traj info
     local_data_.yaw_traj_.setUniformBspline(yaw, 3, dt_yaw);
+      std::cout << "---2.3------" << std::endl;
     local_data_.yawdot_traj_    = local_data_.yaw_traj_.getDerivative();
-    local_data_.yawdotdot_traj_ = local_data_.yawdot_traj_.getDerivative();
+    std::cout << "---2.4------" << std::endl;
+    // local_data_.yawdotdot_traj_ = local_data_.yawdot_traj_.getDerivative();
+
+    std::cout << "---22222-------" << std::endl;
 
     vector<double> path_yaw;
     for (int i = 0; i < waypts.size(); ++i) path_yaw.push_back(waypts[i][0]);

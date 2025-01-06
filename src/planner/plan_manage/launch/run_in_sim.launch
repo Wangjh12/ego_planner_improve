@@ -6,7 +6,6 @@
 
   <!-- topic of your odometry such as VIO or LIO -->
   <arg name="odom_topic" value="/visual_slam/odom" />
-
   <!-- main algorithm params -->
   <include file="$(find ego_planner)/launch/advanced_param.xml">
 
@@ -36,12 +35,12 @@
     <arg name="max_acc" value="2.0" />
 
     <!--always set to 1.5 times grater than sensing horizen-->
-    <arg name="planning_horizon" value="7.5" /> 
+    <arg name="planning_horizon" value="7.5" />
 
     <!-- 1: use 2D Nav Goal to select goal  -->
     <!-- 2: use global waypoints below  -->
     <arg name="flight_type" value="1" />
-    
+
     <!-- global waypoints -->
     <!-- It generates a piecewise min-snap traj passing all waypoints -->
     <arg name="point_num" value="5" />
@@ -65,7 +64,7 @@
     <arg name="point4_x" value="-15.0" />
     <arg name="point4_y" value="0.0" />
     <arg name="point4_z" value="1.0" />
-    
+
   </include>
 
   <!-- trajectory server -->

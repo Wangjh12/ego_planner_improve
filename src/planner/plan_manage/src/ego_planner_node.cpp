@@ -7,6 +7,10 @@ using namespace ego_planner;
 
 int main(int argc, char **argv)
 {
+    for(int i=0;i<argc;++i)
+    {
+        std::cout<<"argv: "<<argv[i]<<std::endl;
+    }
   ros::init(argc, argv, "ego_planner_node");
   ros::NodeHandle nh("~");
 

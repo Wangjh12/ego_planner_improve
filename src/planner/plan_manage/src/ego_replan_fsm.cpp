@@ -509,7 +509,7 @@ namespace ego_planner
       bspline.start_time = info->start_time_;
       bspline.traj_id = info->traj_id_;
 
-      std::cout << "------------111111--------" << std::endl;
+      // std::cout << "------------111111--------" << std::endl;
 
       Eigen::MatrixXd pos_pts = info->position_traj_.getControlPoint();
       bspline.pos_pts.reserve(pos_pts.cols());
@@ -529,14 +529,14 @@ namespace ego_planner
         bspline.knots.push_back(knots(i));
       }
 
-    std::cout << "------------12--------" << std::endl;
+    // std::cout << "------------12--------" << std::endl;
       Eigen::MatrixXd yaw_pts = info->yaw_traj_.getControlPoint();
-      for (int i = 0; i < yaw_pts.rows(); ++i) {
-        double yaw = yaw_pts(i, 0);
+      for (int i = 0; i < yaw_pts.cols(); ++i) {
+        double yaw = yaw_pts(0, i);
         bspline.yaw_pts.push_back(yaw);
       }
 
-      std::cout << "------------113--------" << std::endl;
+      // std::cout << "------------113--------" << std::endl;
       bspline.yaw_dt = info->yaw_traj_.getInterval();
 
       bspline_pub_.publish(bspline);

@@ -27,6 +27,8 @@ int traj_id_;
 double last_yaw_, last_yaw_dot_;
 double time_forward_;
 
+bool use_planYaw = true;
+
 void bsplineCallback(ego_planner::BsplineConstPtr msg)
 {
   // parse pos traj
@@ -52,20 +54,27 @@ void bsplineCallback(ego_planner::BsplineConstPtr msg)
 
   // parse yaw traj
 
-  // Eigen::MatrixXd yaw_pts(msg->yaw_pts.size(), 1);
-  // for (int i = 0; i < msg->yaw_pts.size(); ++i) {
-  //   yaw_pts(i, 0) = msg->yaw_pts[i];
-  // }
 
-  //UniformBspline yaw_traj(yaw_pts, msg->order, msg->yaw_dt);
+  Eigen::MatrixXd yaw_pts(1, msg->yaw_pts.size());
+  for (int i = 0; i < msg->yaw_pts.size(); ++i) {
+    yaw_pts(0, i) = msg->yaw_pts[i];
+  }
+
+
+  UniformBspline yaw_traj(yaw_pts, msg->order, msg->yaw_dt);
 
   start_time_ = msg->start_time;
   traj_id_ = msg->traj_id;
+
 
   traj_.clear();
   traj_.push_back(pos_traj);                    //位置
   traj_.push_back(traj_[0].getDerivative());    //速度
   traj_.push_back(traj_[1].getDerivative());    //加速度
+
+  traj_.push_back(yaw_traj);
+  traj_.push_back(yaw_traj.getDerivative());
+
 
   traj_duration_ = traj_[0].getTimeSum();       //这段轨迹的总时间
 
@@ -175,6 +184,7 @@ void cmdCallback(const ros::TimerEvent &e)
 
   Eigen::Vector3d pos(Eigen::Vector3d::Zero()), vel(Eigen::Vector3d::Zero()), acc(Eigen::Vector3d::Zero()), pos_f;
   std::pair<double, double> yaw_yawdot(0, 0);
+  double yaw, yawdot;
 
   static ros::Time time_last = ros::Time::now();
   if (t_cur < traj_duration_ && t_cur >= 0.0)
@@ -186,6 +196,10 @@ void cmdCallback(const ros::TimerEvent &e)
 
     /*** calculate yaw ***/
     yaw_yawdot = calculate_yaw(t_cur, pos, time_now, time_last);
+
+
+    yaw = traj_[3].evaluateDeBoorT(t_cur)[0];
+    yawdot = traj_[4].evaluateDeBoorT(t_cur)[0];
     /*** calculate yaw ***/
 
     double tf = min(traj_duration_, t_cur + 2.0);
@@ -200,6 +214,11 @@ void cmdCallback(const ros::TimerEvent &e)
 
     yaw_yawdot.first = last_yaw_;
     yaw_yawdot.second = 0;
+
+
+    yaw = traj_[3].evaluateDeBoorT(traj_duration_)[0];
+    yawdot = traj_[4].evaluateDeBoorT(traj_duration_)[0];
+
 
     pos_f = pos;
   }
@@ -226,12 +245,20 @@ void cmdCallback(const ros::TimerEvent &e)
   cmd.acceleration.y = acc(1);
   cmd.acceleration.z = acc(2);
 
-  cmd.yaw = yaw_yawdot.first;
-  cmd.yaw_dot = yaw_yawdot.second;
+  if(use_planYaw)
+  {
+    cmd.yaw = yaw;
+    cmd.yaw_dot = yawdot;
+  }else{
+    cmd.yaw = yaw_yawdot.first;
+    cmd.yaw_dot = yaw_yawdot.second;
 
-  last_yaw_ = cmd.yaw;
+    last_yaw_ = cmd.yaw;
+  }
 
   pos_cmd_pub.publish(cmd);
+
+
 
   mav_cmd.header.stamp = time_now;
   mav_cmd.header.frame_id = "world"; //表示全局参考坐标系，常见的有odom表示机器人从初始位置开始的相对位移，map用于存储和表示地图数据

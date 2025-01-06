@@ -200,8 +200,8 @@ void BsplineOptimizer_QP::optimize() {
     cout << e.what() << endl;
   }
 
-  std::cout << "best_variable_ size: " << best_variable_.size() << std::endl;
-  std::cout << "control_points_ rows: " << control_points_.rows() << ", cols: " << control_points_.cols() << std::endl;
+  // std::cout << "best_variable_ size: " << best_variable_.size() << std::endl;
+  // std::cout << "control_points_ rows: " << control_points_.rows() << ", cols: " << control_points_.cols() << std::endl;
 
 
   for (int i = order_; i < control_points_.rows(); ++i) {

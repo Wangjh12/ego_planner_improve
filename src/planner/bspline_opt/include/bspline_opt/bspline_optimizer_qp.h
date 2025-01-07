@@ -36,25 +36,15 @@
 // Output: the optimized sequence of points
 // The format of points: N x 3 matrix, each row is a point
 namespace ego_planner {
-
-class MapServer;
-
 class BsplineOptimizer_QP {
 
 public:
   static const int SMOOTHNESS;
   static const int DISTANCE;
   static const int FEASIBILITY;
-  static const int START;
   static const int ENDPOINT;
   static const int GUIDE;
   static const int WAYPOINTS;
-  static const int VIEWCONS;
-  static const int MINTIME;
-  static const int YAWFEASIBILITY;
-  static const int PARALLAX;
-  static const int VERTICALVISIBILITY;
-  static const int YAWCOVISIBILITY;
 
   static const int GUIDE_PHASE;
   static const int NORMAL_PHASE;
@@ -82,10 +72,6 @@ public:
                     const vector<int>&             waypt_idx);  // N-2 constraints at most
 
   void optimize();
-
-  void setPosAndAcc(const vector<Eigen::Vector3d> &pos,
-                    const vector<Eigen::Vector3d> &acc, const vector<int> &idx);
- 
 
   Eigen::MatrixXd         getControlPoints();
   vector<Eigen::Vector3d> matrixToVectors(const Eigen::MatrixXd& ctrl_pts);

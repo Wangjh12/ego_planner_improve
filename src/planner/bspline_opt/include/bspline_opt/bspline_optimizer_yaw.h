@@ -1,9 +1,9 @@
-#ifndef _BSPLINE_OPTIMIZER_H_
-#define _BSPLINE_OPTIMIZER_H_
+#ifndef _BSPLINE_OPTIMIZER_YAW_H_
+#define _BSPLINE_OPTIMIZER_YAW_H_
 
 #include "parallax_util.h"
 #include "plan_env/edt_environment.h"
-#include "traj_visibility.h"
+// #include "traj_visibility.h"
 
 #include <Eigen/Eigen>
 #include <nlopt.hpp>
@@ -16,10 +16,10 @@
 // Input: a signed distance field and a sequence of points
 // Output: the optimized sequence of points
 // The format of points: N x 3 matrix, each row is a point
-namespace fast_planner {
+namespace ego_planner {
 class MapServer;
 
-class BsplineOptimizer {
+class BsplineOptimizer_YAW {
 public:
   static const int SMOOTHNESS;
   static const int DISTANCE;
@@ -40,8 +40,8 @@ public:
 
   typedef shared_ptr<ParallaxUtil> ParallaxUtilPtr;
 
-  BsplineOptimizer() {}
-  ~BsplineOptimizer() {}
+  BsplineOptimizer_YAW() {}
+  ~BsplineOptimizer_YAW() {}
 
   /* main API */
   void setEnvironment(const shared_ptr<EDTEnvironment> &env);
@@ -65,7 +65,7 @@ public:
                     const vector<int> &waypt_idx); // N-2 constraints at most
   void setPosAndAcc(const vector<Eigen::Vector3d> &pos, const vector<Eigen::Vector3d> &acc,
                     const vector<int> &idx = vector<int>());
-  void setViewConstraint(const ViewConstraint &vc);
+  // void setViewConstraint(const ViewConstraint &vc);
   void setParallaxUtil(const ParallaxUtilPtr &pu);
 
   void optimize();
@@ -164,7 +164,7 @@ private:
   int iter_num_;                      // iteration of the solver
   std::vector<double> best_variable_; //
   double min_cost_;                   //
-  ViewConstraint view_cons_;
+  // ViewConstraint view_cons_;
   ParallaxUtilPtr parallax_util_;
   double pt_dist_;
 
@@ -186,7 +186,7 @@ public:
 
   double comb_time;
 
-  typedef unique_ptr<BsplineOptimizer> Ptr;
+  typedef unique_ptr<BsplineOptimizer_YAW> Ptr;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

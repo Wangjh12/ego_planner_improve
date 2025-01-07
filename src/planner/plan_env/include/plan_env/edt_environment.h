@@ -34,6 +34,7 @@
 
 #include <plan_env/obj_predictor.h>
 #include <plan_env/sdf_map.h>
+#include "voxel_mapping/map_server.h"
 
 using std::cout;
 using std::endl;
@@ -74,6 +75,10 @@ public:
   void getMapRegion(Eigen::Vector3d& ori, Eigen::Vector3d& size) {
     sdf_map_->getRegion(ori, size);
   }
+
+  void getFeaturesInFovDepth(const Eigen::Vector3d &pos, std::vector<Eigen::Vector3d> &res);
+
+  voxel_mapping::MapServer::Ptr map_server_;
 
   typedef shared_ptr<EDTEnvironment> Ptr;
 };

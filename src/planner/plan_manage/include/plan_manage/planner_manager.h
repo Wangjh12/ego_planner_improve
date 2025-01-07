@@ -15,6 +15,7 @@
 
 #include <bspline_opt/bspline_optimizer_qp.h>
 #include <plan_manage/yaw_initial_planner.h>
+#include <bspline_opt/bspline_optimizer_yaw.h>
 
 namespace ego_planner
 {
@@ -61,7 +62,9 @@ namespace ego_planner
 
     BsplineOptimizer::Ptr bspline_optimizer_rebound_;
 
-    vector<BsplineOptimizer_QP::Ptr> bspline_optimizers_;
+    // vector<BsplineOptimizer_QP::Ptr> bspline_optimizers_;
+
+    vector<BsplineOptimizer_YAW::Ptr> bspline_optimizers_;
 
     voxel_mapping::MapServer::Ptr map_server_;
     unique_ptr<YawInitialPlanner> yaw_initial_planner_;

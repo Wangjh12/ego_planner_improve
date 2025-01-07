@@ -126,6 +126,10 @@ double EDTEnvironment::evaluateCoarseEDT(Eigen::Vector3d& pos, double time) {
     return min(d1, d2);
   }
 }
+void EDTEnvironment::getFeaturesInFovDepth(const Eigen::Vector3d &pos,
+                                           std::vector<Eigen::Vector3d> &res) {
+  map_server_->getFeatureMap()->getFeatures(pos, res);
+}
 
 // EDTEnvironment::
 }  // namespace ego_planner

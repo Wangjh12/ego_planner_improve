@@ -39,6 +39,8 @@ add_library( bspline_opt
     src/bspline_optimizer.cpp 
     src/gradient_descent_optimizer.cpp
     src/bspline_optimizer_qp.cpp
+    src/bspline_optimizer_yaw.cpp
+    src/parallax_util.cpp
     )
 target_link_libraries( bspline_opt
     ${catkin_LIBRARIES} 

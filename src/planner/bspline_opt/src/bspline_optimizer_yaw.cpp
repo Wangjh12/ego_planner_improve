@@ -1,27 +1,27 @@
-#include "bspline/bspline_optimizer.h"
+#include "bspline_opt/bspline_optimizer_yaw.h"
 
-namespace fast_planner {
-const int BsplineOptimizer::SMOOTHNESS = (1 << 0);
-const int BsplineOptimizer::DISTANCE = (1 << 1);
-const int BsplineOptimizer::FEASIBILITY = (1 << 2);
-const int BsplineOptimizer::START = (1 << 3);
-const int BsplineOptimizer::END = (1 << 4);
-const int BsplineOptimizer::GUIDE = (1 << 5);
-const int BsplineOptimizer::WAYPOINTS = (1 << 6);
-const int BsplineOptimizer::VIEWCONS = (1 << 7);
-const int BsplineOptimizer::MINTIME = (1 << 8);
-const int BsplineOptimizer::YAWFEASIBILITY = (1 << 10);
-const int BsplineOptimizer::PARALLAX = (1 << 11);
-const int BsplineOptimizer::VERTICALVISIBILITY = (1 << 12);
-const int BsplineOptimizer::YAWCOVISIBILITY = (1 << 13);
+namespace ego_planner {
+const int BsplineOptimizer_YAW::SMOOTHNESS = (1 << 0);
+const int BsplineOptimizer_YAW::DISTANCE = (1 << 1);
+const int BsplineOptimizer_YAW::FEASIBILITY = (1 << 2);
+const int BsplineOptimizer_YAW::START = (1 << 3);
+const int BsplineOptimizer_YAW::END = (1 << 4);
+const int BsplineOptimizer_YAW::GUIDE = (1 << 5);
+const int BsplineOptimizer_YAW::WAYPOINTS = (1 << 6);
+const int BsplineOptimizer_YAW::VIEWCONS = (1 << 7);
+const int BsplineOptimizer_YAW::MINTIME = (1 << 8);
+const int BsplineOptimizer_YAW::YAWFEASIBILITY = (1 << 10);
+const int BsplineOptimizer_YAW::PARALLAX = (1 << 11);
+const int BsplineOptimizer_YAW::VERTICALVISIBILITY = (1 << 12);
+const int BsplineOptimizer_YAW::YAWCOVISIBILITY = (1 << 13);
 
-const int BsplineOptimizer::GUIDE_PHASE = BsplineOptimizer::SMOOTHNESS | BsplineOptimizer::GUIDE |
-                                          BsplineOptimizer::START | BsplineOptimizer::END;
-const int BsplineOptimizer::NORMAL_PHASE =
-    BsplineOptimizer::SMOOTHNESS | BsplineOptimizer::DISTANCE | BsplineOptimizer::FEASIBILITY |
-    BsplineOptimizer::START | BsplineOptimizer::END;
+const int BsplineOptimizer_YAW::GUIDE_PHASE = BsplineOptimizer_YAW::SMOOTHNESS | BsplineOptimizer_YAW::GUIDE |
+                                          BsplineOptimizer_YAW::START | BsplineOptimizer_YAW::END;
+const int BsplineOptimizer_YAW::NORMAL_PHASE =
+    BsplineOptimizer_YAW::SMOOTHNESS | BsplineOptimizer_YAW::DISTANCE | BsplineOptimizer_YAW::FEASIBILITY |
+    BsplineOptimizer_YAW::START | BsplineOptimizer_YAW::END;
 
-void BsplineOptimizer::setParam(ros::NodeHandle &nh) {
+void BsplineOptimizer_YAW::setParam(ros::NodeHandle &nh) {
   nh.param("optimization/visualization", vis_, false);
 
   nh.param("optimization/ld_smooth", ld_smooth_, -1.0);
@@ -59,14 +59,14 @@ void BsplineOptimizer::setParam(ros::NodeHandle &nh) {
   nh.param("manager/bspline_degree", bspline_degree_, 3);
 
   time_lb_ = -1; // Not used by in most case
-  vis_pub_ = nh.advertise<visualization_msgs::MarkerArray>("optimization/debug_vis", 10);
+  // vis_pub_ = nh.advertise<visualization_msgs::MarkerArray>("optimization/debug_vis", 10);
 }
 
-void BsplineOptimizer::setEnvironment(const EDTEnvironment::Ptr &env) {
+void BsplineOptimizer_YAW::setEnvironment(const EDTEnvironment::Ptr &env) {
   this->edt_environment_ = env;
 }
 
-void BsplineOptimizer::initParallaxUtil(ros::NodeHandle &nh) {
+void BsplineOptimizer_YAW::initParallaxUtil(ros::NodeHandle &nh) {
   ParallaxConfig config;
   nh.param("optimization/parallax/estimator_freq", config.estimator_freq_, -1.0);
   nh.param("optimization/parallax/max_parallax", config.max_parallax_, -1.0);
@@ -74,7 +74,7 @@ void BsplineOptimizer::initParallaxUtil(ros::NodeHandle &nh) {
   parallax_util_.reset(new ParallaxUtil(config));
 }
 
-void BsplineOptimizer::setCostFunction(const int &cost_code) {
+void BsplineOptimizer_YAW::setCostFunction(const int &cost_code) {
   cost_function_ = cost_code;
 
   // Print cost function
@@ -111,27 +111,27 @@ void BsplineOptimizer::setCostFunction(const int &cost_code) {
   }
 }
 
-void BsplineOptimizer::setGuidePath(const vector<Eigen::Vector3d> &guide_pt) {
+void BsplineOptimizer_YAW::setGuidePath(const vector<Eigen::Vector3d> &guide_pt) {
   guide_pts_ = guide_pt;
 }
 
-void BsplineOptimizer::setWaypoints(const vector<Eigen::Vector3d> &waypts,
+void BsplineOptimizer_YAW::setWaypoints(const vector<Eigen::Vector3d> &waypts,
                                     const vector<int> &waypt_idx) {
   waypoints_ = waypts;
   waypt_idx_ = waypt_idx;
 }
 
-void BsplineOptimizer::setPosAndAcc(const vector<Eigen::Vector3d> &pos,
+void BsplineOptimizer_YAW::setPosAndAcc(const vector<Eigen::Vector3d> &pos,
                                     const vector<Eigen::Vector3d> &acc, const vector<int> &idx) {
   pos_ = pos;
   acc_ = acc;
   pos_idx_ = idx;
 }
-void BsplineOptimizer::setViewConstraint(const ViewConstraint &vc) { view_cons_ = vc; }
+// void BsplineOptimizer_YAW::setViewConstraint(const ViewConstraint &vc) { view_cons_ = vc; }
 
-void BsplineOptimizer::setParallaxUtil(const ParallaxUtilPtr &pu) { parallax_util_ = pu; }
+// void BsplineOptimizer_YAW::setParallaxUtil(const ParallaxUtilPtr &pu) { parallax_util_ = pu; }
 
-void BsplineOptimizer::setBoundaryStates(const vector<Eigen::Vector3d> &start,
+void BsplineOptimizer_YAW::setBoundaryStates(const vector<Eigen::Vector3d> &start,
                                          const vector<Eigen::Vector3d> &end,
                                          const vector<bool> &start_idx,
                                          const vector<bool> &end_idx) {
@@ -141,9 +141,9 @@ void BsplineOptimizer::setBoundaryStates(const vector<Eigen::Vector3d> &start,
   end_con_index_ = end_idx;
 }
 
-void BsplineOptimizer::setTimeLowerBound(const double &lb) { time_lb_ = lb; }
+void BsplineOptimizer_YAW::setTimeLowerBound(const double &lb) { time_lb_ = lb; }
 
-void BsplineOptimizer::optimize(Eigen::MatrixXd &points, double &dt, const int &cost_function,
+void BsplineOptimizer_YAW::optimize(Eigen::MatrixXd &points, double &dt, const int &cost_function,
                                 const int &max_num_id, const int &max_time_id) {
   if (start_state_.empty()) {
     ROS_ERROR("Initial state undefined!");
@@ -207,11 +207,11 @@ void BsplineOptimizer::optimize(Eigen::MatrixXd &points, double &dt, const int &
   time_lb_ = -1;
 }
 
-void BsplineOptimizer::optimize() {
+void BsplineOptimizer_YAW::optimize() {
   // Optimize all control points and maybe knot span dt
   // Use NLopt solver
   nlopt::opt opt(nlopt::algorithm(isQuadratic() ? algorithm1_ : algorithm2_), variable_num_);
-  opt.set_min_objective(BsplineOptimizer::costFunction, this);
+  opt.set_min_objective(BsplineOptimizer_YAW::costFunction, this);
   opt.set_xtol_rel(1e-4);
 
   // if (!vis_) {
@@ -278,7 +278,7 @@ void BsplineOptimizer::optimize() {
     knot_span_ = best_variable_[variable_num_ - 1];
 }
 
-void BsplineOptimizer::calcSmoothnessCost(const vector<Eigen::Vector3d> &q, const double &dt,
+void BsplineOptimizer_YAW::calcSmoothnessCost(const vector<Eigen::Vector3d> &q, const double &dt,
                                           double &cost, vector<Eigen::Vector3d> &gradient_q,
                                           double &gt) {
   cost = 0.0;
@@ -305,7 +305,7 @@ void BsplineOptimizer::calcSmoothnessCost(const vector<Eigen::Vector3d> &q, cons
   }
 }
 
-void BsplineOptimizer::calcDistanceCost(const vector<Eigen::Vector3d> &q, double &cost,
+void BsplineOptimizer_YAW::calcDistanceCost(const vector<Eigen::Vector3d> &q, double &cost,
                                         vector<Eigen::Vector3d> &gradient_q) {
   cost = 0.0;
   Eigen::Vector3d zero(0, 0, 0);
@@ -325,7 +325,7 @@ void BsplineOptimizer::calcDistanceCost(const vector<Eigen::Vector3d> &q, double
   }
 }
 
-void BsplineOptimizer::calcFeasibilityCost(const vector<Eigen::Vector3d> &q, const double &dt,
+void BsplineOptimizer_YAW::calcFeasibilityCost(const vector<Eigen::Vector3d> &q, const double &dt,
                                            double &cost, vector<Eigen::Vector3d> &gradient_q,
                                            double &gt) {
   cost = 0.0;
@@ -374,10 +374,10 @@ void BsplineOptimizer::calcFeasibilityCost(const vector<Eigen::Vector3d> &q, con
   }
 }
 
-void BsplineOptimizer::calcStartCost(const vector<Eigen::Vector3d> &q, const double &dt,
+void BsplineOptimizer_YAW::calcStartCost(const vector<Eigen::Vector3d> &q, const double &dt,
                                      double &cost, vector<Eigen::Vector3d> &gradient_q,
                                      double &gt) {
-  CHECK_EQ(start_con_index_.size(), 3) << "Start state constraint is not set!";
+  // CHECK_EQ(start_con_index_.size(), 3) << "Start state constraint is not set!";
 
   cost = 0.0;
   Eigen::Vector3d zero(0, 0, 0);
@@ -423,9 +423,9 @@ void BsplineOptimizer::calcStartCost(const vector<Eigen::Vector3d> &q, const dou
   }
 }
 
-void BsplineOptimizer::calcEndCost(const vector<Eigen::Vector3d> &q, const double &dt, double &cost,
+void BsplineOptimizer_YAW::calcEndCost(const vector<Eigen::Vector3d> &q, const double &dt, double &cost,
                                    vector<Eigen::Vector3d> &gradient_q, double &gt) {
-  CHECK_EQ(end_con_index_.size(), 3) << "End state constraint is not set!";
+  // CHECK_EQ(end_con_index_.size(), 3) << "End state constraint is not set!";
 
   cost = 0.0;
   Eigen::Vector3d zero(0, 0, 0);
@@ -470,7 +470,7 @@ void BsplineOptimizer::calcEndCost(const vector<Eigen::Vector3d> &q, const doubl
   }
 }
 
-void BsplineOptimizer::calcWaypointsCost(const vector<Eigen::Vector3d> &q, double &cost,
+void BsplineOptimizer_YAW::calcWaypointsCost(const vector<Eigen::Vector3d> &q, double &cost,
                                          vector<Eigen::Vector3d> &gradient_q) {
   cost = 0.0;
   Eigen::Vector3d zero(0, 0, 0);
@@ -499,7 +499,7 @@ void BsplineOptimizer::calcWaypointsCost(const vector<Eigen::Vector3d> &q, doubl
 /* use the uniformly sampled points on a geomertic path to guide the
  * trajectory. For each control points to be optimized, it is assigned a
  * guiding point on the path and the distance between them is penalized */
-void BsplineOptimizer::calcGuideCost(const vector<Eigen::Vector3d> &q, double &cost,
+void BsplineOptimizer_YAW::calcGuideCost(const vector<Eigen::Vector3d> &q, double &cost,
                                      vector<Eigen::Vector3d> &gradient_q) {
   cost = 0.0;
   Eigen::Vector3d zero(0, 0, 0);
@@ -514,34 +514,34 @@ void BsplineOptimizer::calcGuideCost(const vector<Eigen::Vector3d> &q, double &c
   }
 }
 
-void BsplineOptimizer::calcViewCost(const vector<Eigen::Vector3d> &q, double &cost,
+void BsplineOptimizer_YAW::calcViewCost(const vector<Eigen::Vector3d> &q, double &cost,
                                     vector<Eigen::Vector3d> &gradient_q) {
-  cost = 0.0;
-  Eigen::Vector3d zero(0, 0, 0);
-  std::fill(gradient_q.begin(), gradient_q.end(), zero);
-  Eigen::Vector3d p = view_cons_.pt_;
-  Eigen::Vector3d v = view_cons_.dir_.normalized();
-  Eigen::Matrix3d vvT = v * v.transpose();
-  Eigen::Matrix3d I_vvT = Eigen::Matrix3d::Identity() - vvT;
+  // cost = 0.0;
+  // Eigen::Vector3d zero(0, 0, 0);
+  // std::fill(gradient_q.begin(), gradient_q.end(), zero);
+  // Eigen::Vector3d p = view_cons_.pt_;
+  // Eigen::Vector3d v = view_cons_.dir_.normalized();
+  // Eigen::Matrix3d vvT = v * v.transpose();
+  // Eigen::Matrix3d I_vvT = Eigen::Matrix3d::Identity() - vvT;
 
-  // prependicular cost, increase visibility of points before blocked point
-  int i = view_cons_.idx_;
-  Eigen::Vector3d dn = (q[i] - p) - ((q[i] - p).dot(v)) * v;
-  cost += dn.squaredNorm();
-  gradient_q[i] += 2 * I_vvT * dn;
-  double norm_dn = dn.norm();
+  // // prependicular cost, increase visibility of points before blocked point
+  // int i = view_cons_.idx_;
+  // Eigen::Vector3d dn = (q[i] - p) - ((q[i] - p).dot(v)) * v;
+  // cost += dn.squaredNorm();
+  // gradient_q[i] += 2 * I_vvT * dn;
+  // double norm_dn = dn.norm();
 
-  // parallel cost, increase projection along view direction
-  Eigen::Vector3d dl = ((q[i] - p).dot(v)) * v;
-  double norm_dl = dl.norm();
-  double safe_dist = view_cons_.dir_.norm();
-  if (norm_dl < safe_dist) {
-    cost += wnl_ * pow(norm_dl - safe_dist, 2);
-    gradient_q[i] += wnl_ * 2 * (norm_dl - safe_dist) * vvT * dl / norm_dl;
-  }
+  // // parallel cost, increase projection along view direction
+  // Eigen::Vector3d dl = ((q[i] - p).dot(v)) * v;
+  // double norm_dl = dl.norm();
+  // double safe_dist = view_cons_.dir_.norm();
+  // if (norm_dl < safe_dist) {
+  //   cost += wnl_ * pow(norm_dl - safe_dist, 2);
+  //   gradient_q[i] += wnl_ * 2 * (norm_dl - safe_dist) * vvT * dl / norm_dl;
+  // }
 }
 
-void BsplineOptimizer::calcTimeCost(const double &dt, double &cost, double &gt) {
+void BsplineOptimizer_YAW::calcTimeCost(const double &dt, double &cost, double &gt) {
   // Min time
   double duration = (point_num_ - order_) * dt;
   cost = duration;
@@ -568,7 +568,7 @@ void BsplineOptimizer::calcTimeCost(const double &dt, double &cost, double &gt) 
   //   ROS_INFO("Time lower bound is not penalized, time lower bound is %f", time_lb_);
 }
 
-void BsplineOptimizer::calcParallaxCost(const vector<Eigen::Vector3d> &q, const double &dt,
+void BsplineOptimizer_YAW::calcParallaxCost(const vector<Eigen::Vector3d> &q, const double &dt,
                                         double &cost, vector<Eigen::Vector3d> &gradient_q) {
   cost = 0.0;
   Eigen::Vector3d zero(0, 0, 0);
@@ -609,7 +609,7 @@ void BsplineOptimizer::calcParallaxCost(const vector<Eigen::Vector3d> &q, const 
   // ROS_INFO("part1: %f, part2: %f", sum1, sum2);
 }
 
-void BsplineOptimizer::calcVerticalCoVisbilityCost(const vector<Eigen::Vector3d> &q,
+void BsplineOptimizer_YAW::calcVerticalCoVisbilityCost(const vector<Eigen::Vector3d> &q,
                                                    const double &dt, double &cost,
                                                    vector<Eigen::Vector3d> &gradient_q) {
   cost = 0.0;
@@ -651,7 +651,7 @@ void BsplineOptimizer::calcVerticalCoVisbilityCost(const vector<Eigen::Vector3d>
   // ROS_INFO("part1: %f, part2: %f", sum1, sum2);
 }
 
-void BsplineOptimizer::calcPerceptionCost(const vector<Eigen::Vector3d> &q, const double &dt,
+void BsplineOptimizer_YAW::calcPerceptionCost(const vector<Eigen::Vector3d> &q, const double &dt,
                                           double &cost, vector<Eigen::Vector3d> &gradient_q,
                                           const double ld_para, const double ld_vcv) {
   cost = 0.0;
@@ -685,10 +685,10 @@ void BsplineOptimizer::calcPerceptionCost(const vector<Eigen::Vector3d> &q, cons
   }
 }
 
-void BsplineOptimizer::calcYawCoVisbilityCost(const vector<Eigen::Vector3d> &q, const double &dt,
+void BsplineOptimizer_YAW::calcYawCoVisbilityCost(const vector<Eigen::Vector3d> &q, const double &dt,
                                               double &cost, vector<Eigen::Vector3d> &gradient_q) {
   // q.size = n+1, pos_.size = n-p+2 = (n+1) - 2, where p = 3
-  CHECK_EQ(q.size() - 2, pos_.size()) << "q and pos_ have incompatible size!";
+  // CHECK_EQ(q.size() - 2, pos_.size()) << "q and pos_ have incompatible size!";
 
   cost = 0.0;
   Eigen::Vector3d zero(0, 0, 0);
@@ -723,7 +723,7 @@ void BsplineOptimizer::calcYawCoVisbilityCost(const vector<Eigen::Vector3d> &q, 
   }
 }
 
-void BsplineOptimizer::calcVerticalVisbilityCost(const vector<Eigen::Vector3d> &q, const double &dt,
+void BsplineOptimizer_YAW::calcVerticalVisbilityCost(const vector<Eigen::Vector3d> &q, const double &dt,
                                                  double &cost,
                                                  vector<Eigen::Vector3d> &gradient_q) {
   cost = 0.0;
@@ -763,7 +763,7 @@ void BsplineOptimizer::calcVerticalVisbilityCost(const vector<Eigen::Vector3d> &
   // ROS_INFO("part1: %f, part2: %f", sum1, sum2);
 }
 
-void BsplineOptimizer::calcYawFeasibilityCost(const vector<Eigen::Vector3d> &q, const double &dt,
+void BsplineOptimizer_YAW::calcYawFeasibilityCost(const vector<Eigen::Vector3d> &q, const double &dt,
                                               double &cost, vector<Eigen::Vector3d> &gradient_q) {
   cost = 0.0;
   Eigen::Vector3d zero(0, 0, 0);
@@ -790,7 +790,7 @@ void BsplineOptimizer::calcYawFeasibilityCost(const vector<Eigen::Vector3d> &q, 
   }
 }
 
-void BsplineOptimizer::calcNNFeaturesAtKnotPoints(const vector<Eigen::Vector3d> &q) {
+void BsplineOptimizer_YAW::calcNNFeaturesAtKnotPoints(const vector<Eigen::Vector3d> &q) {
   for (int i = 0; i < q.size() - 3; ++i) {
     // For midpoint of (q0, q1, q2)-> knot1, (q1, q2, q3)-> knot2, calculate the neighboring
     // features index
@@ -804,7 +804,7 @@ void BsplineOptimizer::calcNNFeaturesAtKnotPoints(const vector<Eigen::Vector3d> 
   }
 }
 
-void BsplineOptimizer::combineCost(const std::vector<double> &x, std::vector<double> &grad,
+void BsplineOptimizer_YAW::combineCost(const std::vector<double> &x, std::vector<double> &grad,
                                    double &f_combine) {
   // This solver can support 1D-3D B-spline optimization, but we use Vector3d to store each control
   // point. For 1D case, the second and third elements are zero, and similar for the 2D case.
@@ -989,9 +989,9 @@ void BsplineOptimizer::combineCost(const std::vector<double> &x, std::vector<dou
   }
 }
 
-double BsplineOptimizer::costFunction(const std::vector<double> &x, std::vector<double> &grad,
+double BsplineOptimizer_YAW::costFunction(const std::vector<double> &x, std::vector<double> &grad,
                                       void *func_data) {
-  BsplineOptimizer *opt = reinterpret_cast<BsplineOptimizer *>(func_data);
+  BsplineOptimizer_YAW *opt = reinterpret_cast<BsplineOptimizer_YAW *>(func_data);
   double cost;
   opt->combineCost(x, grad, cost);
   opt->iter_num_++;
@@ -1021,7 +1021,7 @@ double BsplineOptimizer::costFunction(const std::vector<double> &x, std::vector<
   // }
 }
 
-vector<Eigen::Vector3d> BsplineOptimizer::matrixToVectors(const Eigen::MatrixXd &ctrl_pts) {
+vector<Eigen::Vector3d> BsplineOptimizer_YAW::matrixToVectors(const Eigen::MatrixXd &ctrl_pts) {
   vector<Eigen::Vector3d> ctrl_q;
   for (int i = 0; i < ctrl_pts.rows(); ++i) {
     ctrl_q.push_back(ctrl_pts.row(i));
@@ -1029,9 +1029,9 @@ vector<Eigen::Vector3d> BsplineOptimizer::matrixToVectors(const Eigen::MatrixXd 
   return ctrl_q;
 }
 
-Eigen::MatrixXd BsplineOptimizer::getControlPoints() { return this->control_points_; }
+Eigen::MatrixXd BsplineOptimizer_YAW::getControlPoints() { return this->control_points_; }
 
-bool BsplineOptimizer::isQuadratic() {
+bool BsplineOptimizer_YAW::isQuadratic() {
   if (cost_function_ == GUIDE_PHASE) {
     return true;
   } else if (cost_function_ == SMOOTHNESS) {
@@ -1042,7 +1042,7 @@ bool BsplineOptimizer::isQuadratic() {
   return false;
 }
 
-void BsplineOptimizer::debugVisualization(const std::vector<Eigen::Vector3d> &q,
+void BsplineOptimizer_YAW::debugVisualization(const std::vector<Eigen::Vector3d> &q,
                                           const std::vector<Eigen::Vector3d> &q_grad) {
   if (vis_pub_.getNumSubscribers() == 0)
     return;

@@ -90,7 +90,8 @@ public:
 
 protected:
   typename MapData::Ptr map_data_;
-  RayCaster::Ptr raycaster_;
+  // RayCaster::Ptr raycaster_;
+  std::shared_ptr<RayCaster> raycaster_;
 };
 } // namespace voxel_mapping
 

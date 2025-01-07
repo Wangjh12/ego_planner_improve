@@ -21,6 +21,7 @@
 #include <plan_env/edt_environment.h>
 
 #include <bspline_opt/bspline_optimizer_qp.h>
+#include <bspline_opt/bspline_optimizer_yaw.h>
 
 using std::vector;
 

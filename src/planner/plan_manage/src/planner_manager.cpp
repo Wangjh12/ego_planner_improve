@@ -41,18 +41,26 @@ namespace ego_planner
     bspline_optimizer_rebound_->a_star_.reset(new AStar);
     bspline_optimizer_rebound_->a_star_->initGridMap(grid_map_, Eigen::Vector3i(100, 100, 100));//将该指针传入到a_star_->initGridMap
 
-    bspline_optimizers_.resize(10);
-    for (int i = 0; i < 10; ++i) {
-      bspline_optimizers_[i].reset(new BsplineOptimizer_QP);
-      bspline_optimizers_[i]->setParam(nh);
-      // bspline_optimizers_[i]->setEnvironment(edt_environment_);
-      // std::cout << "------------" << i << std::endl;
-    }
+    // bspline_optimizers_.resize(10);
+    // for (int i = 0; i < 10; ++i) {
+    //   bspline_optimizers_[i].reset(new BsplineOptimizer_QP);
+    //   bspline_optimizers_[i]->setParam(nh);
+    //   // bspline_optimizers_[i]->setEnvironment(edt_environment_);
+    //   // std::cout << "------------" << i << std::endl;
+    // }
 
     bool plan_yaw_Covisibility = true;//yawplan开关
 
     if(plan_yaw_Covisibility)
     {
+        bspline_optimizers_.resize(10);
+        for (int i = 0; i < 10; ++i) {
+          bspline_optimizers_[i].reset(new BsplineOptimizer_YAW);
+          bspline_optimizers_[i]->setParam(nh);
+          // bspline_optimizers_[i]->setEnvironment(edt_environment_);
+          // std::cout << "------------" << i << std::endl;
+        }
+
         map_server_.reset(new voxel_mapping::MapServer(nh));
         yaw_initial_planner_.reset(new YawInitialPlanner(nh));
         yaw_initial_planner_->setMap(map_server_);
@@ -613,94 +621,94 @@ planYawPreset是一个简单的预设规划，不进行优化，适用于简单�
 
 
 
-  void EGOPlannerManager::planYaw(const Eigen::Vector3d& start_yaw) {
-    ROS_INFO("plan yaw");
-    auto t1 = ros::Time::now();
-    // calculate waypoints of heading
+  // void EGOPlannerManager::planYaw(const Eigen::Vector3d& start_yaw) {
+  //   ROS_INFO("plan yaw");
+  //   auto t1 = ros::Time::now();
+  //   // calculate waypoints of heading
 
-    auto&  pos      = local_data_.position_traj_;
-    double duration = pos.getTimeSum();
+  //   auto&  pos      = local_data_.position_traj_;
+  //   double duration = pos.getTimeSum();
 
-    double dt_yaw  = 0.3;
-    int    seg_num = ceil(duration / dt_yaw);
-    dt_yaw         = duration / seg_num;
+  //   double dt_yaw  = 0.3;
+  //   int    seg_num = ceil(duration / dt_yaw);
+  //   dt_yaw         = duration / seg_num;
 
-    const double            forward_t = 2.0;
-    double                  last_yaw  = start_yaw(0);
-    vector<Eigen::Vector3d> waypts;
-    vector<int>             waypt_idx;
+  //   const double            forward_t = 2.0;
+  //   double                  last_yaw  = start_yaw(0);
+  //   vector<Eigen::Vector3d> waypts;
+  //   vector<int>             waypt_idx;
 
-    // seg_num -> seg_num - 1 points for constraint excluding the boundary states
+  //   // seg_num -> seg_num - 1 points for constraint excluding the boundary states
 
-    for (int i = 0; i < seg_num; ++i) {
-      double          tc = i * dt_yaw;
-      Eigen::Vector3d pc = pos.evaluateDeBoorT(tc);
-      double          tf = min(duration, tc + forward_t);
-      Eigen::Vector3d pf = pos.evaluateDeBoorT(tf);
-      Eigen::Vector3d pd = pf - pc;
+  //   for (int i = 0; i < seg_num; ++i) {
+  //     double          tc = i * dt_yaw;
+  //     Eigen::Vector3d pc = pos.evaluateDeBoorT(tc);
+  //     double          tf = min(duration, tc + forward_t);
+  //     Eigen::Vector3d pf = pos.evaluateDeBoorT(tf);
+  //     Eigen::Vector3d pd = pf - pc;
 
-      Eigen::Vector3d waypt;
-      if (pd.norm() > 1e-6) {
-        waypt(0) = atan2(pd(1), pd(0));
-        waypt(1) = waypt(2) = 0.0;
-        calcNextYaw(last_yaw, waypt(0));
-      } else {
-        waypt = waypts.back();
-      }
-      waypts.push_back(waypt);  //此时为偏航角路径点
-      waypt_idx.push_back(i);
-    }
+  //     Eigen::Vector3d waypt;
+  //     if (pd.norm() > 1e-6) {
+  //       waypt(0) = atan2(pd(1), pd(0));
+  //       waypt(1) = waypt(2) = 0.0;
+  //       calcNextYaw(last_yaw, waypt(0));
+  //     } else {
+  //       waypt = waypts.back();
+  //     }
+  //     waypts.push_back(waypt);  //此时为偏航角路径点
+  //     waypt_idx.push_back(i);
+  //   }
 
-    // calculate initial control points with boundary state constraints  设置起点和终点偏航角的控制点
+  //   // calculate initial control points with boundary state constraints  设置起点和终点偏航角的控制点
 
-    Eigen::MatrixXd yaw(seg_num + 3, 1);
-    yaw.setZero();
+  //   Eigen::MatrixXd yaw(seg_num + 3, 1);
+  //   yaw.setZero();
 
-    Eigen::Matrix3d states2pts;
-    states2pts << 1.0, -dt_yaw, (1 / 3.0) * dt_yaw * dt_yaw, 1.0, 0.0, -(1 / 6.0) * dt_yaw * dt_yaw, 1.0,
-        dt_yaw, (1 / 3.0) * dt_yaw * dt_yaw;
-    yaw.block(0, 0, 3, 1) = states2pts * start_yaw;
+  //   Eigen::Matrix3d states2pts;
+  //   states2pts << 1.0, -dt_yaw, (1 / 3.0) * dt_yaw * dt_yaw, 1.0, 0.0, -(1 / 6.0) * dt_yaw * dt_yaw, 1.0,
+  //       dt_yaw, (1 / 3.0) * dt_yaw * dt_yaw;
+  //   yaw.block(0, 0, 3, 1) = states2pts * start_yaw;
 
-    Eigen::Vector3d end_v = local_data_.velocity_traj_.evaluateDeBoorT(duration - 0.1);
-    Eigen::Vector3d end_yaw(atan2(end_v(1), end_v(0)), 0, 0);
-    calcNextYaw(last_yaw, end_yaw(0));
-    yaw.block(seg_num, 0, 3, 1) = states2pts * end_yaw;
+  //   Eigen::Vector3d end_v = local_data_.velocity_traj_.evaluateDeBoorT(duration - 0.1);
+  //   Eigen::Vector3d end_yaw(atan2(end_v(1), end_v(0)), 0, 0);
+  //   calcNextYaw(last_yaw, end_yaw(0));
+  //   yaw.block(seg_num, 0, 3, 1) = states2pts * end_yaw;
 
-    // solve
-    bspline_optimizers_[1]->setWaypoints(waypts, waypt_idx); //Waypoints设置路径点，controlpoint控制点注意区分
-    int cost_func = BsplineOptimizer_QP::SMOOTHNESS | BsplineOptimizer_QP::WAYPOINTS;
-    yaw           = bspline_optimizers_[1]->BsplineOptimizeTraj(yaw, dt_yaw, cost_func, 1, 1); //优化出来的就是b样条控制点，所以是b样条优化
+  //   // solve
+  //   bspline_optimizers_[1]->setWaypoints(waypts, waypt_idx); //Waypoints设置路径点，controlpoint控制点注意区分
+  //   int cost_func = BsplineOptimizer_QP::SMOOTHNESS | BsplineOptimizer_QP::WAYPOINTS;
+  //   yaw           = bspline_optimizers_[1]->BsplineOptimizeTraj(yaw, dt_yaw, cost_func, 1, 1); //优化出来的就是b样条控制点，所以是b样条优化
 
-    // for (int i = 0; i < yaw.rows(); ++i) {
-    //     std::cout << "yaw(" << i << ") = " << yaw(i, 0) << std::endl;
-    // }
+  //   // for (int i = 0; i < yaw.rows(); ++i) {
+  //   //     std::cout << "yaw(" << i << ") = " << yaw(i, 0) << std::endl;
+  //   // }
 
-    //ego planner 与 fastplanner中对b样条控制点的矩阵维度处理是相反的，即ego中的行和列，是fast中的列和行，所以这里将计算出的yaw调换一下维度
-    Eigen::MatrixXd yaw_trans(1,seg_num + 3); 
+  //   //ego planner 与 fastplanner中对b样条控制点的矩阵维度处理是相反的，即ego中的行和列，是fast中的列和行，所以这里将计算出的yaw调换一下维度
+  //   Eigen::MatrixXd yaw_trans(1,seg_num + 3); 
 
-    for (int i = 0; i < seg_num + 3; ++i) 
-    {
-      yaw_trans(0, i) = yaw(i, 0);  // 从列向量复制到行向量
-    }
+  //   for (int i = 0; i < seg_num + 3; ++i) 
+  //   {
+  //     yaw_trans(0, i) = yaw(i, 0);  // 从列向量复制到行向量
+  //   }
 
-    // update traj info
-    local_data_.yaw_traj_.setUniformBspline(yaw_trans, 3, dt_yaw);
-    // local_data_.yaw_traj_.setNonUniformBspline(yaw, 3, dt_yaw);
+  //   // update traj info
+  //   local_data_.yaw_traj_.setUniformBspline(yaw_trans, 3, dt_yaw);
+  //   // local_data_.yaw_traj_.setNonUniformBspline(yaw, 3, dt_yaw);
 
-    local_data_.yawdot_traj_    = local_data_.yaw_traj_.getDerivative();
+  //   local_data_.yawdot_traj_    = local_data_.yaw_traj_.getDerivative();
 
-    local_data_.yawdotdot_traj_ = local_data_.yawdot_traj_.getDerivative();
+  //   local_data_.yawdotdot_traj_ = local_data_.yawdot_traj_.getDerivative();
 
 
-    vector<double> path_yaw;
-    for (int i = 0; i < waypts.size(); ++i) path_yaw.push_back(waypts[i][0]);
+  //   vector<double> path_yaw;
+  //   for (int i = 0; i < waypts.size(); ++i) path_yaw.push_back(waypts[i][0]);
 
-    plan_data_.path_yaw_    = path_yaw;
-    plan_data_.dt_yaw_      = dt_yaw;
-    plan_data_.dt_yaw_path_ = dt_yaw;
+  //   plan_data_.path_yaw_    = path_yaw;
+  //   plan_data_.dt_yaw_      = dt_yaw;
+  //   plan_data_.dt_yaw_path_ = dt_yaw;
 
-    std::cout << "plan heading: " << (ros::Time::now() - t1).toSec() << std::endl;
-  }
+  //   std::cout << "plan heading: " << (ros::Time::now() - t1).toSec() << std::endl;
+  // }
 
     void EGOPlannerManager::planYawCovisibility() {
         // Yaw b-spline has same segment number as position b-spline
@@ -774,11 +782,11 @@ planYawPreset是一个简单的预设规划，不进行优化，适用于简单�
 
         // Call B-spline optimization solver
         // BsplineOptimizer::YAWFEASIBILITY
-        int cost_func = BsplineOptimizer_QP::SMOOTHNESS | BsplineOptimizer_QP::WAYPOINTS |
-                        BsplineOptimizer_QP::START | BsplineOptimizer_QP::ENDPOINT |
-                        BsplineOptimizer_QP::YAWCOVISIBILITY;
+        int cost_func = BsplineOptimizer_YAW::SMOOTHNESS | BsplineOptimizer_YAW::WAYPOINTS |
+                        BsplineOptimizer_YAW::START | BsplineOptimizer_YAW::END |
+                        BsplineOptimizer_YAW::YAWCOVISIBILITY;
 
-        if (cost_func & BsplineOptimizer_QP::YAWCOVISIBILITY) {
+        if (cost_func & BsplineOptimizer_YAW::YAWCOVISIBILITY) {
             vector<Eigen::Vector3d> pos_knots, acc_knots;
             local_data_.position_traj_.getKnotPoint(pos_knots);
             local_data_.acceleration_traj_.getKnotPoint(acc_knots);

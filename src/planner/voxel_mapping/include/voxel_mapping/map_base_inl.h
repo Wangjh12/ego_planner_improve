@@ -6,7 +6,7 @@ template <typename VoxelType> void MapBase<VoxelType>::initMapData() {
 }
 
 template <typename VoxelType> void MapBase<VoxelType>::initRaycaster() {
-  raycaster_->setParams(map_config_.resolution_, map_config_.map_min_);
+  // raycaster_->setParams(map_config_.resolution_, map_config_.map_min_);
 }
 template <typename VoxelType> void MapBase<VoxelType>::resetMap() {
   map_data_->data.clear();

@@ -32,9 +32,16 @@ namespace ego_planner {
 const int BsplineOptimizer_QP::SMOOTHNESS  = (1 << 0);
 const int BsplineOptimizer_QP::DISTANCE    = (1 << 1);
 const int BsplineOptimizer_QP::FEASIBILITY = (1 << 2);
-const int BsplineOptimizer_QP::ENDPOINT    = (1 << 3);
-const int BsplineOptimizer_QP::GUIDE       = (1 << 4);
-const int BsplineOptimizer_QP::WAYPOINTS   = (1 << 6);
+const int BsplineOptimizer_QP::START = (1 << 3);
+const int BsplineOptimizer_QP::ENDPOINT = (1 << 4);
+const int BsplineOptimizer_QP::GUIDE = (1 << 5);
+const int BsplineOptimizer_QP::WAYPOINTS = (1 << 6);
+const int BsplineOptimizer_QP::VIEWCONS = (1 << 7);
+const int BsplineOptimizer_QP::MINTIME = (1 << 8);
+const int BsplineOptimizer_QP::YAWFEASIBILITY = (1 << 10);
+const int BsplineOptimizer_QP::PARALLAX = (1 << 11);
+const int BsplineOptimizer_QP::VERTICALVISIBILITY = (1 << 12);
+const int BsplineOptimizer_QP::YAWCOVISIBILITY = (1 << 13);
 
 const int BsplineOptimizer_QP::GUIDE_PHASE = BsplineOptimizer_QP::SMOOTHNESS | BsplineOptimizer_QP::GUIDE;
 const int BsplineOptimizer_QP::NORMAL_PHASE =
@@ -91,15 +98,37 @@ void BsplineOptimizer_QP::setCostFunction(const int& cost_code) {
   cost_function_ = cost_code;
 
   // print optimized cost function
-  string cost_str;
-  if (cost_function_ & SMOOTHNESS) cost_str += "smooth |";
-  if (cost_function_ & DISTANCE) cost_str += " dist  |";
-  if (cost_function_ & FEASIBILITY) cost_str += " feasi |";
-  if (cost_function_ & ENDPOINT) cost_str += " endpt |";
-  if (cost_function_ & GUIDE) cost_str += " guide |";
-  if (cost_function_ & WAYPOINTS) cost_str += " waypt |";
-
-  ROS_INFO_STREAM("cost func: " << cost_str);
+  bool verbose = false;
+  if (verbose) {
+    string cost_str;
+    if (cost_function_ & SMOOTHNESS)
+      cost_str += "smooth | ";
+    if (cost_function_ & DISTANCE)
+      cost_str += " dist | ";
+    if (cost_function_ & FEASIBILITY)
+      cost_str += " feasi | ";
+    if (cost_function_ & START)
+      cost_str += " start | ";
+    if (cost_function_ & ENDPOINT)
+      cost_str += " endpoint | ";
+    if (cost_function_ & GUIDE)
+      cost_str += " guide | ";
+    if (cost_function_ & WAYPOINTS)
+      cost_str += " waypt | ";
+    if (cost_function_ & VIEWCONS)
+      cost_str += " view | ";
+    if (cost_function_ & MINTIME)
+      cost_str += " time | ";
+    if (cost_function_ & YAWFEASIBILITY)
+      cost_str += " yaw_feasi | ";
+    if (cost_function_ & PARALLAX)
+      cost_str += " parallax | ";
+    if (cost_function_ & VERTICALVISIBILITY)
+      cost_str += " veritcal_visibility | ";
+    if (cost_function_ & YAWCOVISIBILITY)
+      cost_str += " yaw_covisibility | ";
+    ROS_INFO_STREAM("cost func: " << cost_str);
+  }
 }
 
 void BsplineOptimizer_QP::setGuidePath(const vector<Eigen::Vector3d>& guide_pt) { guide_pts_ = guide_pt; }
@@ -108,6 +137,13 @@ void BsplineOptimizer_QP::setWaypoints(const vector<Eigen::Vector3d>& waypts,
                                     const vector<int>&             waypt_idx) {
   waypoints_ = waypts;
   waypt_idx_ = waypt_idx;
+}
+
+void BsplineOptimizer_QP::setPosAndAcc(const vector<Eigen::Vector3d> &pos,
+                                    const vector<Eigen::Vector3d> &acc, const vector<int> &idx) {
+  pos_ = pos;
+  acc_ = acc;
+  pos_idx_ = idx;
 }
 
 Eigen::MatrixXd BsplineOptimizer_QP::BsplineOptimizeTraj(const Eigen::MatrixXd& points, const double& ts,
@@ -156,7 +192,7 @@ void BsplineOptimizer_QP::optimize() {
   /* do optimization using NLopt slover */
   nlopt::opt opt(nlopt::algorithm(isQuadratic() ? algorithm1_ : algorithm2_), variable_num_); //youwenti!!!!!!!!
 
-  opt.set_min_objective(BsplineOptimizer_QP::costFunction, this);
+  opt.set_min_objective(BsplineOptimizer_QP::costFunction, this); //在这真正计算代价函数
   opt.set_maxeval(max_iteration_num_[max_num_id_]);
   opt.set_maxtime(max_iteration_time_[max_time_id_]);
   opt.set_xtol_rel(1e-5);

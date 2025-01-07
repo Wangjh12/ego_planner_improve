@@ -68,6 +68,8 @@ namespace ego_planner
     bool checkFeasibility(double &ratio, bool show = false);
     void lengthenTime(const double &ratio);
 
+    void getKnotPoint(vector<Eigen::Vector3d> &knot_pt);
+
     /* for performance evaluation */
 
     double getTimeSum();

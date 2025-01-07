@@ -10,7 +10,7 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl_conversions/pcl_conversions.h>
 
-namespace fast_planner {
+namespace ego_planner {
 
 /* ----------------------- class YawInitialPlanner ---------------------- */
 

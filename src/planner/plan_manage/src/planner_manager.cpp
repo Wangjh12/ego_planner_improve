@@ -49,6 +49,15 @@ namespace ego_planner
       // std::cout << "------------" << i << std::endl;
     }
 
+    bool plan_yaw_Covisibility = true;//yawplan开关
+
+    if(plan_yaw_Covisibility)
+    {
+        map_server_.reset(new voxel_mapping::MapServer(nh));
+        yaw_initial_planner_.reset(new YawInitialPlanner(nh));
+        yaw_initial_planner_->setMap(map_server_);
+    }
+
     visualization_ = vis;
   }
 
@@ -565,6 +574,43 @@ namespace ego_planner
     UniformBspline::parameterizeToBspline(dt, point_set, start_end_derivative, ctrl_pts);
   }
 
+/*
+
+
+planYaw(const Eigen::Vector3d &start_yaw):
+  这个函数使用基于De Boor算法的B样条曲线来规划偏航角。
+  它根据位置轨迹生成一系列的偏航角航点（waypoints）。
+  通过优化方法设置B样条的控制点，以满足航点、平滑性以及起始和终止状态的约束。
+  它计算并更新偏航角轨迹及其一阶和二阶导数。
+
+planYawPercepAgnostic():
+  这个函数同样使用B样条来规划偏航角，但是它不依赖于感知信息（即“感知无关”）。
+  它设置偏航角B样条的控制点，以匹配位置B样条的段数。
+  函数计算航点，但不设置起始和终止状态的偏航角约束（设置为未指定）。和planYaw（）的区别
+  使用优化方法来优化偏航角轨迹的平滑性和航点。
+
+planYawCovisibility():
+  这个函数也使用B样条来规划偏航角，但增加了对“共视性”的考虑。
+  它根据位置和加速度轨迹来计算航点。
+  通过调用yaw_initial_planner_->searchPathOfYaw()来搜索偏航角的路径。
+  在优化过程中，除了平滑性和航点之外，还考虑了偏航角的共视性约束。
+
+planYawPreset(const Eigen::Vector3d &start_yaw, const double &end_yaw):
+  这个函数不使用优化方法，而是预设一个简单的偏航角规划。
+  它在起始和终止偏航角之间均匀地旋转偏航角。
+  使用多项式轨迹来生成航点，并将其拟合为B样条。
+  更新偏航角轨迹及其一阶和二阶导数。
+
+
+planYaw是基本的偏航角规划函数，使用B样条和优化。
+planYawPercepAgnostic不依赖于感知信息，适用于感知不可靠的情况。
+planYawCovisibility考虑了环境的共视性，可能用于复杂环境中的规划。
+planYawPreset是一个简单的预设规划，不进行优化，适用于简单的偏航角需求。
+
+*/
+
+
+
 
 
   void EGOPlannerManager::planYaw(const Eigen::Vector3d& start_yaw) {
@@ -655,6 +701,111 @@ namespace ego_planner
 
     std::cout << "plan heading: " << (ros::Time::now() - t1).toSec() << std::endl;
   }
+
+    void EGOPlannerManager::planYawCovisibility() {
+        // Yaw b-spline has same segment number as position b-spline
+        Eigen::MatrixXd position_ctrl_pts = local_data_.position_traj_.getControlPoint();
+        // int ctrl_pts_num = position_ctrl_pts.rows();
+        // double dt_yaw = local_data_.position_traj_.getKnotSpan();
+
+        int ctrl_pts_num = position_ctrl_pts.cols();//可能会出问题
+
+        auto&  pos      = local_data_.position_traj_;
+
+        double duration = pos.getTimeSum();
+
+        double dt_yaw  = 0.3;
+        int    seg_num = ceil(duration / dt_yaw);
+        dt_yaw         = duration / seg_num;
+
+        // Yaw traj control points
+        Eigen::MatrixXd yaw(ctrl_pts_num, 1);
+        yaw.setZero();
+
+        // Calculate knot pos and acc
+        // [u[p],u[m-p]] -> [0*dt, (m-2p)*dt] -> [0*dt, (n-2)*dt]
+        vector<Eigen::Vector3d> twb_pos, twb_acc;
+        for (int i = 0; i < ctrl_pts_num - 2; ++i) {
+            double t = i * dt_yaw;
+            Eigen::Vector3d pos = local_data_.position_traj_.evaluateDeBoorT(t);
+            Eigen::Vector3d acc = local_data_.acceleration_traj_.evaluateDeBoorT(t);
+            twb_pos.push_back(pos);
+            twb_acc.push_back(acc);
+            // cout << "pos: " << pos.transpose() << endl;
+        }
+
+        // TODO: only need to calculate nn features once! Feed to yaw_initial_planner & optimizer
+
+        // Yaw initial planner
+        vector<double> yaw_waypoints;
+        yaw_initial_planner_->searchPathOfYaw(twb_pos, twb_acc, dt_yaw, yaw_waypoints);
+        // std::cout << "yaw_waypoints: ";
+        // for (int i = 0; i < yaw_waypoints.size(); ++i)
+        //   std::cout << yaw_waypoints[i] << ", ";
+        // std::cout << std::endl;
+
+        // Set waypoints
+        vector<Eigen::Vector3d> waypts;
+        vector<int> waypt_idx;
+        double last_yaw = yaw_waypoints[0];
+        for (int i = 0; i < yaw_waypoints.size(); ++i) {
+            Eigen::Vector3d waypt;
+            waypt(0) = yaw_waypoints[i];
+            waypt(1) = waypt(2) = 0.0;
+            calcNextYaw(last_yaw, waypt(0));
+            last_yaw = waypt(0);
+            waypts.push_back(waypt);
+            waypt_idx.push_back(i);
+        }
+
+        // Initial state
+        Eigen::Matrix3d states2pts;
+        states2pts << 1.0, -dt_yaw, (1 / 3.0) * dt_yaw * dt_yaw, 1.0, 0.0, -(1 / 6.0) * dt_yaw * dt_yaw,
+                1.0, dt_yaw, (1 / 3.0) * dt_yaw * dt_yaw;
+        Eigen::Vector3d start_yaw3d = waypts[0];
+        yaw.block<3, 1>(0, 0) = states2pts * start_yaw3d;
+        Eigen::Vector3d unspecified = Eigen::Vector3d::Zero();
+        vector<Eigen::Vector3d> start = {unspecified, Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero()};
+        vector<Eigen::Vector3d> end = {unspecified, Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero()};
+        vector<bool> start_idx = {false, true, true};
+        vector<bool> end_idx = {false, true, true};
+
+        auto t1 = ros::Time::now();
+
+        // Call B-spline optimization solver
+        // BsplineOptimizer::YAWFEASIBILITY
+        int cost_func = BsplineOptimizer_QP::SMOOTHNESS | BsplineOptimizer_QP::WAYPOINTS |
+                        BsplineOptimizer_QP::START | BsplineOptimizer_QP::ENDPOINT |
+                        BsplineOptimizer_QP::YAWCOVISIBILITY;
+
+        if (cost_func & BsplineOptimizer_QP::YAWCOVISIBILITY) {
+            vector<Eigen::Vector3d> pos_knots, acc_knots;
+            local_data_.position_traj_.getKnotPoint(pos_knots);
+            local_data_.acceleration_traj_.getKnotPoint(acc_knots);
+            bspline_optimizers_[1]->setPosAndAcc(pos_knots, acc_knots);
+        }
+
+        bspline_optimizers_[1]->setBoundaryStates(start, end, start_idx, end_idx);
+        bspline_optimizers_[1]->setWaypoints(waypts, waypt_idx);
+        bspline_optimizers_[1]->optimize(yaw, dt_yaw, cost_func, 3, 3);
+
+        Eigen::MatrixXd yaw_trans(1,seg_num + 3); 
+
+        for (int i = 0; i < seg_num + 3; ++i) 
+        {
+          yaw_trans(0, i) = yaw(i, 0);  // 从列向量复制到行向量
+        }
+
+        // Update traj info
+        local_data_.yaw_traj_.setUniformBspline(yaw_trans, 3, dt_yaw);
+        local_data_.yawdot_traj_ = local_data_.yaw_traj_.getDerivative();
+        local_data_.yawdotdot_traj_ = local_data_.yawdot_traj_.getDerivative();
+        plan_data_.dt_yaw_ = dt_yaw;
+
+        vector<Eigen::Vector3d> knot_points;
+        local_data_.yaw_traj_.getKnotPoint(knot_points);
+    }
+
 
   void EGOPlannerManager::calcNextYaw(const double& last_yaw, double& yaw) {
     // round yaw to [-PI, PI]

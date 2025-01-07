@@ -14,6 +14,7 @@
 #include <plan_env/edt_environment.h>
 
 #include <bspline_opt/bspline_optimizer_qp.h>
+#include <plan_manage/yaw_initial_planner.h>
 
 namespace ego_planner
 {
@@ -43,6 +44,8 @@ namespace ego_planner
 
     void planYaw(const Eigen::Vector3d& start_yaw);
 
+    void planYawCovisibility();
+
     void calcNextYaw(const double &last_yaw, double &yaw);
 
     PlanParameters pp_;
@@ -59,6 +62,9 @@ namespace ego_planner
     BsplineOptimizer::Ptr bspline_optimizer_rebound_;
 
     vector<BsplineOptimizer_QP::Ptr> bspline_optimizers_;
+
+    voxel_mapping::MapServer::Ptr map_server_;
+    unique_ptr<YawInitialPlanner> yaw_initial_planner_;
 
 
     int continous_failures_count_{0};

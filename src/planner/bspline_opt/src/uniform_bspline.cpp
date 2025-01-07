@@ -64,6 +64,17 @@ void UniformBspline::setNonUniformBspline(const Eigen::MatrixXd& points, const i
 }
 
 
+void UniformBspline::getKnotPoint(vector<Eigen::Vector3d> &knot_pt) {
+  for (int i = p_; i <= m_ - p_; i++) {
+    Eigen::VectorXd result = evaluateDeBoor(u_[i]);
+    Eigen::Vector3d knot = result.size() == 1 ? Eigen::Vector3d(result(0), 0, 0)
+                                              : Eigen::Vector3d(result(0), result(1), result(2));
+    knot_pt.push_back(knot);
+  }
+  // ROS_WARN("dt: %f", knot_span_);
+}
+
+
   void UniformBspline::setKnot(const Eigen::VectorXd &knot) { this->u_ = knot; }
 
   Eigen::VectorXd UniformBspline::getKnot() { return this->u_; }

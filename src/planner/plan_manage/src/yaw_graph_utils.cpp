@@ -1,7 +1,7 @@
 // #include <active_perception/yaw_graph_utils.h>
 #include <plan_manage/yaw_graph_utils.h>
 
-namespace fast_planner {
+namespace ego_planner {
 
 /* ----------------------------- class Graph ---------------------------- */
 

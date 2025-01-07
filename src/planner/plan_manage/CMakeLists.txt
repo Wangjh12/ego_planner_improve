@@ -24,6 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   cv_bridge
   mavros_msgs
+  voxel_mapping
 )
 
 # Generate messages in the 'msg' folder
@@ -44,7 +45,7 @@ generate_messages(
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES ego_planner
- CATKIN_DEPENDS plan_env path_searching bspline_opt traj_utils message_runtime
+ CATKIN_DEPENDS plan_env path_searching bspline_opt traj_utils message_runtime voxel_mapping
 #  DEPENDS system_lib
 )
 
@@ -60,7 +61,9 @@ include_directories(
 add_executable(ego_planner_node
   src/ego_planner_node.cpp 
   src/ego_replan_fsm.cpp
-  src/planner_manager.cpp
+  src/planner_manager.cpp 
+        src/yaw_initial_planner.cpp
+        src/yaw_graph_utils.cpp
   )
 target_link_libraries(ego_planner_node 
   ${catkin_LIBRARIES}

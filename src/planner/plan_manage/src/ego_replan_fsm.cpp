@@ -500,6 +500,7 @@ namespace ego_planner
     {
 
       planner_manager_->planYaw(start_yaw_);
+      planner_manager_->planYawCovisibility();
 
       auto info = &planner_manager_->local_data_;
 

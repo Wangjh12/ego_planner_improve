@@ -19,7 +19,7 @@ using std::unordered_map;
 using std::vector;
 using voxel_mapping::MapServer;
 
-namespace fast_planner {
+namespace ego_planner {
 class YawEdge;
 class BaseVertex;
 class YawVertex;

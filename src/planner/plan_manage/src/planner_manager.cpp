@@ -53,17 +53,24 @@ namespace ego_planner
 
     if(plan_yaw_Covisibility)
     {
-        bspline_optimizers_.resize(10);
-        for (int i = 0; i < 10; ++i) {
-          bspline_optimizers_[i].reset(new BsplineOptimizer_YAW);
-          bspline_optimizers_[i]->setParam(nh);
-          // bspline_optimizers_[i]->setEnvironment(edt_environment_);
-          // std::cout << "------------" << i << std::endl;
+
+      bspline_optimizers_.resize(10);
+      for (int i = 0; i < 10; ++i)
+      {
+        bspline_optimizers_[i].reset(new BsplineOptimizer_YAW);
+        bspline_optimizers_[i]->setParam(nh);
+        // bspline_optimizers_[i]->setEnvironment(edt_environment_);
+        // std::cout << "------------" << i << std::endl;
         }
 
+
         map_server_.reset(new voxel_mapping::MapServer(nh));
+        std::cout << "--------1--------" << std::endl;
         yaw_initial_planner_.reset(new YawInitialPlanner(nh));
+        std::cout << "--------2--------" << std::endl;
         yaw_initial_planner_->setMap(map_server_);
+      std::cout << "--------4--------" << std::endl;
+
     }
 
     visualization_ = vis;

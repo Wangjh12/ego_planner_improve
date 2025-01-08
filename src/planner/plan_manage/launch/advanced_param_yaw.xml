@@ -128,6 +128,20 @@
     <param name="manager/feasibility_tolerance" value="0.05" type="double"/>
     <param name="manager/planning_horizon" value="$(arg planning_horizon)" type="double"/>
 
+<!--ego 优化-->
+    <param name="optimization/lambda_smooth" value="1.0" type="double"/>
+    <param name="optimization/lambda_collision" value="0.5" type="double"/>
+    <param name="optimization/lambda_feasibility" value="0.1" type="double"/>
+    <param name="optimization/lambda_fitness" value="1.0" type="double"/>
+    <param name="optimization/dist0" value="0.5" type="double"/>
+    <param name="optimization/swarm_clearance" value="0.5" type="double"/>
+    <param name="optimization/max_vel" value="$(arg max_vel)" type="double"/>
+    <param name="optimization/max_acc" value="$(arg max_acc)" type="double"/>
+
+    <param name="bspline/limit_vel" value="$(arg max_vel)" type="double"/>
+    <param name="bspline/limit_acc" value="$(arg max_acc)" type="double"/>
+    <param name="bspline/limit_ratio" value="1.1" type="double"/>
+
 
     <!-- Yaw planner utils -->
     <param name="yaw_initial/yaw_diff" value="$(eval 30 * 3.1415926 / 180.0)" type="double"/>
@@ -153,9 +167,6 @@
     <param name="optimization/ld_vertical_visibility" value="$(arg ld_vertical_visibility)" type="double"/>
     <param name="optimization/ld_yaw_covisibility" value="$(arg ld_yaw_covisibility)" type="double"/>
 
-    <param name="optimization/dist0" value="0.7" type="double"/>
-    <param name="optimization/max_vel" value="$(arg max_vel)" type="double"/>
-    <param name="optimization/max_acc" value="$(arg max_acc)" type="double"/>
     <param name="optimization/max_vel_yaw" value="$(arg max_vel_yaw)" type="double"/>
 
     <param name="optimization/algorithm1" value="15" type="int"/>

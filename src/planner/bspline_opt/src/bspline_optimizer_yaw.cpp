@@ -223,8 +223,15 @@ void BsplineOptimizer_YAW::optimize() {
 
   // Set axis aligned bounding box for optimization
   Eigen::Vector3d bmin, bmax;
-  edt_environment_->map_server_->getBox(bmin, bmax);
-  for (int k = 0; k < 3; ++k) {
+  // edt_environment_->map_server_->getBox(bmin, bmax);
+  bmax[0] = 15.0;
+  bmax[1] = 26.0;
+  bmax[2] = 5.0;
+  bmin[0] = -15.0;
+  bmin[1] = -4.0;
+  bmin[2] = 0.0;
+  for (int k = 0; k < 3; ++k)
+  {
     bmin[k] += 0.1;
     bmax[k] -= 0.1;
   }

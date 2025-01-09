@@ -62,14 +62,9 @@ namespace ego_planner
         // bspline_optimizers_[i]->setEnvironment(edt_environment_);
         // std::cout << "------------" << i << std::endl;
         }
-
-
         map_server_.reset(new voxel_mapping::MapServer(nh));
-        std::cout << "--------1--------" << std::endl;
         yaw_initial_planner_.reset(new YawInitialPlanner(nh));
-        std::cout << "--------2--------" << std::endl;
         yaw_initial_planner_->setMap(map_server_);
-      std::cout << "--------4--------" << std::endl;
 
     }
 
@@ -749,15 +744,28 @@ planYawPreset是一个简单的预设规划，不进行优化，适用于简单�
             // cout << "pos: " << pos.transpose() << endl;
         }
 
-        // TODO: only need to calculate nn features once! Feed to yaw_initial_planner & optimizer
+        for (int i = 0; i < twb_pos.size();++i)
+        {
+          auto pos = twb_pos[i];
+          cout << pos(0) << "  " << pos(1) << "  " << pos(2) << endl;
+        }
 
-        // Yaw initial planner
-        vector<double> yaw_waypoints;
+
+        for (int i = 0; i < twb_acc.size();++i)
+        {
+          auto pos = twb_acc[i];
+          cout << pos(0) << "  " << pos(1) << "  " << pos(2) << endl;
+        }
+
+          // TODO: only need to calculate nn features once! Feed to yaw_initial_planner & optimizer
+
+          // Yaw initial planner
+          vector<double> yaw_waypoints;
         yaw_initial_planner_->searchPathOfYaw(twb_pos, twb_acc, dt_yaw, yaw_waypoints);
-        // std::cout << "yaw_waypoints: ";
-        // for (int i = 0; i < yaw_waypoints.size(); ++i)
-        //   std::cout << yaw_waypoints[i] << ", ";
-        // std::cout << std::endl;
+        std::cout << "yaw_waypoints: ";
+        for (int i = 0; i < yaw_waypoints.size(); ++i)
+          std::cout << yaw_waypoints[i] << ", ";
+        std::cout << std::endl;
 
         // Set waypoints
         vector<Eigen::Vector3d> waypts;
@@ -799,11 +807,11 @@ planYawPreset是一个简单的预设规划，不进行优化，适用于简单�
             local_data_.acceleration_traj_.getKnotPoint(acc_knots);
             bspline_optimizers_[1]->setPosAndAcc(pos_knots, acc_knots);
         }
-
         bspline_optimizers_[1]->setBoundaryStates(start, end, start_idx, end_idx);
         bspline_optimizers_[1]->setWaypoints(waypts, waypt_idx);
+                    std::cout << "----6----" << std::endl;
         bspline_optimizers_[1]->optimize(yaw, dt_yaw, cost_func, 3, 3);
-
+            std::cout << "----7----" << std::endl;
         Eigen::MatrixXd yaw_trans(1,seg_num + 3); 
 
         for (int i = 0; i < seg_num + 3; ++i) 

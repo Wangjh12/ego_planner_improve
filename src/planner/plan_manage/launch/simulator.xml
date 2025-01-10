@@ -14,9 +14,9 @@
   <!-- There are two kinds of maps you can choose, just comment out the one you don’t need like the follow. Have a try. /-->
 
 
+<!-- 
 
-
-    <!-- <node pkg ="map_generator" name ="competition_obstacles" type ="competition_obstacles" output = "screen">
+    <node pkg ="map_generator" name ="competition_obstacles" type ="competition_obstacles" output = "screen">
         <param name="map/x_size" value="26" />
         <param name="map/y_size" value="20" />
         <param name="map/z_size" value="3" />

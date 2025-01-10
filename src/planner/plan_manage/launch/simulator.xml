@@ -13,7 +13,24 @@
 
   <!-- There are two kinds of maps you can choose, just comment out the one you don’t need like the follow. Have a try. /-->
 
-  <![CDATA[node pkg ="map_generator" name ="random_forest" type ="random_forest" output = "screen">    
+
+
+
+    <!-- <node pkg ="map_generator" name ="competition_obstacles" type ="competition_obstacles" output = "screen">
+        <param name="map/x_size" value="26" />
+        <param name="map/y_size" value="20" />
+        <param name="map/z_size" value="3" />
+        <param name="map/resolution" value="0.1"/>
+        <param name="ObstacleShape/seed" value="1"/>
+        <param name="map/obs_num" value="30"/>
+        <param name="pub_rate" value="1.0"/>
+        <param name="min_distance" value="0.8"/>
+    </node> -->
+
+
+
+
+  <!-- <![CDATA[node pkg ="map_generator" name ="random_forest" type ="random_forest" output = "screen">    
     <remap from="~odometry"   to="$(arg odometry_topic)"/>    
     <param name="init_state_x"   value="$(arg init_x)"/>
     <param name="init_state_y"   value="$(arg init_y)"/>
@@ -40,33 +57,17 @@
     <param name="sensing/rate"   value="10.0"/>  
     
     <param name="min_distance" value="$(arg min_dist)"/>         
-  </node]]>
+  </node]]> -->
 
   <node pkg="mockamap" type="mockamap_node" name="mockamap_node" output="screen">  
       <remap from="/mock_map" to="/map_generator/global_cloud"/>
-
       <param name="seed" type="int" value="127"/>
       <param name="update_freq" type="double" value="0.5"/>
-
-      <!--  box edge length, unit meter-->
       <param name="resolution" type="double" value="0.1"/>
-
-      <!-- map size unit meter-->
       <param name="x_length" value="$(arg map_size_x_)"/>
       <param name="y_length" value="$(arg map_size_y_)"/>
       <param name="z_length" value="$(arg map_size_z_)"/>
-
       <param name="type" type="int" value="1"/>
-      <!-- 1 perlin noise parameters -->
-      <!-- complexity:    base noise frequency,
-                              large value will be complex
-                              typical 0.0 ~ 0.5 -->
-      <!-- fill:          infill persentage
-                              typical: 0.4 ~ 0.0 -->
-      <!-- fractal:       large value will have more detail-->
-      <!-- attenuation:   for fractal attenuation
-                              typical: 0.0 ~ 0.5 -->
-
       <param name="complexity"    type="double" value="0.05"/>
       <param name="fill"          type="double" value="0.12"/>
       <param name="fractal"       type="int"    value="1"/>

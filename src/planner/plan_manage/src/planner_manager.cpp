@@ -295,6 +295,7 @@ namespace ego_planner
     /*** STEP 2: OPTIMIZE ***/
     bool flag_step_1_success = bspline_optimizer_rebound_->BsplineOptimizeTrajRebound(ctrl_pts, ts);
     cout << "first_optimize_step_success=" << flag_step_1_success << endl;
+    cout << "----------optimize ts--------" << ts << "----------"<<endl;
     if (!flag_step_1_success)
     {
       // visualization_->displayOptimalList( ctrl_pts, vis_id );

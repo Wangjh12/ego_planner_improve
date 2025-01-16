@@ -11,6 +11,7 @@ namespace ego_planner
     nh.param("optimization/lambda_collision", lambda2_, -1.0);
     nh.param("optimization/lambda_feasibility", lambda3_, -1.0);
     nh.param("optimization/lambda_fitness", lambda4_, -1.0);
+    nh.param("optimization/lambda_mintime", lambda5_, -1.0);
 
     nh.param("optimization/dist0", dist0_, -1.0);
     nh.param("optimization/max_vel", max_vel_, -1.0);
@@ -29,7 +30,10 @@ namespace ego_planner
     cps_.points = points;
   }
 
-  void BsplineOptimizer::setBsplineInterval(const double &ts) { bspline_interval_ = ts; }
+  void BsplineOptimizer::setBsplineInterval(const double &ts) 
+  { bspline_interval_ = ts;
+    knot_span_ = ts;
+  }
 
   /* This function is very similar to check_collision_and_rebound(). 
    * It was written separately, just because I did it once and it has been running stably since March 2020.
@@ -149,7 +153,7 @@ namespace ego_planner
     }
 
     // cout << "+++++++++" << endl;
-    // for ( int j=0; j<bounds.size(); ++j )
+    // for ( int j=0; j<bounds.siz e(); ++j )
     // {
     //   cout << bounds[j].first << "  " << bounds[j].second << endl;
     // }
@@ -378,6 +382,7 @@ namespace ego_planner
         }
       }
     }
+    std::cout << "calcDistanceCostRebound: cost = " << cost << std::endl;
   }
 
   void BsplineOptimizer::calcFitnessCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient)
@@ -408,6 +413,16 @@ namespace ego_planner
       gradient.col(i) += 4 * df_dx / 6;
       gradient.col(i + 1) += df_dx / 6;
     }
+  }
+
+
+  void BsplineOptimizer::calcTimeCost(double size, double &cost, Eigen::MatrixXd &gradient,double knot_span)
+  {
+    double point_num_ = size;
+    double duration = (point_num_ - order_) * knot_span;
+    cost = duration;
+    gradient(0, 0) = double(point_num_ - order_);
+    std::cout << "calcTimeCost: cost = " << cost << std::endl;
   }
 
   void BsplineOptimizer::calcSmoothnessCost(const Eigen::MatrixXd &q, double &cost,
@@ -449,10 +464,12 @@ namespace ego_planner
         gradient.col(i + 2) += temp_acc;
       }
     }
+
+    std::cout << "calcSmoothnessCost: cost = " << cost << std::endl;
   }
 
   void BsplineOptimizer::calcFeasibilityCost(const Eigen::MatrixXd &q, double &cost,
-                                             Eigen::MatrixXd &gradient)
+                                             Eigen::MatrixXd &gradient,double knot_span)
   {
 
     //#define SECOND_DERIVATIVE_CONTINOUS
@@ -583,8 +600,13 @@ namespace ego_planner
     double ts, /*vm2, am2, */ ts_inv2;
     // vm2 = max_vel_ * max_vel_;
     // am2 = max_acc_ * max_acc_;
+    if(knot_span = 0)
+    {
+      ts = bspline_interval_;
+    }else{
+      ts = knot_span;
+    }
 
-    ts = bspline_interval_;
     ts_inv2 = 1 / ts / ts;
 
     /* velocity feasibility */
@@ -651,6 +673,7 @@ namespace ego_planner
       }
       //cout << endl;
     }
+    std::cout << "calcFeasibilityCost: cost = " << cost << std::endl;
 
 #endif
   }
@@ -842,13 +865,17 @@ namespace ego_planner
     return false;
   }
 
-  bool BsplineOptimizer::BsplineOptimizeTrajRebound(Eigen::MatrixXd &optimal_points, double ts)
+  bool BsplineOptimizer::BsplineOptimizeTrajRebound(Eigen::MatrixXd &optimal_points, double &ts)
   {
     setBsplineInterval(ts);
 
     bool flag_success = rebound_optimize();
 
+    //增加ts的重新赋值
+
     optimal_points = cps_.points;
+
+    ts = knot_span_;
 
     return flag_success;
   }
@@ -871,12 +898,12 @@ namespace ego_planner
     iter_num_ = 0;
     int start_id = order_;
     int end_id = this->cps_.size - order_;
-    variable_num_ = 3 * (end_id - start_id);
+    // variable_num_ = 3 * (end_id - start_id);
+    variable_num_ = 3 * (end_id - start_id) + 1;
     double final_cost;
 
     ros::Time t0 = ros::Time::now(), t1, t2;
     int restart_nums = 0, rebound_times = 0;
-    ;
     bool flag_force_return, flag_occ, success;
     new_lambda2_ = lambda2_;
     constexpr int MAX_RESART_NUMS_SET = 3;
@@ -890,7 +917,10 @@ namespace ego_planner
       success = false;
 
       double q[variable_num_];
-      memcpy(q, cps_.points.data() + 3 * start_id, variable_num_ * sizeof(q[0]));
+      memcpy(q, cps_.points.data() + 3 * start_id, (variable_num_-1) * sizeof(q[0]));
+    
+      q[variable_num_-1] = knot_span_;
+      std::cout << "--------优化前的时间----------------" << knot_span_ << "----------"<<std::endl;
 
       lbfgs::lbfgs_parameter_t lbfgs_params;
       lbfgs::lbfgs_load_default_parameters(&lbfgs_params);
@@ -904,6 +934,8 @@ namespace ego_planner
       t2 = ros::Time::now();
       double time_ms = (t2 - t1).toSec() * 1000;
       double total_time_ms = (t2 - t0).toSec() * 1000;
+      knot_span_ = q[variable_num_ - 1];
+      std::cout << "--------优化后的时间----------------" << knot_span_ << "----------" << std::endl;
 
       /* ---------- success temporary, check collision again ---------- */
       if (result == lbfgs::LBFGS_CONVERGENCE ||
@@ -914,7 +946,8 @@ namespace ego_planner
         //ROS_WARN("Solver error in planning!, return = %s", lbfgs::lbfgs_strerror(result));
         flag_force_return = false;
 
-        UniformBspline traj = UniformBspline(cps_.points, 3, bspline_interval_);
+        // UniformBspline traj = UniformBspline(cps_.points, 3, bspline_interval_);
+        UniformBspline traj = UniformBspline(cps_.points, 3, knot_span_);
         double tm, tmp;
         traj.getTimeSpan(tm, tmp);
         double t_step = (tmp - tm) / ((traj.evaluateDeBoorT(tmp) - traj.evaluateDeBoorT(tm)).norm() / grid_map_->getResolution());
@@ -925,7 +958,7 @@ namespace ego_planner
           {
             //cout << "hit_obs, t=" << t << " P=" << traj.evaluateDeBoorT(t).transpose() << endl;
 
-            if (t <= bspline_interval_) // First 3 control points in obstacles!
+            if (t <= knot_span_) // First 3 control points in obstacles!
             {
               cout << cps_.points.col(1).transpose() << "\n"
                    << cps_.points.col(2).transpose() << "\n"
@@ -1044,25 +1077,36 @@ namespace ego_planner
   void BsplineOptimizer::combineCostRebound(const double *x, double *grad, double &f_combine, const int n)
   {
 
-    memcpy(cps_.points.data() + 3 * order_, x, n * sizeof(x[0]));
+    memcpy(cps_.points.data() + 3 * order_, x, (n-1) * sizeof(x[0]));
 
+    knot_span_ = x[n - 1];
     /* ---------- evaluate cost and gradient ---------- */
     double f_smoothness, f_distance, f_feasibility;
+
+    double f_time;
 
     Eigen::MatrixXd g_smoothness = Eigen::MatrixXd::Zero(3, cps_.size);
     Eigen::MatrixXd g_distance = Eigen::MatrixXd::Zero(3, cps_.size);
     Eigen::MatrixXd g_feasibility = Eigen::MatrixXd::Zero(3, cps_.size);
+    Eigen::MatrixXd g_time = Eigen::MatrixXd::Zero(1, 1);
 
+    double cpsNumsize = cps_.size;
     calcSmoothnessCost(cps_.points, f_smoothness, g_smoothness);
     calcDistanceCostRebound(cps_.points, f_distance, g_distance, iter_num_, f_smoothness);
-    calcFeasibilityCost(cps_.points, f_feasibility, g_feasibility);
+    calcFeasibilityCost(cps_.points, f_feasibility, g_feasibility,knot_span_);
+    // calcTimeCost(knot_span_, f_time, g_time, cps_.points);
+    calcTimeCost(cpsNumsize, f_time, g_time, knot_span_);
 
-    f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility;
-    //printf("origin %f %f %f %f\n", f_smoothness, f_distance, f_feasibility, f_combine);
+    // double lambda4_ = 0;
+    // std::cout << "-----------optimization/lambda_mintime------" << lambda5_ << std::endl;
+    f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility + lambda5_ * f_time;
+    // printf("origin %f %f %f %f\n", f_smoothness, f_distance, f_feasibility, f_combine);
 
     Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility;
-    memcpy(grad, grad_3D.data() + 3 * order_, n * sizeof(grad[0]));
+    memcpy(grad, grad_3D.data() + 3 * order_, (n-1) * sizeof(grad[0]));
+    grad[n - 1] = lambda5_ * g_time(0, 0);
   }
+
 
   void BsplineOptimizer::combineCostRefine(const double *x, double *grad, double &f_combine, const int n)
   {
@@ -1080,7 +1124,7 @@ namespace ego_planner
 
     calcSmoothnessCost(cps_.points, f_smoothness, g_smoothness);
     calcFitnessCost(cps_.points, f_fitness, g_fitness);
-    calcFeasibilityCost(cps_.points, f_feasibility, g_feasibility);
+    calcFeasibilityCost(cps_.points, f_feasibility, g_feasibility,0);
 
     /* ---------- convert to solver format...---------- */
     f_combine = lambda1_ * f_smoothness + lambda4_ * f_fitness + lambda3_ * f_feasibility;

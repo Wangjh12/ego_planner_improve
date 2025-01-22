@@ -425,6 +425,92 @@ namespace ego_planner
     std::cout << "calcTimeCost: cost = " << cost << std::endl;
   }
 
+void BsplineOptimizer::setBoundaryStates(const vector<Eigen::Vector3d>& start,
+                                         const vector<Eigen::Vector3d>& end) {
+  start_state_ = start;
+  end_state_ = end;
+}
+
+
+void BsplineOptimizer::calcStartCost(const std::vector<Eigen::Vector3d>& q, const double& dt, double& cost,
+                                     Eigen::MatrixXd& gradient, double& gt) {
+    cost = 0.0;
+    Eigen::Vector3d zero(0, 0, 0);
+    // Resize gradient to have 3 rows and q.size() columns
+    gradient.resize(3, q.size());
+    gradient.setZero();
+    gt = 0.0;
+
+    Eigen::Vector3d q1, q2, q3, dq;
+    q1 = q[0];
+    q2 = q[1];
+    q3 = q[2];
+
+    // Start position
+    static const double w_pos = 10.0;
+    dq = 1 / 6.0 * (q1 + 4 * q2 + q3) - start_state_[0];
+    cost += w_pos * dq.squaredNorm();
+    gradient.col(0) += w_pos * 2 * dq * (1 / 6.0);
+    gradient.col(1) += w_pos * 2 * dq * (4 / 6.0);
+    gradient.col(2) += w_pos * 2 * dq * (1 / 6.0);
+
+    // Start velocity
+    dq = 1 / (2 * dt) * (q3 - q1) - start_state_[1];
+    cost += dq.squaredNorm();
+    gradient.col(0) += 2 * dq * (-1.0) / (2 * dt);
+    gradient.col(2) += 2 * dq * 1.0 / (2 * dt);
+    if (optimize_time_) gt += dq.dot(q3 - q1) / (-dt * dt);
+
+    // Start acceleration
+    dq = 1 / (dt * dt) * (q1 - 2 * q2 + q3) - start_state_[2];
+    cost += dq.squaredNorm();
+    gradient.col(0) += 2 * dq * 1.0 / (dt * dt);
+    gradient.col(1) += 2 * dq * (-2.0) / (dt * dt);
+    gradient.col(2) += 2 * dq * 1.0 / (dt * dt);
+    if (optimize_time_) gt += dq.dot(q1 - 2 * q2 + q3) / (-dt * dt * dt);
+}
+
+void BsplineOptimizer::calcEndCost(const std::vector<Eigen::Vector3d>& q, const double& dt, double& cost,
+                                   Eigen::MatrixXd& gradient, double& gt) {
+    cost = 0.0;
+    Eigen::Vector3d zero(0, 0, 0);
+    // Resize gradient to have 3 rows and q.size() columns
+    gradient.resize(3, q.size());
+    gradient.setZero();
+    gt = 0.0;
+
+    Eigen::Vector3d q_3, q_2, q_1, dq;
+    q_3 = q[q.size() - 3];
+    q_2 = q[q.size() - 2];
+    q_1 = q[q.size() - 1];
+
+    // End position
+    dq = 1 / 6.0 * (q_1 + 4 * q_2 + q_3) - end_state_[0];
+    cost += dq.squaredNorm();
+    gradient.col(q.size() - 1) += 2 * dq * (1 / 6.0);
+    gradient.col(q.size() - 2) += 2 * dq * (4 / 6.0);
+    gradient.col(q.size() - 3) += 2 * dq * (1 / 6.0);
+
+    if (end_state_.size() >= 2) {
+        // End velocity
+        dq = 1 / (2 * dt) * (q_1 - q_3) - end_state_[1];
+        cost += dq.squaredNorm();
+        gradient.col(q.size() - 1) += 2 * dq * 1.0 / (2 * dt);
+        gradient.col(q.size() - 3) += 2 * dq * (-1.0) / (2 * dt);
+        if (optimize_time_) gt += dq.dot(q_1 - q_3) / (-dt * dt);
+    }
+    if (end_state_.size() == 3) {
+        // End acceleration
+        dq = 1 / (dt * dt) * (q_1 - 2 * q_2 + q_3) - end_state_[2];
+        cost += dq.squaredNorm();
+        gradient.col(q.size() - 1) += 2 * dq * 1.0 / (dt * dt);
+        gradient.col(q.size() - 2) += 2 * dq * (-2.0) / (dt * dt);
+        gradient.col(q.size() - 3) += 2 * dq * 1.0 / (dt * dt);
+        if (optimize_time_) gt += dq.dot(q_1 - 2 * q_2 + q_3) / (-dt * dt * dt);
+    }
+}
+
+
   void BsplineOptimizer::calcSmoothnessCost(const Eigen::MatrixXd &q, double &cost,
                                             Eigen::MatrixXd &gradient, bool falg_use_jerk /* = true*/)
   {
@@ -469,7 +555,7 @@ namespace ego_planner
   }
 
   void BsplineOptimizer::calcFeasibilityCost(const Eigen::MatrixXd &q, double &cost,
-                                             Eigen::MatrixXd &gradient,double knot_span)
+                                             Eigen::MatrixXd &gradient)
   {
 
     //#define SECOND_DERIVATIVE_CONTINOUS
@@ -600,13 +686,9 @@ namespace ego_planner
     double ts, /*vm2, am2, */ ts_inv2;
     // vm2 = max_vel_ * max_vel_;
     // am2 = max_acc_ * max_acc_;
-    if(knot_span = 0)
-    {
-      ts = bspline_interval_;
-    }else{
-      ts = knot_span;
-    }
 
+      ts = bspline_interval_;
+  
     ts_inv2 = 1 / ts / ts;
 
     /* velocity feasibility */
@@ -677,6 +759,54 @@ namespace ego_planner
 
 #endif
   }
+
+void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double knot_span, double &cost, Eigen::MatrixXd &gradient, double &gt) {
+    cost = 0.0;
+    gradient.setZero();  // 初始化梯度为零
+    gt = 0.0;  // 初始化与时间相关的额外梯度项
+
+
+    // 缩写参数
+    const double dt_inv = 1 / knot_span;
+    const double dt_inv2 = dt_inv * dt_inv;
+
+    // 计算速度可行性代价和梯度
+    for (int i = 0; i < q.cols()-1; ++i) {
+        Eigen::Vector3d vi = (q.col(i + 1) - q.col(i)) * dt_inv;
+        for (int k = 0; k < 3; ++k) {
+            double vd = fabs(vi[k]) - max_vel_;
+            if (vd > 0.0) {
+                cost += pow(vd, 2);
+                double sign = (vi[k] > 0) ? 1.0 : -1.0;
+                double tmp = 2 * vd * sign * dt_inv;
+                gradient(k, i) += -tmp;
+                gradient(k, i + 1) += tmp;
+                gt += tmp * (-vi[k]);
+              
+            }
+        }
+    }
+
+    // 计算加速度可行性代价和梯度
+    for (int i = 0; i < q.cols()-2; ++i) {
+        Eigen::Vector3d ai = (q.col(i + 2) - 2 * q.col(i + 1) + q.col(i)) * dt_inv2;
+        for (int k = 0; k < 3; ++k) {
+            double ad = fabs(ai[k]) - max_acc_;
+            if (ad > 0.0) {
+                cost += pow(ad, 2);
+                double sign = (ai[k] > 0) ? 1.0 : -1.0;
+                double tmp = 2 * ad * sign * dt_inv2;
+                gradient(k, i) += tmp;
+                gradient(k, i + 1) += -2 * tmp;
+                gradient(k, i + 2) += tmp;
+                gt += tmp * ai[k] * (-2) * knot_span;
+            }
+        }
+    }
+
+    std::cout << "calcFeasibilityCost——test: cost = " << cost << std::endl;
+    std::cout << "calcFeasibilityCost——test: gt = " << gt << std::endl;
+}
 
   bool BsplineOptimizer::check_collision_and_rebound(void)
   {
@@ -917,10 +1047,16 @@ namespace ego_planner
       success = false;
 
       double q[variable_num_];
-      memcpy(q, cps_.points.data() + 3 * start_id, (variable_num_-1) * sizeof(q[0]));
-    
+      std::cout << "---------variable_num_--------------------" << variable_num_ << std::endl;
+      memcpy(q, cps_.points.data() + 3 * start_id, (variable_num_ - 1) * sizeof(q[0]));
+
       q[variable_num_-1] = knot_span_;
-      std::cout << "--------优化前的时间----------------" << knot_span_ << "----------"<<std::endl;
+      // std::cout << "----count q ---------------" << std::endl;
+      // for (int i = 0; i < variable_num_;++i)
+      // {
+      //   std::cout << q[i] << std::endl;
+      // }
+        std::cout << "--------优化前的时间----------------" << knot_span_ << "----------" << std::endl;
 
       lbfgs::lbfgs_parameter_t lbfgs_params;
       lbfgs::lbfgs_load_default_parameters(&lbfgs_params);
@@ -1081,7 +1217,10 @@ namespace ego_planner
 
     knot_span_ = x[n - 1];
     /* ---------- evaluate cost and gradient ---------- */
+
     double f_smoothness, f_distance, f_feasibility;
+
+    double f_start, f_end;
 
     double f_time;
 
@@ -1090,23 +1229,36 @@ namespace ego_planner
     Eigen::MatrixXd g_feasibility = Eigen::MatrixXd::Zero(3, cps_.size);
     Eigen::MatrixXd g_time = Eigen::MatrixXd::Zero(1, 1);
 
+    Eigen::MatrixXd g_start = Eigen::MatrixXd::Zero(3, cps_.size);
+    Eigen::MatrixXd g_end = Eigen::MatrixXd::Zero(3, cps_.size);
+
+    double gt = 0;
+
     double cpsNumsize = cps_.size;
     calcSmoothnessCost(cps_.points, f_smoothness, g_smoothness);
     calcDistanceCostRebound(cps_.points, f_distance, g_distance, iter_num_, f_smoothness);
-    calcFeasibilityCost(cps_.points, f_feasibility, g_feasibility,knot_span_);
+    calcFeasibilityCost_test(cps_.points, knot_span_,f_feasibility, g_feasibility,gt);
+    // calcFeasibilityCost(cps_.points, f_feasibility, g_feasibility,knot_span_);
     // calcTimeCost(knot_span_, f_time, g_time, cps_.points);
     calcTimeCost(cpsNumsize, f_time, g_time, knot_span_);
 
-    // double lambda4_ = 0;
-    // std::cout << "-----------optimization/lambda_mintime------" << lambda5_ << std::endl;
+
+
+
     f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility + lambda5_ * f_time;
     // printf("origin %f %f %f %f\n", f_smoothness, f_distance, f_feasibility, f_combine);
 
+
     Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility;
     memcpy(grad, grad_3D.data() + 3 * order_, (n-1) * sizeof(grad[0]));
-    grad[n - 1] = lambda5_ * g_time(0, 0);
-  }
+    grad[n - 1] = lambda5_ * g_time(0, 0)+ lambda3_ * gt;
+    std::cout << "-----------f_combine-----------" << f_combine << std::endl;
+    std::cout << "Contents of grad:" << std::endl;
+    for (int i = 0; i < n; ++i) {
+        std::cout << "grad[" << i << "] = " << grad[i] << std::endl;
+    }
 
+  }
 
   void BsplineOptimizer::combineCostRefine(const double *x, double *grad, double &f_combine, const int n)
   {
@@ -1124,7 +1276,7 @@ namespace ego_planner
 
     calcSmoothnessCost(cps_.points, f_smoothness, g_smoothness);
     calcFitnessCost(cps_.points, f_fitness, g_fitness);
-    calcFeasibilityCost(cps_.points, f_feasibility, g_feasibility,0);
+    calcFeasibilityCost(cps_.points, f_feasibility, g_feasibility);
 
     /* ---------- convert to solver format...---------- */
     f_combine = lambda1_ * f_smoothness + lambda4_ * f_fitness + lambda3_ * f_feasibility;

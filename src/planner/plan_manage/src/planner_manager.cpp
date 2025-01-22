@@ -291,11 +291,12 @@ namespace ego_planner
     visualization_->displayAStarList(a_star_pathes, vis_id);
 
     t_start = ros::Time::now();
-
+    cout << "----------优化前 ts--------" << ts << "----------"<<endl;
     /*** STEP 2: OPTIMIZE ***/
+    bspline_optimizer_rebound_->setBoundaryStates(start_pt, local_target_pt);
     bool flag_step_1_success = bspline_optimizer_rebound_->BsplineOptimizeTrajRebound(ctrl_pts, ts);
     cout << "first_optimize_step_success=" << flag_step_1_success << endl;
-    cout << "----------optimize ts--------" << ts << "----------"<<endl;
+    cout << "----------优化后 ts--------" << ts << "----------"<<endl;
     if (!flag_step_1_success)
     {
       // visualization_->displayOptimalList( ctrl_pts, vis_id );

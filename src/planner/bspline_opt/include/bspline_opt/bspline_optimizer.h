@@ -129,6 +129,9 @@ namespace ego_planner
 
     ControlPoints cps_;
 
+    Eigen::Vector3d start_state_[3];
+    Eigen::Vector3d end_state_[3];
+
     /* cost function */
     /* calculate each part of cost function with control points q as input */
 
@@ -140,8 +143,8 @@ namespace ego_planner
                             Eigen::MatrixXd &gradient, bool falg_use_jerk = true);
     // void calcFeasibilityCost(const Eigen::MatrixXd &q, double &cost,
     //                          Eigen::MatrixXd &gradient);
-        void calcFeasibilityCost(const Eigen::MatrixXd &q, double &cost,
-                             Eigen::MatrixXd &gradient,double knot_span);
+    void calcFeasibilityCost(const Eigen::MatrixXd &q, double &cost,
+                             Eigen::MatrixXd &gradient);
     void calcDistanceCostRebound(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient, int iter_num, double smoothness_cost);
     void calcFitnessCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient);
     bool check_collision_and_rebound(void);
@@ -156,6 +159,18 @@ namespace ego_planner
     void combineCostRefine(const double *x, double *grad, double &f_combine, const int n);
 
     void calcTimeCost(double size, double &cost, Eigen::MatrixXd &gradient,double knot_span);
+    // void calcFeasibilityCost_test(const vector<Eigen::Vector3d> &q, const double &dt,
+    //                               double &cost, vector<Eigen::Vector3d> &gradient_q,
+    //                               double &gt);
+
+    void calcFeasibilityCost_test(const Eigen::MatrixXd &q, double knot_span, double &cost, Eigen::MatrixXd &gradient, double &gt);
+
+    void calcStartCost(const vector<Eigen::Vector3d>& q, const double& dt, double& cost,
+                                     Eigen::MatrixXd &gradient, double& gt);
+    void calcEndCost(const vector<Eigen::Vector3d> &q, const double &dt, double &cost,
+                     Eigen::MatrixXd &gradient, double &gt);
+    void setBoundaryStates(const vector<Eigen::Vector3d> &start,
+                                             const vector<Eigen::Vector3d> &end);
 
     /* for benckmark evaluation only */
   public:

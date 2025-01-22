@@ -81,6 +81,10 @@ namespace ego_planner
     bool BsplineOptimizeTrajRebound(Eigen::MatrixXd &optimal_points, double& ts); // must be called after initControlPoints()
     bool BsplineOptimizeTrajRefine(const Eigen::MatrixXd &init_points, const double ts, Eigen::MatrixXd &optimal_points);
 
+    void setBoundaryStates(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel,
+                           Eigen::Vector3d start_acc, Eigen::Vector3d local_target_pt,
+                           Eigen::Vector3d local_target_vel);
+
     inline int getOrder(void) { return order_; }
 
   private:
@@ -113,7 +117,9 @@ namespace ego_planner
     double lambda2_, new_lambda2_; // distance weight
     double lambda3_;               // feasibility weight
     double lambda4_;               // curve fitting
-    double lambda5_;  
+    double lambda5_; 
+    double lambda6_; 
+    double lambda7_; 
 
     int a;
     //
@@ -129,8 +135,7 @@ namespace ego_planner
 
     ControlPoints cps_;
 
-    Eigen::Vector3d start_state_[3];
-    Eigen::Vector3d end_state_[3];
+    vector<Eigen::Vector3d> start_state_, end_state_;
 
     /* cost function */
     /* calculate each part of cost function with control points q as input */
@@ -165,12 +170,10 @@ namespace ego_planner
 
     void calcFeasibilityCost_test(const Eigen::MatrixXd &q, double knot_span, double &cost, Eigen::MatrixXd &gradient, double &gt);
 
-    void calcStartCost(const vector<Eigen::Vector3d>& q, const double& dt, double& cost,
+    void calcStartCost(const Eigen::MatrixXd& q, const double& dt, double& cost,
                                      Eigen::MatrixXd &gradient, double& gt);
-    void calcEndCost(const vector<Eigen::Vector3d> &q, const double &dt, double &cost,
+    void calcEndCost(const Eigen::MatrixXd& q, const double &dt, double &cost,
                      Eigen::MatrixXd &gradient, double &gt);
-    void setBoundaryStates(const vector<Eigen::Vector3d> &start,
-                                             const vector<Eigen::Vector3d> &end);
 
     /* for benckmark evaluation only */
   public:

@@ -293,7 +293,7 @@ namespace ego_planner
     t_start = ros::Time::now();
     cout << "----------优化前 ts--------" << ts << "----------"<<endl;
     /*** STEP 2: OPTIMIZE ***/
-    bspline_optimizer_rebound_->setBoundaryStates(start_pt, local_target_pt);
+    bspline_optimizer_rebound_->setBoundaryStates(start_pt,start_vel,start_acc,local_target_pt,local_target_vel);
     bool flag_step_1_success = bspline_optimizer_rebound_->BsplineOptimizeTrajRebound(ctrl_pts, ts);
     cout << "first_optimize_step_success=" << flag_step_1_success << endl;
     cout << "----------优化后 ts--------" << ts << "----------"<<endl;

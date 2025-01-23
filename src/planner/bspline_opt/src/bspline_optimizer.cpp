@@ -12,6 +12,8 @@ namespace ego_planner
     nh.param("optimization/lambda_feasibility", lambda3_, -1.0);
     nh.param("optimization/lambda_fitness", lambda4_, -1.0);
     nh.param("optimization/lambda_mintime", lambda5_, -1.0);
+    nh.param("optimization/lambda_start", lambda6_, -1.0);
+    nh.param("optimization/lambda_end", lambda7_, -1.0);
 
     nh.param("optimization/dist0", dist0_, -1.0);
     nh.param("optimization/max_vel", max_vel_, -1.0);
@@ -1032,8 +1034,8 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
     iter_num_ = 0;
     int start_id = order_;
     int end_id = this->cps_.size - order_;
-    // int start_id = 1;
-    // int end_id = this->cps_.size -1;
+    // int start_id = 0;
+    // int end_id = this->cps_.size -0;
     // variable_num_ = 3 * (end_id - start_id);
     variable_num_ = 3 * (end_id - start_id) + 1;
     double final_cost;
@@ -1220,6 +1222,7 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
   {
 
     memcpy(cps_.points.data() + 3 * order_, x, (n-1) * sizeof(x[0]));
+    // memcpy(cps_.points.data(), x, (n-1) * sizeof(x[0]));
 
     knot_span_ = x[n - 1];
     /* ---------- evaluate cost and gradient ---------- */
@@ -1234,7 +1237,6 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
     Eigen::MatrixXd g_distance = Eigen::MatrixXd::Zero(3, cps_.size);
     Eigen::MatrixXd g_feasibility = Eigen::MatrixXd::Zero(3, cps_.size);
     Eigen::MatrixXd g_time = Eigen::MatrixXd::Zero(1, 1);
-
     Eigen::MatrixXd g_start = Eigen::MatrixXd::Zero(3, cps_.size);
     Eigen::MatrixXd g_end = Eigen::MatrixXd::Zero(3, cps_.size);
 
@@ -1253,12 +1255,13 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
     calcStartCost(cps_.points, knot_span_,f_start,g_start, gt_start);
     calcEndCost(cps_.points, knot_span_,f_start,g_start, gt_end);
 
-    f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility + lambda5_ * f_time + f_start + f_end;
+    f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility + lambda5_ * f_time + lambda6_*f_start + lambda7_*f_end;
     // printf("origin %f %f %f %f\n", f_smoothness, f_distance, f_feasibility, f_combine);
 
-    Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility + g_end + g_start;
+    Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility +lambda6_* g_start+lambda7_* g_end;
     memcpy(grad, grad_3D.data() + 3 * order_, (n - 1) * sizeof(grad[0]));
-    grad[n - 1] = lambda5_ * g_time(0, 0) + lambda3_ * gt_feasibility + gt_start + gt_end;
+    // memcpy(grad, grad_3D.data(), (n - 1) * sizeof(grad[0]));
+    grad[n - 1] = lambda5_ * g_time(0, 0) + lambda3_ * gt_feasibility + lambda6_* gt_start + lambda7_* gt_end;
     // std::cout << "-----------f_combine-----------" << f_combine << std::endl;
     // std::cout << "Contents of grad:" << std::endl;
     // for (int i = 0; i < n; ++i) {

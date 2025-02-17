@@ -21,6 +21,7 @@ bool receive_traj_ = false;
 vector<UniformBspline> traj_;
 double traj_duration_;
 ros::Time start_time_;
+ros::Time record_start_time_,record_end_time_;
 int traj_id_;
 
 // yaw control
@@ -28,6 +29,8 @@ double last_yaw_, last_yaw_dot_;
 double time_forward_;
 
 bool use_planYaw = true;
+
+vector<Eigen::Vector3d> traj_pos_;
 
 void bsplineCallback(ego_planner::BsplineConstPtr msg)
 {
@@ -65,6 +68,11 @@ void bsplineCallback(ego_planner::BsplineConstPtr msg)
 
   start_time_ = msg->start_time;
   traj_id_ = msg->traj_id;
+
+  if (record_start_time_.isZero()) {
+    ROS_WARN("start flight");
+    record_start_time_ = ros::Time::now();
+  }
 
 
   traj_.clear();
@@ -215,10 +223,12 @@ void cmdCallback(const ros::TimerEvent &e)
     yaw_yawdot.first = last_yaw_;
     yaw_yawdot.second = 0;
 
-
     yaw = traj_[3].evaluateDeBoorT(traj_duration_)[0];
     yawdot = traj_[4].evaluateDeBoorT(traj_duration_)[0];
 
+    double flight_t = (record_end_time_ - record_start_time_).toSec();
+
+    ROS_WARN_THROTTLE(2, "flight time: %lf",  flight_t);
 
     pos_f = pos;
   }
@@ -284,11 +294,21 @@ void cmdCallback(const ros::TimerEvent &e)
 
   mav_cmd_pub.publish(mav_cmd);
 
-
+  if(traj_pos_.size()==0)
+  {
+    traj_pos_.push_back(pos);
+  }else if((pos - traj_pos_.back()).norm() > 1e-6)
+  {
+    traj_pos_.push_back(pos);
+    record_end_time_ = ros::Time::now();
+  }
 }
 
 
-
+void new_Callback(ego_planner::BsplineConstPtr msg)
+{
+  traj_pos_.clear();
+}
 
 int main(int argc, char **argv)
 {
@@ -296,8 +316,9 @@ int main(int argc, char **argv)
   ros::NodeHandle node;
   ros::NodeHandle nh("~");
 
-  ros::Subscriber bspline_sub = node.subscribe("planning/bspline", 10, bsplineCallback);   //你的 ROS 节点订阅一个话题时，如果消息发送的速度快于你的节点处理消息的速度，那么未处理的消息将会被存储在一个队列中，直到它们被处理。
-                                                                                           //这里的 10 表示最多可以有 10 条未处理的消息被存储在队列中。如果更多的消息在队列满之前到达，那么最旧的消息将被丢弃以腾出空间给新的消息。
+  ros::Subscriber bspline_sub = node.subscribe("planning/bspline", 10, bsplineCallback);
+
+  ros::Subscriber new_sub = node.subscribe("planning/bspline", 10, new_Callback);
 
   pos_cmd_pub = node.advertise<quadrotor_msgs::PositionCommand>("/position_cmd", 50);           //50 代表了发布者（publisher）的缓存队列大小。当你创建一个发布者时，指定的数字（这里是 50）表示发布者能够缓存未被订阅者接收的消息数量。
 

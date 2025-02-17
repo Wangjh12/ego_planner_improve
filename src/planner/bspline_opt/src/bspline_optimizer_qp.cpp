@@ -50,7 +50,7 @@ void BsplineOptimizer_QP::setParam(ros::NodeHandle& nh) {
   nh.param("optimization/lambda7", lambda7_, 20.0);
   nh.param("optimization/lambda8", lambda8_, -1.0);
 
-  nh.param("optimization/dist0", dist0_, 0.4);
+  nh.param("optimization/dist1", dist0_, 0.4);
   nh.param("optimization/max_vel", max_vel_, 2.0);
   nh.param("optimization/max_acc", max_acc_, 2.0);
   nh.param("optimization/visib_min", visib_min_, -1.0);

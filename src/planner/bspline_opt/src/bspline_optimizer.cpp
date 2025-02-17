@@ -1034,10 +1034,10 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
     iter_num_ = 0;
     int start_id = order_;
     int end_id = this->cps_.size - order_;
-    // int start_id = 0;
-    // int end_id = this->cps_.size -0;
     // variable_num_ = 3 * (end_id - start_id);
-    variable_num_ = 3 * (end_id - start_id) + 1;
+    // variable_num_ = 3 * (end_id - start_id) + 1;
+    variable_num_ = 3 * cps_.size + 1;
+    cout << "---------variable_num_ = " << variable_num_ << endl;
     double final_cost;
 
     ros::Time t0 = ros::Time::now(), t1, t2;
@@ -1055,17 +1055,17 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
       success = false;
 
       double q[variable_num_];
-      // std::cout << "---------variable_num_--------------------" << variable_num_ << std::endl;
-      memcpy(q, cps_.points.data() + 3 * start_id, (variable_num_ - 1) * sizeof(q[0]));
-
+      std::cout << "---------variable_num_--------------------" << variable_num_ << std::endl;
+      // memcpy(q, cps_.points.data() + 3 * start_id, (variable_num_ - 1) * sizeof(q[0]));
+      memcpy(q, cps_.points.data(), (variable_num_ - 1) * sizeof(q[0]));
       q[variable_num_-1] = knot_span_;
-      // std::cout << "----count q ---------------" << std::endl;
+      // std::cout << "--------------------count q ---------------" << std::endl;
       // for (int i = 0; i < variable_num_;++i)
       // {
-      //   std::cout << q[i] << std::endl;
+      //   std::cout << q[i] << " ";
       // }
-        // std::cout << "--------优化前的时间----------------" << knot_span_ << "----------" << std::endl;
-
+      // cout << endl;
+      // std::cout << "--------------------------------------" << std::endl;
       lbfgs::lbfgs_parameter_t lbfgs_params;
       lbfgs::lbfgs_load_default_parameters(&lbfgs_params);
       lbfgs_params.mem_size = 16;
@@ -1079,7 +1079,6 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
       double time_ms = (t2 - t1).toSec() * 1000;
       double total_time_ms = (t2 - t0).toSec() * 1000;
       knot_span_ = q[variable_num_ - 1];
-      // std::cout << "--------优化后的时间----------------" << knot_span_ << "----------" << std::endl;
 
       /* ---------- success temporary, check collision again ---------- */
       if (result == lbfgs::LBFGS_CONVERGENCE ||
@@ -1221,8 +1220,9 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
   void BsplineOptimizer::combineCostRebound(const double *x, double *grad, double &f_combine, const int n)
   {
 
-    memcpy(cps_.points.data() + 3 * order_, x, (n-1) * sizeof(x[0]));
-    // memcpy(cps_.points.data(), x, (n-1) * sizeof(x[0]));
+    // memcpy(cps_.points.data() + 3 * order_, x, (n-1) * sizeof(x[0]));
+    memcpy(cps_.points.data(), x, (n-1) * sizeof(x[0]));
+    // std::cout << "-------cps.point-------------"  << std::endl << cps_.points << std::endl;  
 
     knot_span_ = x[n - 1];
     /* ---------- evaluate cost and gradient ---------- */
@@ -1259,8 +1259,8 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
     // printf("origin %f %f %f %f\n", f_smoothness, f_distance, f_feasibility, f_combine);
 
     Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility +lambda6_* g_start+lambda7_* g_end;
-    memcpy(grad, grad_3D.data() + 3 * order_, (n - 1) * sizeof(grad[0]));
-    // memcpy(grad, grad_3D.data(), (n - 1) * sizeof(grad[0]));
+    // memcpy(grad, grad_3D.data() + 3 * order_, (n - 1) * sizeof(grad[0]));
+    memcpy(grad, grad_3D.data(), (n - 1) * sizeof(grad[0]));
     grad[n - 1] = lambda5_ * g_time(0, 0) + lambda3_ * gt_feasibility + lambda6_* gt_start + lambda7_* gt_end;
     // std::cout << "-----------f_combine-----------" << f_combine << std::endl;
     // std::cout << "Contents of grad:" << std::endl;

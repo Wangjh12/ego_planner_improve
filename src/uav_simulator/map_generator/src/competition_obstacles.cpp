@@ -19,7 +19,17 @@ struct Obstacle {
     double radius, height;
 };
 
-pcl::KdTreeFLANN<pcl::PointXYZ> kdtreeLocalMap;
+struct RingObstacle
+{
+    double x;
+    double y;
+    double radius;
+    double height;
+    double thickness;
+};
+
+pcl::KdTreeFLANN<pcl::PointXYZ>
+    kdtreeLocalMap;
 vector<int> pointIdxRadiusSearch;
 vector<float> pointRadiusSquaredDistance;
 
@@ -279,6 +289,173 @@ void rcvOdometryCallbck(const nav_msgs::Odometry odom) {
             0.0};
 }
 
+void GenerateObstaclesInE() {
+    vector<Obstacle> obstacles;
+    vector<RingObstacle> ringObstacle;
+
+    // 定义固定障碍物的位置和属性
+    Obstacle fixedObstacles[] = {
+        {-1.0, 2.0, 0.25, 2.0},
+        {-1.5, -6.0, 0.25, 3.0},
+        {-3.0, 5.0, 0.25, 3.0},
+        {-2.0, 7.0, 0.25, 2.0},
+        {-4.0, -5.0, 0.25, 1.0},
+        {-3.0, -4.0, 0.25, 2.0},
+        {-5.0, 4.0, 0.25, 2.0},
+        {-4.0, -3.0, 0.25, 3.0},
+        {-6.0, -4.0, 0.25, 2.0},
+        {-5.0, -2.0, 0.25, 1.0},
+        {-7.0, 3.0, 0.25, 2.0},
+        {-6.0, 6.0, 0.25, 3.0},
+        {-8.0, -6.0, 0.25, 3.0},
+        {-7.0, 7.0, 0.25, 2.0},
+        {-8.0, -7.0, 0.25, 2.0},
+        {-10.0, -4.0, 0.25, 2.0},
+        {-9.0, 6.0, 0.25, 3.0},
+        {-11.0, 5.0, 0.25, 3.0},
+        {-10.0, -3.0, 0.25, 2.0},
+        {-12.0, 1.0, 0.25, 2.0},
+        {-11.0, 2.0, 0.25, 3.0},
+        {-13.0, -4.0, 0.25, 2.0},
+        {-12.0, -2.0, 0.25, 2.0},
+        {-14.0, 4.0, 0.25, 3.0},
+        {-13.0, 3.0, 0.25, 2.0},
+        {-15.0, -6.0, 0.25, 2.0},
+        {-14.0, -4.0, 0.25, 3.0},
+        {-16.0, -7.0, 0.25, 2.0},
+        {-15.0, -0.0, 0.25, 2.0},
+        {-12.0, -0.0, 0.25, 2.0},
+        {-9.0, -0.0, 0.25, 3.0},
+        {-6.0, -0.0, 0.25, 2.0},
+        {-3.0, -0.0, 0.25, 3.0},
+        };
+
+    // 格式：{中心x, 中心y, 半径, 高度, 圆环厚度}
+    RingObstacle ringObstacles[] = { 
+        {0.0, 0.0, 2.0, 1.0, 0.25}, 
+        {5.0, 5.0, 3.0, 1.5, 0.25}, 
+        {-5.0, -5.0, 2.5, 1.0, 0.25}, 
+        {3.0, -3.0, 2.0, 1.2, 0.25}, 
+        {-3.0, 3.0, 2.8, 1.3, 0.25}, 
+        {6.0, 0.0, 1.5, 0.8, 0.25}, 
+        {0.0, 6.0, 2.2, 1.1, 0.25}, 
+        {-6.0, 0.0, 3.2, 1.6, 0.25}, 
+        {0.0, -6.0, 2.7, 1.4, 0.25}, 
+        {4.0, 4.0, 1.8, 0.9, 0.25} 
+    };
+
+    int numFixedObstacles = sizeof(fixedObstacles) / sizeof(fixedObstacles[0]);
+    int numRingObstacles = sizeof(ringObstacles) / sizeof(ringObstacles[0]);
+    for (int i = 0; i < numFixedObstacles; i++) {
+        obstacles.push_back(fixedObstacles[i]);
+    }
+
+    for (int i = 0; i < numRingObstacles; i++) {
+        ringObstacle.push_back(ringObstacles[i]);
+    }
+    pcl::PointXYZ pt_random;
+
+  // generate polar obs   随机生成正方体障碍物
+    for (int i = 0; i < numFixedObstacles; i++) {
+        double x, y, w, h;
+        x = obstacles[i].x;
+        y = obstacles[i].y;
+        w = obstacles[i].radius;
+
+        if (sqrt(pow(x - _init_x, 2) + pow(y - _init_y, 2)) < 2.0) {
+        i--;
+        continue;
+        }
+
+        if (sqrt(pow(x - 19.0, 2) + pow(y - 0.0, 2)) < 2.0) {
+        i--;
+        continue;
+        }
+
+        x = floor(x / _resolution) * _resolution + _resolution / 2.0;
+        y = floor(y / _resolution) * _resolution + _resolution / 2.0;
+
+        int widNum = ceil(w / _resolution);
+
+        for (int r = -widNum / 2.0; r < widNum / 2.0; r++)
+        for (int s = -widNum / 2.0; s < widNum / 2.0; s++) {
+            h = obstacles[i].height;
+            int heiNum = ceil(h / _resolution);
+            for (int t = -20; t < heiNum; t++) {
+            pt_random.x = x + (r + 0.5) * _resolution + 1e-2;
+            pt_random.y = y + (s + 0.5) * _resolution + 1e-2;
+            pt_random.z = (t + 0.5) * _resolution + 1e-2;
+            cloudMap.points.push_back(pt_random);
+            }
+        }
+    }
+
+
+//   for (int i = 0; i < numRingObstacles; ++i) {
+//     double x, y, z;
+//     x = ringObstacle[i].x;
+//     y = ringObstacle[i].y;
+//     z = ringObstacle[i].z;
+
+//     if (sqrt(pow(x - _init_x, 2) + pow(y - _init_y, 2)) < 2.0) {
+//       i--;
+//       continue;
+//     }
+
+//     if (sqrt(pow(x - 19.0, 2) + pow(y - 0.0, 2)) < 2.0) {
+//       i--;
+//       continue;
+//     }
+
+//     x = floor(x / _resolution) * _resolution + _resolution / 2.0;
+//     y = floor(y / _resolution) * _resolution + _resolution / 2.0;
+//     z = floor(z / _resolution) * _resolution + _resolution / 2.0;
+
+//     Eigen::Vector3d translate(x, y, z);
+
+//     double theta = rand_theta_(eng);
+//     Eigen::Matrix3d rotate;
+//     rotate << cos(theta), -sin(theta), 0.0, sin(theta), cos(theta), 0.0, 0, 0,
+//         1;
+
+//     double radius1 = rand_radius_(eng);
+//     double radius2 = rand_radius2_(eng);
+
+//     // draw a circle centered at (x,y,z)
+//     Eigen::Vector3d cpt;
+//     for (double angle = 0.0; angle < 6.282; angle += _resolution / 2) {
+//       cpt(0) = 0.0;
+//       cpt(1) = radius1 * cos(angle);
+//       cpt(2) = radius2 * sin(angle);
+
+//       // inflate
+//       Eigen::Vector3d cpt_if;
+//       for (int ifx = -0; ifx <= 0; ++ifx)
+//         for (int ify = -0; ify <= 0; ++ify)
+//           for (int ifz = -0; ifz <= 0; ++ifz) {
+//             cpt_if = cpt + Eigen::Vector3d(ifx * _resolution, ify * _resolution,
+//                                            ifz * _resolution);
+//             cpt_if = rotate * cpt_if + Eigen::Vector3d(x, y, z);
+//             pt_random.x = cpt_if(0);
+//             pt_random.y = cpt_if(1);
+//             pt_random.z = cpt_if(2);
+//             cloudMap.push_back(pt_random);
+//           }
+//     }
+//   }
+
+    cloudMap.width = cloudMap.points.size();
+    cloudMap.height = 1;
+    cloudMap.is_dense = true;
+
+    ROS_WARN("Finished generating specified map");
+
+    kdtreeLocalMap.setInputCloud(cloudMap.makeShared());
+
+    _map_ok = true;
+}
+
+
 void pubSensedPoints() {
 
   pcl::toROSMsg(cloudMap, globalMap_pcd);
@@ -326,22 +503,22 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "random_map_sensing");
     ros::NodeHandle nh("~");
     
-    nh.param("map/obs_num", _obs_num, 30);
-    nh.param("init_state_x", _init_x, 0.0);
+    nh.param("map/obs_num", _obs_num, 90);
+    nh.param("init_state_x", _init_x, -18.0);
     nh.param("init_state_y", _init_y, 0.0);
-    nh.param("map/x_size", _x_size, 50.0);
-    nh.param("map/y_size", _y_size, 50.0);
-    nh.param("map/z_size", _z_size, 5.0);
+    nh.param("map/x_size", _x_size, 40.0);
+    nh.param("map/y_size", _y_size, 40.0);
+    nh.param("map/z_size", _z_size, 3.0);
     nh.param("sensing/range", _sensing_range, 10.0);
     nh.param("sensing/rate", _sense_rate, 10.0);
     nh.param("map/resolution", _resolution, 0.2);
     nh.param("min_distance", _min_dist, 1.0);
     
-    _x_h = 0.0;
-    _x_l = -_x_size / 3.0;
+    _x_h = _x_size / 2.0;
+    _x_l = -_x_size / 2.0;
 
-    _y_h = _y_size / 3.0;
-    _y_l = 0.0;
+    _y_h = _y_size / 2.0;
+    _y_l = -_y_size / 2.0;
     _state = {_init_x, _init_y, 0.0};
 
     _local_map_pub = nh.advertise<sensor_msgs::PointCloud2>("/map_generator/local_cloud", 1);
@@ -363,10 +540,11 @@ int main(int argc, char** argv) {
 
 
 
-    GenerateObstaclesInA();
-    GenerateObstaclesInB();
-    GenerateObstaclesInC();
-    GenerateObstaclesInD();
+    // GenerateObstaclesInA();
+    // GenerateObstaclesInB();
+    // GenerateObstaclesInC();
+    // GenerateObstaclesInD();
+    GenerateObstaclesInE();
 
     ros::Rate loop_rate(_sense_rate);
 

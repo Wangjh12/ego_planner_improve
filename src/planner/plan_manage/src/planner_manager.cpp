@@ -29,7 +29,7 @@ namespace ego_planner
   这里使用了c++ 智能指针,将grid_map_ 指向一个新的对象 
   原来的对象（如果有的话）将被销毁。
   */
-    grid_map_.reset(new GridMap);\
+    grid_map_.reset(new GridMap);
     
     //初始化栅格地图GridMap::initMap(ros::NodeHandle &nh)
 

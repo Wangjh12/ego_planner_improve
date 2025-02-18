@@ -11,6 +11,7 @@ namespace ego_planner
     nh.param("optimization/lambda_collision", lambda2_, -1.0);
     nh.param("optimization/lambda_feasibility", lambda3_, -1.0);
     nh.param("optimization/lambda_fitness", lambda4_, -1.0);
+    nh.param("optimization/lambda_fovcost", lambda8_, -1.0);
 
     nh.param("optimization/dist0", dist0_, -1.0);
     nh.param("optimization/max_vel", max_vel_, -1.0);
@@ -1062,19 +1063,23 @@ namespace ego_planner
 
     /* ---------- evaluate cost and gradient ---------- */
     double f_smoothness, f_distance, f_feasibility;
+    double f_fovcost ;
 
     Eigen::MatrixXd g_smoothness = Eigen::MatrixXd::Zero(3, cps_.size);
     Eigen::MatrixXd g_distance = Eigen::MatrixXd::Zero(3, cps_.size);
     Eigen::MatrixXd g_feasibility = Eigen::MatrixXd::Zero(3, cps_.size);
 
+    Eigen::MatrixXd g_fovcost = Eigen::MatrixXd::Zero(3, cps_.size);
+
     calcSmoothnessCost(cps_.points, f_smoothness, g_smoothness);
     calcDistanceCostRebound(cps_.points, f_distance, g_distance, iter_num_, f_smoothness);
     calcFeasibilityCost(cps_.points, f_feasibility, g_feasibility);
 
-    f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility;
+    // f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility;
+    f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility + lambda8_ * f_fovcost;
     //printf("origin %f %f %f %f\n", f_smoothness, f_distance, f_feasibility, f_combine);
 
-    Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility;
+    Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility + lambda8_ * g_fovcost;
     memcpy(grad, grad_3D.data() + 3 * order_, n * sizeof(grad[0]));
   }
 

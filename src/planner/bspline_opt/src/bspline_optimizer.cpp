@@ -30,6 +30,20 @@ namespace ego_planner
     cps_.points = points;
   }
 
+  void BsplineOptimizer::setBoundaryStates(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel,
+                                          Eigen::Vector3d start_acc, Eigen::Vector3d local_target_pt,
+                                          Eigen::Vector3d local_target_vel) {
+      start_state_.clear();
+      end_state_.clear();
+
+      start_state_.push_back(start_pt);
+      start_state_.push_back(start_vel);
+      start_state_.push_back(start_acc);
+      end_state_.push_back(local_target_pt);
+      end_state_.push_back(local_target_vel);
+  }
+
+
   void BsplineOptimizer::setBsplineInterval(const double &ts) { bspline_interval_ = ts; }
 
   /* This function is very similar to check_collision_and_rebound(). 
@@ -843,6 +857,119 @@ namespace ego_planner
     return false;
   }
 
+  void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient)
+  {
+      cost = 0.0;
+      gradient.resize(3, q.cols());
+      gradient.setZero();
+      int order_ = 3;
+      int end_idx = q.cols() - order_;
+      Eigen::Vector3d camera_dir_(1.0, 0.0, 0.0); // 假设相机朝向机体 x 轴
+      Eigen::Vector3d camera_pos_ = start_state_[0];
+
+      // 构造相机坐标系
+      Eigen::Vector3d camera_forward = camera_dir_.normalized();
+      Eigen::Vector3d global_up(0, 0, 1);
+      if (fabs(camera_forward.dot(global_up)) > 0.99)
+          global_up = Eigen::Vector3d(0, 1, 0);
+      Eigen::Vector3d camera_right = camera_forward.cross(global_up).normalized();
+      Eigen::Vector3d camera_up = camera_right.cross(camera_forward).normalized();
+
+      // 设置水平和垂直半视场角（单位：弧度）
+      double max_h_angle = 45.0 * M_PI / 180.0;  // 水平半视场角
+      double max_v_angle = 30.0 * M_PI / 180.0;  // 垂直半视场角
+
+      for (auto i = order_ - 1; i < end_idx + 1; ++i)
+      {
+          // 计算控制点相对于相机的位置向量 Qi
+          Eigen::Vector3d Qi = q.col(i) - camera_pos_;
+          // 在相机坐标系下的坐标
+          double x = Qi.dot(camera_forward);
+          double y = Qi.dot(camera_right);
+          double z = Qi.dot(camera_up);
+
+          if (x <= 0)
+          {
+              double penalty = exp(-x); // 使用指数衰减，使惩罚随着 x 变小而增大
+              cost += penalty;
+              continue;
+          }
+          // 分别计算水平和垂直角（绝对值）
+          double theta_h = fabs(atan2(y, x));
+          double theta_v = fabs(atan2(z, x));
+
+          // 水平角超出部分
+          if (theta_h > max_h_angle)
+          {
+              double diff = theta_h - max_h_angle;
+              double penalty = diff * diff;
+              cost += penalty;
+
+              // 梯度计算（水平角关于 x 和 y 的偏导）
+              constexpr double SMALL_VALUE = 1e-6;
+              double denom_h = x * x + y * y + SMALL_VALUE;
+              // 注意：fabs(y) 的导数为 sign(y)
+              double dtheta_dx = -fabs(y) / denom_h;
+              double dtheta_dy = (x / denom_h) * (y >= 0 ? 1.0 : -1.0);
+              // 梯度在相机坐标系中
+              Eigen::Vector3d grad_h = dtheta_dx * camera_forward + dtheta_dy * camera_right;
+              grad_h *= (2 * diff);
+              gradient.col(i) += grad_h;
+          }
+
+          // 垂直角超出部分
+          if (theta_v > max_v_angle)
+          {
+              double diff = theta_v - max_v_angle;
+              double penalty = diff * diff;
+              cost += penalty;
+
+              // 梯度计算（垂直角关于 x 和 z 的偏导）
+              constexpr double SMALL_VALUE = 1e-6;
+              double denom_v = x * x + z * z + SMALL_VALUE;
+              double dtheta_dx = -fabs(z) / denom_v;
+              double dtheta_dz = (x / denom_v) * (z >= 0 ? 1.0 : -1.0);
+              Eigen::Vector3d grad_v = dtheta_dx * camera_forward + dtheta_dz * camera_up;
+              grad_v *= (2 * diff);
+              gradient.col(i) += grad_v;
+          }
+      }
+  }
+
+
+  // void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient)
+  // {
+  //     cost = 0.0;
+  //     int end_idx = q.cols() - order_;
+
+  //     for (auto i = order_ - 1; i < end_idx + 1; ++i)
+  //     {
+  //         Eigen::Vector3d Qi = q.col(i) - camera_pos_; // 控制点到相机位置的向量
+  //         Eigen::Vector3d R = camera_dir_.normalized(); // 相机视角方向（单位向量）
+
+  //         // 计算角度，注意数值稳定性
+  //         double cos_theta_i = Qi.dot(R) / (Qi.norm() * R.norm());
+  //         cos_theta_i = std::clamp(cos_theta_i, -1.0, 1.0);
+  //         double theta_i = acos(cos_theta_i);
+
+  //         if (theta_i > theta_max_)
+  //         {
+  //             double ji = pow(theta_i - theta_max_, 2); // 计算惩罚代价
+  //             cost += ji;
+
+  //             // 计算梯度 g_i
+  //             Eigen::Vector3d cross_term = (Qi.normalized()).cross(R.normalized());
+  //             Eigen::Vector3d gi = (2 * (theta_i - theta_max_) / sin(theta_i)) * (cross_term.cross(R.normalized()));
+
+  //             // B-Spline 权重分配
+  //             gradient.col(i - 1) += gi / 6;
+  //             gradient.col(i) += 4 * gi / 6;
+  //             gradient.col(i + 1) += gi / 6;
+  //         }
+  //     }
+  // }
+
+
   bool BsplineOptimizer::BsplineOptimizeTrajRebound(Eigen::MatrixXd &optimal_points, double ts)
   {
     setBsplineInterval(ts);
@@ -865,19 +992,6 @@ namespace ego_planner
     optimal_points = cps_.points;
 
     return flag_success;
-  }
-
-  void BsplineOptimizer::setBoundaryStates(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel,
-                                          Eigen::Vector3d start_acc, Eigen::Vector3d local_target_pt,
-                                          Eigen::Vector3d local_target_vel) {
-      start_state_.clear();
-      end_state_.clear();
-
-      start_state_.push_back(start_pt);
-      start_state_.push_back(start_vel);
-      start_state_.push_back(start_acc);
-      end_state_.push_back(local_target_pt);
-      end_state_.push_back(local_target_vel);
   }
 
 
@@ -1074,6 +1188,7 @@ namespace ego_planner
     calcSmoothnessCost(cps_.points, f_smoothness, g_smoothness);
     calcDistanceCostRebound(cps_.points, f_distance, g_distance, iter_num_, f_smoothness);
     calcFeasibilityCost(cps_.points, f_feasibility, g_feasibility);
+    calcFoVCost(cps_.points, f_fovcost, g_fovcost);
 
     // f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility;
     f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility + lambda8_ * f_fovcost;

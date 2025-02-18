@@ -913,6 +913,7 @@ namespace ego_planner
               double dtheta_dy = (x / denom_h) * (y >= 0 ? 1.0 : -1.0);
               // 梯度在相机坐标系中
               Eigen::Vector3d grad_h = dtheta_dx * camera_forward + dtheta_dy * camera_right;
+              grad_h = grad_h.cwiseMax(-10.0).cwiseMin(10.0);
               grad_h *= (2 * diff);
               gradient.col(i) += grad_h;
           }
@@ -930,6 +931,7 @@ namespace ego_planner
               double dtheta_dx = -fabs(z) / denom_v;
               double dtheta_dz = (x / denom_v) * (z >= 0 ? 1.0 : -1.0);
               Eigen::Vector3d grad_v = dtheta_dx * camera_forward + dtheta_dz * camera_up;
+              grad_v = grad_v.cwiseMax(-10.0).cwiseMin(10.0);
               grad_v *= (2 * diff);
               gradient.col(i) += grad_v;
           }

@@ -6,6 +6,8 @@
 #include "visualization_msgs/Marker.h"
 #include <ros/ros.h>
 #include <mavros_msgs/PositionTarget.h>
+#include <Eigen/Eigen>
+#include <path_searching/perception_utils.h>
 
 ros::Publisher pos_cmd_pub;
 ros::Publisher mav_cmd_pub;
@@ -18,6 +20,8 @@ double pos_gain[3] = {0, 0, 0};
 double vel_gain[3] = {0, 0, 0};
 
 using ego_planner::UniformBspline;
+using namespace ego_planner;
+// class PerceptionUtils;
 
 bool receive_traj_ = false;
 vector<UniformBspline> traj_;
@@ -34,8 +38,14 @@ bool use_planYaw = true;
 
 vector<Eigen::Vector3d> traj_cmd_;
 
+shared_ptr<PerceptionUtils> percep_utils_;
+
+
 void displayTrajWithColor(vector<Eigen::Vector3d> path, double resolution, Eigen::Vector4d color,
                           int id);
+void drawFOV(const vector<Eigen::Vector3d> &list1, const vector<Eigen::Vector3d> &list2);
+
+
 void bsplineCallback(ego_planner::BsplineConstPtr msg)
 {
   // traj_cmd_.clear();
@@ -267,7 +277,6 @@ void cmdCallback(const ros::TimerEvent &e)
   pos_cmd_pub.publish(cmd);
 
 
-
   mav_cmd.header.stamp = time_now;
   mav_cmd.header.frame_id = "world"; //表示全局参考坐标系，常见的有odom表示机器人从初始位置开始的相对位移，map用于存储和表示地图数据
   mav_cmd.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED; // 北东地，但mavors会自动转为东北天
@@ -300,6 +309,16 @@ void cmdCallback(const ros::TimerEvent &e)
     // Add new different commanded position
     traj_cmd_.push_back(pos);
   }
+
+  vector<Eigen::Vector3d> l1, l2;
+  if(use_planYaw)
+  {
+    percep_utils_->setPose(pos, yaw);
+  }else{
+    percep_utils_->setPose(pos, yaw_yawdot.first);
+  }
+  percep_utils_->getFOV(l1, l2);
+  drawFOV(l1, l2);
 
 }
 
@@ -341,6 +360,49 @@ void displayTrajWithColor(vector<Eigen::Vector3d> path, double resolution, Eigen
   ros::Duration(0.001).sleep();
 }
 
+void drawFOV(const vector<Eigen::Vector3d>& list1, const vector<Eigen::Vector3d>& list2) {
+  visualization_msgs::Marker mk;
+  mk.header.frame_id = "world";
+  mk.header.stamp = ros::Time::now();
+  mk.id = 0;
+  mk.ns = "current_pose";
+  mk.type = visualization_msgs::Marker::LINE_LIST;
+  mk.pose.orientation.x = 0.0;
+  mk.pose.orientation.y = 0.0;
+  mk.pose.orientation.z = 0.0;
+  mk.pose.orientation.w = 1.0;
+  mk.color.r = 1.0;
+  mk.color.g = 0.0;
+  mk.color.b = 0.0;
+  mk.color.a = 1.0;
+  mk.scale.x = 0.04;
+  mk.scale.y = 0.04;
+  mk.scale.z = 0.04;
+
+  // Clean old marker
+  mk.action = visualization_msgs::Marker::DELETE;
+  cmd_vis_pub.publish(mk);
+
+  if (list1.size() == 0) return;
+
+  // Pub new marker
+  geometry_msgs::Point pt;
+  for (int i = 0; i < int(list1.size()); ++i) {
+    pt.x = list1[i](0);
+    pt.y = list1[i](1);
+    pt.z = list1[i](2);
+    mk.points.push_back(pt);
+
+    pt.x = list2[i](0);
+    pt.y = list2[i](1);
+    pt.z = list2[i](2);
+    mk.points.push_back(pt);
+  }
+  mk.action = visualization_msgs::Marker::ADD;
+  cmd_vis_pub.publish(mk);
+}
+
+
 
 
 int main(int argc, char **argv)
@@ -349,12 +411,15 @@ int main(int argc, char **argv)
   ros::NodeHandle node;
   ros::NodeHandle nh("~");
 
-  ros::Subscriber bspline_sub = node.subscribe("planning/bspline", 10, bsplineCallback);   //你的 ROS 节点订阅一个话题时，如果消息发送的速度快于你的节点处理消息的速度，那么未处理的消息将会被存储在一个队列中，直到它们被处理。
-                                                                                           //这里的 10 表示最多可以有 10 条未处理的消息被存储在队列中。如果更多的消息在队列满之前到达，那么最旧的消息将被丢弃以腾出空间给新的消息。
-  pos_cmd_pub = node.advertise<quadrotor_msgs::PositionCommand>("/position_cmd", 50);           //50 代表了发布者（publisher）的缓存队列大小。当你创建一个发布者时，指定的数字（这里是 50）表示发布者能够缓存未被订阅者接收的消息数量。
+  percep_utils_ = std::make_shared<PerceptionUtils>(nh);
+
+  ros::Subscriber bspline_sub = node.subscribe("planning/bspline", 10, bsplineCallback);   
+                                                                                          
+  pos_cmd_pub = node.advertise<quadrotor_msgs::PositionCommand>("/position_cmd", 50);         
 
   mav_cmd_pub = node.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 1);
   traj_pub = node.advertise<visualization_msgs::Marker>("planning/travel_traj", 10);
+  cmd_vis_pub = node.advertise<visualization_msgs::Marker>("planning/position_cmd_vis", 10);
 
   ros::Timer cmd_timer = node.createTimer(ros::Duration(0.01), cmdCallback); // 每0.01s执行一次，这个独立于ros::spin()函数，可以独立于其他线程运行。
   ros::Timer vis_timer = node.createTimer(ros::Duration(0.25), visCallback);

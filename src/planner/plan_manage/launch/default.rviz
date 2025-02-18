@@ -28,7 +28,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: simulation_map
+    SyncSource: map inflate
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -145,7 +145,7 @@ Visualization Manager:
           Color: 85; 170; 255
           Color Transformer: FlatColor
           Decay Time: 0
-          Enabled: true
+          Enabled: false
           Invert Rainbow: false
           Max Color: 255; 255; 255
           Min Color: 0; 0; 0
@@ -160,7 +160,7 @@ Visualization Manager:
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
-          Value: true
+          Value: false
         - Alpha: 1
           Autocompute Intensity Bounds: true
           Autocompute Value Bounds:
@@ -217,7 +217,7 @@ Visualization Manager:
           Use Fixed Frame: true
           Use rainbow: true
           Value: false
-      Enabled: false
+      Enabled: true
       Name: Mapping
     - Class: rviz/Group
       Displays:
@@ -248,7 +248,15 @@ Visualization Manager:
       Marker Topic: /planning/travel_traj
       Name: Marker
       Namespaces:
-        {}
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /planning/position_cmd_vis
+      Name: Marker
+      Namespaces:
+        current_pose: true
       Queue Size: 100
       Value: true
   Enabled: true
@@ -278,7 +286,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 27.738082885742188
+      Distance: 26.103748321533203
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -286,17 +294,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -13.851482391357422
-        Y: 1.0288281440734863
+        X: -15.827458381652832
+        Y: -4.943385124206543
         Z: 0.47689178586006165
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8397976160049438
+      Pitch: 1.0047975778579712
       Target Frame: world
-      Yaw: 3.1454410552978516
+      Yaw: 3.235443353652954
     Saved:
       - Class: rviz/ThirdPersonFollower
         Distance: 17.48538589477539

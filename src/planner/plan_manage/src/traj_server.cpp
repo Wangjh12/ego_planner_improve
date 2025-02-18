@@ -34,7 +34,7 @@ int pub_traj_id_;
 double last_yaw_, last_yaw_dot_;
 double time_forward_;
 
-bool use_planYaw = true;
+bool use_planYaw;
 
 vector<Eigen::Vector3d> traj_cmd_;
 
@@ -435,6 +435,7 @@ int main(int argc, char **argv)
 
   nh.param("traj_server/time_forward", time_forward_, -1.0);
   nh.param("traj_server/pub_traj_id", pub_traj_id_, -1);
+  nh.param("traj_server/use_planYaw", use_planYaw, true);
   last_yaw_ = 0.0;
   last_yaw_dot_ = 0.0;
 

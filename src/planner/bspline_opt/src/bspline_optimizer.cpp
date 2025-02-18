@@ -18,6 +18,30 @@ namespace ego_planner
     nh.param("optimization/max_acc", max_acc_, -1.0);
 
     nh.param("optimization/order", order_, 3);
+
+    ros::Subscriber odom_sub_fov_ = nh.subscribe("/odom_world", 1, &BsplineOptimizer::odometryCallback, this);
+
+  }
+
+  void BsplineOptimizer::odometryCallback(const nav_msgs::OdometryConstPtr &msg)
+  {
+    // odom_pos_(0) = msg->pose.pose.position.x;
+    // odom_pos_(1) = msg->pose.pose.position.y;
+    // odom_pos_(2) = msg->pose.pose.position.z;
+
+    // odom_vel_(0) = msg->twist.twist.linear.x;
+    // odom_vel_(1) = msg->twist.twist.linear.y;
+    // odom_vel_(2) = msg->twist.twist.linear.z;
+
+    //odom_acc_ = estimateAcc( msg );
+
+
+    odom_orient_.w() = msg->pose.pose.orientation.w;
+    odom_orient_.x() = msg->pose.pose.orientation.x;
+    odom_orient_.y() = msg->pose.pose.orientation.y;
+    odom_orient_.z() = msg->pose.pose.orientation.z;
+
+    // have_odom_ = true;
   }
 
   void BsplineOptimizer::setEnvironment(const GridMap::Ptr &env)
@@ -864,9 +888,12 @@ namespace ego_planner
       gradient.setZero();
       int order_ = 3;
       int end_idx = q.cols() - order_;
-      Eigen::Vector3d camera_dir_(1.0, 0.0, 0.0); // 假设相机朝向机体 x 轴
+      Eigen::Vector3d camera_origin_(1.0, 0.0, 0.0);// 假设相机朝向机体 x 轴
+      Eigen::Vector3d camera_dir_; 
       Eigen::Vector3d camera_pos_ = start_state_[0];
 
+      camera_dir_ = odom_orient_ * camera_origin_;
+      std::cout << "Camera forward vector: " << camera_dir_.transpose() << std::endl;
       // 构造相机坐标系
       Eigen::Vector3d camera_forward = camera_dir_.normalized();
       Eigen::Vector3d global_up(0, 0, 1);
@@ -876,7 +903,7 @@ namespace ego_planner
       Eigen::Vector3d camera_up = camera_right.cross(camera_forward).normalized();
 
       // 设置水平和垂直半视场角（单位：弧度）
-      double max_h_angle = 45.0 * M_PI / 180.0;  // 水平半视场角
+      double max_h_angle = 40.0 * M_PI / 180.0;  // 水平半视场角
       double max_v_angle = 30.0 * M_PI / 180.0;  // 垂直半视场角
 
       for (auto i = order_ - 1; i < end_idx + 1; ++i)

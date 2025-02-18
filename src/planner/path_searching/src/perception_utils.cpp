@@ -2,13 +2,35 @@
 
 // #include <pcl/filters/voxel_grid.h>
 
+
+/*
+根据计算结果，以下是相机的感知范围和角度：
+
+水平视场角（FOV）：大约 79.14°（左右一起） 约80度
+垂直视场角（FOV）：大约 63.58° （上下一起） 约60度
+感知范围：5.0 米
+
+*/
+
+
+/*
+top_angle_：相机视场的上边界角（弧度）。
+left_angle_：相机视场的左边界角（弧度）。
+right_angle_：相机视场的右边界角（弧度）。
+max_dist_：最大感知距离（m），即相机可以探测到的最远点。
+vis_dist_：用于 FOV 可视化的感知距离（m），即用于绘制 FOV 边界的深度，通常小于 max_dist_。
+*/
+
+
 namespace ego_planner {
 PerceptionUtils::PerceptionUtils(ros::NodeHandle& nh) {
-  nh.param("perception_utils/top_angle", top_angle_, 0.56125);
-  nh.param("perception_utils/left_angle", left_angle_, 0.69222);
-  nh.param("perception_utils/right_angle", right_angle_, 0.68901);
-  nh.param("perception_utils/max_dist", max_dist_, 4.5);
-  nh.param("perception_utils/vis_dist", vis_dist_, 1.0);
+  nh.param("perception_utils/top_angle", top_angle_, 0.52125);
+  nh.param("perception_utils/left_angle", left_angle_, 0.6981);
+  nh.param("perception_utils/right_angle", right_angle_, 0.6981);
+  nh.param("perception_utils/max_dist", max_dist_, 5.0);
+  nh.param("perception_utils/vis_dist", vis_dist_, 1.5);
+
+
 
 
 //计算相机 FOV 的四个边界平面法向量

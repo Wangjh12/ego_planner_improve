@@ -27,6 +27,7 @@ namespace ego_planner
     std::vector<bool> flag_temp;                          // A flag that used in many places. Initialize it everytime before using it.
     // std::vector<bool> occupancy;
 
+
     void resize(const int size_set)
     {
       size = size_set;
@@ -77,12 +78,16 @@ namespace ego_planner
     AStar::Ptr a_star_;
     std::vector<Eigen::Vector3d> ref_pts_;
 
+    Eigen::Quaterniond odom_orient_;
+
     std::vector<std::vector<Eigen::Vector3d>> initControlPoints(Eigen::MatrixXd &init_points, bool flag_first_init = true);
     bool BsplineOptimizeTrajRebound(Eigen::MatrixXd &optimal_points, double ts); // must be called after initControlPoints()
     bool BsplineOptimizeTrajRefine(const Eigen::MatrixXd &init_points, const double ts, Eigen::MatrixXd &optimal_points);
     void setBoundaryStates(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel,
                            Eigen::Vector3d start_acc, Eigen::Vector3d local_target_pt,
                            Eigen::Vector3d local_target_vel);
+
+    void odometryCallback(const nav_msgs::OdometryConstPtr &msg);
 
     inline int getOrder(void) { return order_; }
 

@@ -80,6 +80,9 @@ namespace ego_planner
     std::vector<std::vector<Eigen::Vector3d>> initControlPoints(Eigen::MatrixXd &init_points, bool flag_first_init = true);
     bool BsplineOptimizeTrajRebound(Eigen::MatrixXd &optimal_points, double ts); // must be called after initControlPoints()
     bool BsplineOptimizeTrajRefine(const Eigen::MatrixXd &init_points, const double ts, Eigen::MatrixXd &optimal_points);
+    void setBoundaryStates(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel,
+                           Eigen::Vector3d start_acc, Eigen::Vector3d local_target_pt,
+                           Eigen::Vector3d local_target_vel);
 
     inline int getOrder(void) { return order_; }
 
@@ -125,6 +128,8 @@ namespace ego_planner
     double min_cost_;               //
 
     ControlPoints cps_;
+
+    vector<Eigen::Vector3d> start_state_, end_state_;
 
     /* cost function */
     /* calculate each part of cost function with control points q as input */

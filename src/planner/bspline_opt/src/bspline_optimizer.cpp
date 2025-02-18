@@ -866,6 +866,20 @@ namespace ego_planner
     return flag_success;
   }
 
+  void BsplineOptimizer::setBoundaryStates(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel,
+                                          Eigen::Vector3d start_acc, Eigen::Vector3d local_target_pt,
+                                          Eigen::Vector3d local_target_vel) {
+      start_state_.clear();
+      end_state_.clear();
+
+      start_state_.push_back(start_pt);
+      start_state_.push_back(start_vel);
+      start_state_.push_back(start_acc);
+      end_state_.push_back(local_target_pt);
+      end_state_.push_back(local_target_vel);
+  }
+
+
   bool BsplineOptimizer::rebound_optimize()
   {
     iter_num_ = 0;

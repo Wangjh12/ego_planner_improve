@@ -19,7 +19,7 @@ namespace ego_planner
 
     nh.param("optimization/order", order_, 3);
 
-    ros::Subscriber odom_sub_fov_ = nh.subscribe("/odom_world", 1, &BsplineOptimizer::odometryCallback, this);
+    odom_sub_fov_ = nh.subscribe("/visual_slam/odom", 1, &BsplineOptimizer::odometryCallback, this);
 
   }
 
@@ -35,6 +35,8 @@ namespace ego_planner
 
     //odom_acc_ = estimateAcc( msg );
 
+    // std::cout << "-------------------------" << std::endl;
+    // std::cout << "进入回调函数" << std::endl;
 
     odom_orient_.w() = msg->pose.pose.orientation.w;
     odom_orient_.x() = msg->pose.pose.orientation.x;
@@ -892,8 +894,9 @@ namespace ego_planner
       Eigen::Vector3d camera_dir_; 
       Eigen::Vector3d camera_pos_ = start_state_[0];
 
+      odom_orient_.normalize();
       camera_dir_ = odom_orient_ * camera_origin_;
-      std::cout << "Camera forward vector: " << camera_dir_.transpose() << std::endl;
+      // std::cout << "Camera forward vector: " << camera_dir_.transpose() << std::endl;
       // 构造相机坐标系
       Eigen::Vector3d camera_forward = camera_dir_.normalized();
       Eigen::Vector3d global_up(0, 0, 1);

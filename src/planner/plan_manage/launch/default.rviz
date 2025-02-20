@@ -145,7 +145,7 @@ Visualization Manager:
           Color: 85; 170; 255
           Color Transformer: FlatColor
           Decay Time: 0
-          Enabled: false
+          Enabled: true
           Invert Rainbow: false
           Max Color: 255; 255; 255
           Min Color: 0; 0; 0
@@ -160,11 +160,11 @@ Visualization Manager:
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
-          Value: false
+          Value: true
         - Alpha: 1
           Autocompute Intensity Bounds: true
           Autocompute Value Bounds:
-            Max Value: 2.3399999141693115
+            Max Value: 1.840000033378601
             Min Value: 0.03999999910593033
             Value: true
           Axis: Z
@@ -302,9 +302,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6047979593276978
+      Pitch: 0.7897977828979492
       Target Frame: world
-      Yaw: 3.090437412261963
+      Yaw: 2.8004326820373535
     Saved:
       - Class: rviz/ThirdPersonFollower
         Distance: 17.48538589477539
@@ -342,7 +342,7 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1920
-  X: 174
-  Y: 221
+  X: 306
+  Y: 144
   depth:
     collapsed: false

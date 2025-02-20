@@ -19,6 +19,17 @@ struct Obstacle {
     double radius, height;
 };
 
+
+struct RingObstacle
+{
+    double x;
+    double y;
+    double radius;
+    double height;
+    double thickness;
+};
+
+
 pcl::KdTreeFLANN<pcl::PointXYZ> kdtreeLocalMap;
 vector<int> pointIdxRadiusSearch;
 vector<float> pointRadiusSquaredDistance;
@@ -332,22 +343,21 @@ void testObstacle() {
     }
     pcl::PointXYZ pt_random;
 
-  // generate polar obs   随机生成正方体障碍物
     for (int i = 0; i < numFixedObstacles; i++) {
         double x, y, w, h;
         x = obstacles[i].x;
         y = obstacles[i].y;
         w = obstacles[i].radius;
 
-        if (sqrt(pow(x - _init_x, 2) + pow(y - _init_y, 2)) < 2.0) {
-        i--;
-        continue;
-        }
+        // if (sqrt(pow(x - _init_x, 2) + pow(y - _init_y, 2)) < 2.0) {
+        // i--;
+        // continue;
+        // }
 
-        if (sqrt(pow(x - 19.0, 2) + pow(y - 0.0, 2)) < 2.0) {
-        i--;
-        continue;
-        }
+        // if (sqrt(pow(x - 19.0, 2) + pow(y - 0.0, 2)) < 2.0) {
+        // i--;
+        // continue;
+        // }
 
         x = floor(x / _resolution) * _resolution + _resolution / 2.0;
         y = floor(y / _resolution) * _resolution + _resolution / 2.0;
@@ -366,6 +376,37 @@ void testObstacle() {
             }
         }
     }
+
+
+        Obstacle cuboidObstacle;
+        cuboidObstacle.x = -18.0;
+        cuboidObstacle.y = 0.0;
+        cuboidObstacle.radius = 0.5; // 半径设置为长宽的一半
+        cuboidObstacle.height = 0.5;
+
+        double x = cuboidObstacle.x;
+        double y = cuboidObstacle.y;
+        double w = cuboidObstacle.radius * 2; // 长宽
+        double h = cuboidObstacle.height;
+
+        x = floor(x / _resolution) * _resolution + _resolution / 2.0;
+        y = floor(y / _resolution) * _resolution + _resolution / 2.0;
+
+        int widNum = ceil(w / _resolution);
+        int heiNum = ceil(h / _resolution);
+
+        for (int r = -widNum / 2.0; r < widNum / 2.0; r++) {
+            for (int s = -widNum / 2.0; s < widNum / 2.0; s++) {
+                for (int t = 0; t < heiNum; t++) {
+                    pt_random.x = x + (r + 0.5) * _resolution + 1e-2;
+                    pt_random.y = y + (s + 0.5) * _resolution + 1e-2;
+                    pt_random.z = 1.0 + (t + 0.5) * _resolution + 1e-2; // 设置高度从2.5开始
+                    cloudMap.points.push_back(pt_random);
+                }
+            }
+        }
+
+
 
     cloudMap.width = cloudMap.points.size();
     cloudMap.height = 1;

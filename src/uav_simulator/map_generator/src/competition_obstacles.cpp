@@ -264,6 +264,44 @@ void GenerateObstaclesInD() {
     _map_ok = true;
 }
 
+
+
+void testObstacle() {
+    pcl::PointXYZ pt;
+
+        double offset = 15.0;
+        double height = 2.5;
+        double radius = 1.0;
+
+        //圆环中心点
+        double x = offset/5;
+        double y = - offset;
+        double z = height;
+
+        x = floor(x / _resolution) * _resolution + _resolution / 2.0;
+        y = floor(y / _resolution) * _resolution + _resolution / 2.0;
+ 
+        for (double angle = 0.0; angle < 6.282; angle += _resolution / 2) {
+          pt.y = y;
+          pt.x = x + radius * cos(angle);
+          pt.z = z + radius * sin(angle);
+
+          cloudMap.points.push_back(pt);
+        }
+    
+    cloudMap.width = cloudMap.points.size();
+    cloudMap.height = 1;
+    cloudMap.is_dense = true;
+
+    ROS_WARN("Finished generating specified map");
+
+    kdtreeLocalMap.setInputCloud(cloudMap.makeShared());
+
+    _map_ok = true;
+}
+
+
+
 void rcvOdometryCallbck(const nav_msgs::Odometry odom) {
   if (odom.child_frame_id == "X" || odom.child_frame_id == "O") return;
   _has_odom = true;
@@ -363,10 +401,12 @@ int main(int argc, char** argv) {
 
 
 
-    GenerateObstaclesInA();
-    GenerateObstaclesInB();
-    GenerateObstaclesInC();
-    GenerateObstaclesInD();
+    // GenerateObstaclesInA();
+    // GenerateObstaclesInB();
+    // GenerateObstaclesInC();
+    // GenerateObstaclesInD();
+
+    testObstacle();
 
     ros::Rate loop_rate(_sense_rate);
 

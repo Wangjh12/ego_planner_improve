@@ -17,6 +17,9 @@ namespace ego_planner
     nh.param("optimization/max_vel", max_vel_, -1.0);
     nh.param("optimization/max_acc", max_acc_, -1.0);
 
+    nh.param("optimization/vertical_fov", vertical_, 60.0);  //垂直视场角
+    nh.param("optimization/horizontal_fov", horizontal_, 80.0);  //水平视场角
+
     nh.param("optimization/order", order_, 3);
 
     odom_sub_fov_ = nh.subscribe("/visual_slam/odom", 1, &BsplineOptimizer::odometryCallback, this);
@@ -883,90 +886,90 @@ namespace ego_planner
     return false;
   }
 
-  void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient)
-  {
-      cost = 0.0;
-      gradient.resize(3, q.cols());
-      gradient.setZero();
-      int order_ = 3;
-      int end_idx = q.cols() - order_;
-      Eigen::Vector3d camera_origin_(1.0, 0.0, 0.0);// 假设相机朝向机体 x 轴
-      Eigen::Vector3d camera_dir_; 
-      Eigen::Vector3d camera_pos_ = start_state_[0];
+  // void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient)
+  // {
+  //     cost = 0.0;
+  //     gradient.resize(3, q.cols());
+  //     gradient.setZero();
+  //     int order_ = 3;
+  //     int end_idx = q.cols() - order_;
+  //     Eigen::Vector3d camera_origin_(1.0, 0.0, 0.0);// 假设相机朝向机体 x 轴
+  //     Eigen::Vector3d camera_dir_; 
+  //     Eigen::Vector3d camera_pos_ = start_state_[0];
 
-      odom_orient_.normalize();
-      camera_dir_ = odom_orient_ * camera_origin_;
-      // std::cout << "Camera forward vector: " << camera_dir_.transpose() << std::endl;
-      // 构造相机坐标系
-      Eigen::Vector3d camera_forward = camera_dir_.normalized();
-      Eigen::Vector3d global_up(0, 0, 1);
-      if (fabs(camera_forward.dot(global_up)) > 0.99)
-          global_up = Eigen::Vector3d(0, 1, 0);
-      Eigen::Vector3d camera_right = camera_forward.cross(global_up).normalized();
-      Eigen::Vector3d camera_up = camera_right.cross(camera_forward).normalized();
+  //     odom_orient_.normalize();
+  //     camera_dir_ = odom_orient_ * camera_origin_;
+  //     // std::cout << "Camera forward vector: " << camera_dir_.transpose() << std::endl;
+  //     // 构造相机坐标系
+  //     Eigen::Vector3d camera_forward = camera_dir_.normalized();
+  //     Eigen::Vector3d global_up(0, 0, 1);
+  //     if (fabs(camera_forward.dot(global_up)) > 0.99)
+  //         global_up = Eigen::Vector3d(0, 1, 0);
+  //     Eigen::Vector3d camera_right = camera_forward.cross(global_up).normalized();
+  //     Eigen::Vector3d camera_up = camera_right.cross(camera_forward).normalized();
 
-      // 设置水平和垂直半视场角（单位：弧度）
-      double max_h_angle = 40.0 * M_PI / 180.0;  // 水平半视场角
-      double max_v_angle = 30.0 * M_PI / 180.0;  // 垂直半视场角
+  //     // 设置水平和垂直半视场角（单位：弧度）
+  //     double max_h_angle = 40.0 * M_PI / 180.0;  // 水平半视场角
+  //     double max_v_angle = 30.0 * M_PI / 180.0;  // 垂直半视场角
 
-      for (auto i = order_ - 1; i < end_idx + 1; ++i)
-      {
-          // 计算控制点相对于相机的位置向量 Qi
-          Eigen::Vector3d Qi = q.col(i) - camera_pos_;
-          // 在相机坐标系下的坐标
-          double x = Qi.dot(camera_forward);
-          double y = Qi.dot(camera_right);
-          double z = Qi.dot(camera_up);
+  //     for (auto i = order_ - 1; i < end_idx + 1; ++i)
+  //     {
+  //         // 计算控制点相对于相机的位置向量 Qi
+  //         Eigen::Vector3d Qi = q.col(i) - camera_pos_;
+  //         // 在相机坐标系下的坐标
+  //         double x = Qi.dot(camera_forward);
+  //         double y = Qi.dot(camera_right);
+  //         double z = Qi.dot(camera_up);
 
-          if (x <= 0)
-          {
-              double penalty = exp(-x); // 使用指数衰减，使惩罚随着 x 变小而增大
-              cost += penalty;
-              continue;
-          }
-          // 分别计算水平和垂直角（绝对值）
-          double theta_h = fabs(atan2(y, x));
-          double theta_v = fabs(atan2(z, x));
+  //         if (x <= 0)
+  //         {
+  //             double penalty = exp(-x); // 使用指数衰减，使惩罚随着 x 变小而增大
+  //             cost += penalty;
+  //             continue;
+  //         }
+  //         // 分别计算水平和垂直角（绝对值）
+  //         double theta_h = fabs(atan2(y, x));
+  //         double theta_v = fabs(atan2(z, x));
 
-          // 水平角超出部分
-          if (theta_h > max_h_angle)
-          {
-              double diff = theta_h - max_h_angle;
-              double penalty = diff * diff;
-              cost += penalty;
+  //         // 水平角超出部分
+  //         if (theta_h > max_h_angle)
+  //         {
+  //             double diff = theta_h - max_h_angle;
+  //             double penalty = diff * diff;
+  //             cost += penalty;
 
-              // 梯度计算（水平角关于 x 和 y 的偏导）
-              constexpr double SMALL_VALUE = 1e-6;
-              double denom_h = x * x + y * y + SMALL_VALUE;
-              // 注意：fabs(y) 的导数为 sign(y)
-              double dtheta_dx = -fabs(y) / denom_h;
-              double dtheta_dy = (x / denom_h) * (y >= 0 ? 1.0 : -1.0);
-              // 梯度在相机坐标系中
-              Eigen::Vector3d grad_h = dtheta_dx * camera_forward + dtheta_dy * camera_right;
-              grad_h = grad_h.cwiseMax(-10.0).cwiseMin(10.0);
-              grad_h *= (2 * diff);
-              gradient.col(i) += grad_h;
-          }
+  //             // 梯度计算（水平角关于 x 和 y 的偏导）
+  //             constexpr double SMALL_VALUE = 1e-6;
+  //             double denom_h = x * x + y * y + SMALL_VALUE;
+  //             // 注意：fabs(y) 的导数为 sign(y)
+  //             double dtheta_dx = -fabs(y) / denom_h;
+  //             double dtheta_dy = (x / denom_h) * (y >= 0 ? 1.0 : -1.0);
+  //             // 梯度在相机坐标系中
+  //             Eigen::Vector3d grad_h = dtheta_dx * camera_forward + dtheta_dy * camera_right;
+  //             grad_h = grad_h.cwiseMax(-10.0).cwiseMin(10.0);
+  //             grad_h *= (2 * diff);
+  //             gradient.col(i) += grad_h;
+  //         }
 
-          // 垂直角超出部分
-          if (theta_v > max_v_angle)
-          {
-              double diff = theta_v - max_v_angle;
-              double penalty = diff * diff;
-              cost += penalty;
+  //         // 垂直角超出部分
+  //         if (theta_v > max_v_angle)
+  //         {
+  //             double diff = theta_v - max_v_angle;
+  //             double penalty = diff * diff;
+  //             cost += penalty;
 
-              // 梯度计算（垂直角关于 x 和 z 的偏导）
-              constexpr double SMALL_VALUE = 1e-6;
-              double denom_v = x * x + z * z + SMALL_VALUE;
-              double dtheta_dx = -fabs(z) / denom_v;
-              double dtheta_dz = (x / denom_v) * (z >= 0 ? 1.0 : -1.0);
-              Eigen::Vector3d grad_v = dtheta_dx * camera_forward + dtheta_dz * camera_up;
-              grad_v = grad_v.cwiseMax(-10.0).cwiseMin(10.0);
-              grad_v *= (2 * diff);
-              gradient.col(i) += grad_v;
-          }
-      }
-  }
+  //             // 梯度计算（垂直角关于 x 和 z 的偏导）
+  //             constexpr double SMALL_VALUE = 1e-6;
+  //             double denom_v = x * x + z * z + SMALL_VALUE;
+  //             double dtheta_dx = -fabs(z) / denom_v;
+  //             double dtheta_dz = (x / denom_v) * (z >= 0 ? 1.0 : -1.0);
+  //             Eigen::Vector3d grad_v = dtheta_dx * camera_forward + dtheta_dz * camera_up;
+  //             grad_v = grad_v.cwiseMax(-10.0).cwiseMin(10.0);
+  //             grad_v *= (2 * diff);
+  //             gradient.col(i) += grad_v;
+  //         }
+  //     }
+  // }
 
 
   // void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient)
@@ -1000,6 +1003,90 @@ namespace ego_planner
   //         }
   //     }
   // }
+
+
+
+void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient) {
+    cost = 0.0;
+    gradient.resize(3, q.cols());
+    gradient.setZero();
+
+    // 视场角参数（转换为弧度）
+    // const double vertical_fov = 60.0 * M_PI / 180.0;    // 垂直视场角
+    // const double horizontal_fov = 80.0 * M_PI / 180.0;  // 水平视场角
+
+    const double vertical_fov = vertical_ * M_PI / 180.0;    // 垂直视场角
+    const double horizontal_fov = horizontal_ * M_PI / 180.0;  // 水平视场角
+    const double tan_vertical = tan(vertical_fov/2);     // 垂直方向tan值
+    const double tan_horizontal = tan(horizontal_fov/2); // 水平方向tan值
+
+
+    Eigen::Vector3d camera_origin_(1.0, 0.0, 0.0);// 假设相机朝向机体 x 轴
+    Eigen::Vector3d camera_dir_; 
+    Eigen::Vector3d camera_pos_ = start_state_[0];
+
+    // 构建相机坐标系
+    odom_orient_.normalize();
+    camera_dir_ = odom_orient_ * camera_origin_;
+
+    Eigen::Vector3d cam_dir = camera_dir_.normalized();
+    Eigen::Vector3d e1 = cam_dir;
+    Eigen::Vector3d e2, e3;
+    
+    // 构建正交基底
+    Eigen::Vector3d ref(0, 1, 0); // 世界坐标系Y轴
+    if(e1.cross(ref).norm() < 1e-3) ref << 0, 0, 1;
+    e2 = e1.cross(ref).normalized();  // 垂直方向基向量
+    e3 = e1.cross(e2).normalized();   // 水平方向基向量
+
+    int end_idx = q.cols() - order_;
+    for (int i = order_ - 1; i < end_idx + 1; ++i) {
+        Eigen::Vector3d Qi = q.col(i) - camera_pos_;
+        
+        // 投影到局部坐标系
+        double x = Qi.dot(e1);  // 沿光轴分量
+        double y = Qi.dot(e2);  // 垂直分量
+        double z = Qi.dot(e3);  // 水平分量
+
+        // 忽略相机后方的点
+        if(x <= 1e-3) continue;
+
+        // 计算允许的边界范围
+        double y_max = x * tan_vertical;
+        double z_max = x * tan_horizontal;
+        double penalty = 0.0;
+        Eigen::Vector3d grad_local = Eigen::Vector3d::Zero();
+
+        // 垂直方向约束
+        if(fabs(y) > y_max) {
+            double delta = fabs(y) - y_max;
+            penalty += delta * delta;
+            double sign = y > 0 ? 1.0 : -1.0;
+            grad_local[0] += -delta * tan_vertical * sign; // x分量梯度
+            grad_local[1] += delta * sign;                  // y分量梯度
+        }
+
+        // 水平方向约束
+        if(fabs(z) > z_max) {
+            double delta = fabs(z) - z_max;
+            penalty += delta * delta;
+            double sign = z > 0 ? 1.0 : -1.0;
+            grad_local[0] += -delta * tan_horizontal * sign; // x分量梯度
+            grad_local[2] += delta * sign;                    // z分量梯度
+        }
+
+        // 累计成本和转换梯度
+        if(penalty > 0) {
+            cost += penalty;
+            Eigen::Vector3d grad_global = 
+                grad_local[0] * e1 + 
+                grad_local[1] * e2 + 
+                grad_local[2] * e3;
+            gradient.col(i) += 2 * grad_global; // 2倍来自平方项的导数
+        }
+    }
+}
+
 
 
   bool BsplineOptimizer::BsplineOptimizeTrajRebound(Eigen::MatrixXd &optimal_points, double ts)
@@ -1225,6 +1312,10 @@ namespace ego_planner
     // f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility;
     f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility + lambda8_ * f_fovcost;
     //printf("origin %f %f %f %f\n", f_smoothness, f_distance, f_feasibility, f_combine);
+    // ROS_INFO("f_combine: %f, f_smoothness: %f, f_distance: %f, f_feasibility: %f, f_fovcost: %f", 
+    //      f_combine, f_smoothness, f_distance, f_feasibility, f_fovcost);
+    cout << "----------------------" << endl;
+    ROS_INFO("f_fovcost: %f", f_fovcost);
 
     Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility + lambda8_ * g_fovcost;
     memcpy(grad, grad_3D.data() + 3 * order_, n * sizeof(grad[0]));

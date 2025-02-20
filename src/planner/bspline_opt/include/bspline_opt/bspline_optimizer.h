@@ -134,6 +134,8 @@ namespace ego_planner
     Eigen::VectorXd best_variable_; //
     double min_cost_;               //
 
+    double vertical_, horizontal_;
+
     ControlPoints cps_;
 
     vector<Eigen::Vector3d> start_state_, end_state_;

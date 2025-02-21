@@ -46,7 +46,7 @@
     <!-- It generates a piecewise min-snap traj passing all waypoints -->
 
 
-    <!-- <arg name="point_num" value="5" />
+    <arg name="point_num" value="5" />
 
     <arg name="point0_x" value="-15.0" />
     <arg name="point0_y" value="0.0" />
@@ -66,10 +66,10 @@
 
     <arg name="point4_x" value="-15.0" />
     <arg name="point4_y" value="0.0" />
-    <arg name="point4_z" value="1.0" /> -->
+    <arg name="point4_z" value="1.0" />
 
     
-    <arg name="point_num" value="5" />
+    <!-- <arg name="point_num" value="5" />
 
     <arg name="point0_x" value="-15.0" />
     <arg name="point0_y" value="0.0" />
@@ -89,7 +89,7 @@
 
     <arg name="point4_x" value="-15.0" />
     <arg name="point4_y" value="-3.0" />
-    <arg name="point4_z" value="1.0" />
+    <arg name="point4_z" value="1.0" /> -->
     
   </include>
 

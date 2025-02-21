@@ -118,11 +118,11 @@ Eigen::MatrixXd BsplineOptimizer_QP::BsplineOptimizeTraj(const Eigen::MatrixXd& 
   setCostFunction(cost_function);
   setTerminateCond(max_num_id, max_time_id);
 
-  std::cout << "-----开始优化--------" << std::endl;
+  // std::cout << "-----开始优化--------" << std::endl;
 
   optimize();
 
-    std::cout << "-----优化结束--------" << std::endl;
+    // std::cout << "-----优化结束--------" << std::endl;
   return this->control_points_;
 }
 

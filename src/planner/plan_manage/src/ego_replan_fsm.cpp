@@ -113,11 +113,8 @@ namespace ego_planner
 
 
 /*
-
   调用在rviz画点的函数生成全局轨迹，这是个回调函数，所以会在while循环中一直出发，时刻检测有无新的目标点
-
 */
-
 
   void EGOReplanFSM::waypointCallback(const nav_msgs::PathConstPtr &msg)
   {
@@ -257,7 +254,7 @@ namespace ego_planner
       }
       break;
     }
-   
+
     /*
       当有一个新目标点时，
       先在前面的waypointCallback函数中生成全局轨迹，并且在这个函数中会将状态变为GEN_NEW_TRAJ或replan_traj（具体哪个看上面的解释）
@@ -269,11 +266,7 @@ namespace ego_planner
       如果规划成功则进入exec_traj，判断是否到达目标点，进行上面的步骤，
       如果规划失败则进入replan_traj，再次规划。
       如此循环直到到达目标点。
-
-
     */
-
-
 
     case GEN_NEW_TRAJ:
     {
@@ -450,8 +443,6 @@ namespace ego_planner
                 若失败且轨迹碰撞的时刻与当前时刻的间隔大于紧急停止时间，执行重新规划：将exec_state_状态改为REPLAN_TRAJ
 */
 
-
-
     for (double t = t_cur; t < info->duration_; t += time_step)
     {
       if (t_cur < t_2_3 && t >= t_2_3) // If t_cur < t_2_3, only the first 2/3 partition of the trajectory is considered valid and will get checked.
@@ -509,8 +500,6 @@ namespace ego_planner
       bspline.start_time = info->start_time_;
       bspline.traj_id = info->traj_id_;
 
-      // std::cout << "------------111111--------" << std::endl;
-
       Eigen::MatrixXd pos_pts = info->position_traj_.getControlPoint();
       bspline.pos_pts.reserve(pos_pts.cols());
       for (int i = 0; i < pos_pts.cols(); ++i)
@@ -529,14 +518,12 @@ namespace ego_planner
         bspline.knots.push_back(knots(i));
       }
 
-    // std::cout << "------------12--------" << std::endl;
       Eigen::MatrixXd yaw_pts = info->yaw_traj_.getControlPoint();
       for (int i = 0; i < yaw_pts.cols(); ++i) {
         double yaw = yaw_pts(0, i);
         bspline.yaw_pts.push_back(yaw);
       }
 
-      // std::cout << "------------113--------" << std::endl;
       bspline.yaw_dt = info->yaw_traj_.getInterval();
 
       bspline_pub_.publish(bspline);
@@ -583,7 +570,6 @@ namespace ego_planner
     return true;
   }
 
-
 /*
 
 作用：1、全局路径大于局部规划视野时，进行变量last_progress_time_更新【为距离起始点距离最近的轨迹点时间】
@@ -592,7 +578,6 @@ namespace ego_planner
       【局部规划视野小于全局路径长度：局部规划目标点为局部视野附近的点，如果局部规划目标点距离终点较远【大于V^2/A】则速度为对应全局轨迹点速度】
 
 */
-
 
   void EGOReplanFSM::getLocalTarget()
   {

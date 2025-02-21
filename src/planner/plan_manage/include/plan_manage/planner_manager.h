@@ -10,9 +10,7 @@
 #include <plan_manage/plan_container.hpp>
 #include <ros/ros.h>
 #include <traj_utils/planning_visualization.h>
-
 #include <plan_env/edt_environment.h>
-
 #include <bspline_opt/bspline_optimizer_qp.h>
 
 namespace ego_planner

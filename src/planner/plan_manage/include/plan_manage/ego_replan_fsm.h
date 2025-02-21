@@ -68,10 +68,10 @@ namespace ego_planner
 
     Eigen::Vector3d odom_pos_, odom_vel_, odom_acc_; // odometry state
     Eigen::Quaterniond odom_orient_;
-
     Eigen::Vector3d init_pt_, start_pt_, start_vel_, start_acc_, start_yaw_; // start state
     Eigen::Vector3d end_pt_, end_vel_;                                       // goal state
-    Eigen::Vector3d local_target_pt_, local_target_vel_;                     // local target state
+    Eigen::Vector3d local_target_pt_, local_target_vel_; 
+                        // local target state
     int current_wp_;
 
     bool flag_escape_emergency_;

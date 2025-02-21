@@ -88,10 +88,7 @@ namespace ego_planner
     void setBoundaryStates(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel,
                            Eigen::Vector3d start_acc, Eigen::Vector3d local_target_pt,
                            Eigen::Vector3d local_target_vel);
-
     void odometryCallback(const nav_msgs::OdometryConstPtr &msg);
-
-
 
     inline int getOrder(void) { return order_; }
 
@@ -125,7 +122,6 @@ namespace ego_planner
     double lambda2_, new_lambda2_; // distance weight
     double lambda3_;               // feasibility weight
     double lambda4_;               // curve fitting
-
     double lambda5_;    
     double lambda6_; 
     double lambda7_; 
@@ -150,8 +146,6 @@ namespace ego_planner
 
     vector<Eigen::Vector3d> start_state_, end_state_;
 
-
-
     /* cost function */
     /* calculate each part of cost function with control points q as input */
 
@@ -168,6 +162,14 @@ namespace ego_planner
     void calcDistanceCostRebound(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient, int iter_num, double smoothness_cost);
     void calcFitnessCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient);
     void calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient);
+    void calcTimeCost(double size, double &cost, Eigen::MatrixXd &gradient,double knot_span);
+    void calcFeasibilityCost_test(const Eigen::MatrixXd &q, double knot_span, double &cost, Eigen::MatrixXd &gradient, double &gt);
+    void calcStartCost(const Eigen::MatrixXd& q, const double& dt, double& cost,
+                                     Eigen::MatrixXd &gradient, double& gt);
+    void calcEndCost(const Eigen::MatrixXd& q, const double &dt, double &cost,
+                     Eigen::MatrixXd &gradient, double &gt);
+
+
     bool check_collision_and_rebound(void);
 
     static int earlyExit(void *func_data, const double *x, const double *g, const double fx, const double xnorm, const double gnorm, const double step, int n, int k, int ls);
@@ -179,17 +181,6 @@ namespace ego_planner
     void combineCostRebound(const double *x, double *grad, double &f_combine, const int n);
     void combineCostRefine(const double *x, double *grad, double &f_combine, const int n);
 
-    void calcTimeCost(double size, double &cost, Eigen::MatrixXd &gradient,double knot_span);
-    // void calcFeasibilityCost_test(const vector<Eigen::Vector3d> &q, const double &dt,
-    //                               double &cost, vector<Eigen::Vector3d> &gradient_q,
-    //                               double &gt);
-
-    void calcFeasibilityCost_test(const Eigen::MatrixXd &q, double knot_span, double &cost, Eigen::MatrixXd &gradient, double &gt);
-
-    void calcStartCost(const Eigen::MatrixXd& q, const double& dt, double& cost,
-                                     Eigen::MatrixXd &gradient, double& gt);
-    void calcEndCost(const Eigen::MatrixXd& q, const double &dt, double &cost,
-                     Eigen::MatrixXd &gradient, double &gt);
 
     /* for benckmark evaluation only */
   public:

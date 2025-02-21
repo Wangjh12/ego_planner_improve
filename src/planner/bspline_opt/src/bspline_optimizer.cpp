@@ -1179,7 +1179,7 @@ void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen
             gradient.col(i) += 2 * grad_global; // 2倍来自平方项的导数
         }
     }
-    std::cout << "--------------fovcost = " << cost << "----------" << endl;
+    // std::cout << "--------------fovcost = " << cost << "----------" << endl;
 }
 
   bool BsplineOptimizer::BsplineOptimizeTrajRebound(Eigen::MatrixXd &optimal_points, double &ts)
@@ -1228,8 +1228,8 @@ void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen
     constexpr int MAX_RESART_NUMS_SET = 3;
 
     // 定义 knot_span 的上下限，防止数值不稳定
-    constexpr double MIN_KNOT_SPAN = 0.01;
-    constexpr double MAX_KNOT_SPAN = 1.0;  
+    // constexpr double MIN_KNOT_SPAN = 0.01;
+    // constexpr double MAX_KNOT_SPAN = 1.0;  
     do
     {
       /* ---------- prepare ---------- */
@@ -1265,8 +1265,6 @@ void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen
       double total_time_ms = (t2 - t0).toSec() * 1000;
       knot_span_ = q[variable_num_ - 1];
     
-    // // 更新 knot_span_ 时，进行范围检查
-    //   knot_span_ = std::max(MIN_KNOT_SPAN, std::min(MAX_KNOT_SPAN, knot_span_));
 
       /* ---------- success temporary, check collision again ---------- */
       if (result == lbfgs::LBFGS_CONVERGENCE ||
@@ -1415,21 +1413,15 @@ void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen
     // memcpy(cps_.points.data(), x, (n-1) * sizeof(x[0]));
     // knot_span_ = x[n - 1];
 
-    // 使用 Eigen::Map 替代 memcpy 操作
     Eigen::Map<const Eigen::VectorXd> x_map(x, n - 1);
     Eigen::Map<Eigen::MatrixXd> cps_points(const_cast<double*>(cps_.points.data()), cps_.points.rows(), cps_.points.cols());
-    // 假定 cps_.points 已正确初始化，直接赋值
     cps_points = Eigen::Map<const Eigen::MatrixXd>(x, cps_.points.rows(), cps_.points.cols());
     knot_span_ = x[n - 1];
 
     /* ---------- evaluate cost and gradient ---------- */
 
     double f_smoothness, f_distance, f_feasibility;
-    double f_fovcost ;
-
-    double f_start, f_end;
-
-    double f_time;
+    double f_fovcost,f_start, f_end,f_time;
 
     Eigen::MatrixXd g_smoothness = Eigen::MatrixXd::Zero(3, cps_.size);
     Eigen::MatrixXd g_distance = Eigen::MatrixXd::Zero(3, cps_.size);
@@ -1437,7 +1429,6 @@ void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen
     Eigen::MatrixXd g_time = Eigen::MatrixXd::Zero(1, 1);
     Eigen::MatrixXd g_start = Eigen::MatrixXd::Zero(3, cps_.size);
     Eigen::MatrixXd g_end = Eigen::MatrixXd::Zero(3, cps_.size);
-
     Eigen::MatrixXd g_fovcost = Eigen::MatrixXd::Zero(3, cps_.size);
 
     double gt_feasibility = 0;
@@ -1445,6 +1436,7 @@ void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen
     double gt_end = 0;
 
     double cpsNumsize = cps_.size;
+    
     calcSmoothnessCost(cps_.points, f_smoothness, g_smoothness);
     calcDistanceCostRebound(cps_.points, f_distance, g_distance, iter_num_, f_smoothness);
     calcFeasibilityCost_test(cps_.points, knot_span_,f_feasibility, g_feasibility,gt_feasibility);

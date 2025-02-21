@@ -25,7 +25,7 @@ namespace ego_planner
     local_data_.traj_id_ = 0;
 
   /*
-  //GridMap::Ptr grid_map_; 在h文件声明 ， 
+  GridMap::Ptr grid_map_; 在h文件声明 ， 
   这里使用了c++ 智能指针,将grid_map_ 指向一个新的对象 
   原来的对象（如果有的话）将被销毁。
   */
@@ -45,8 +45,6 @@ namespace ego_planner
     for (int i = 0; i < 10; ++i) {
       bspline_optimizers_[i].reset(new BsplineOptimizer_QP);
       bspline_optimizers_[i]->setParam(nh);
-      // bspline_optimizers_[i]->setEnvironment(edt_environment_);
-      // std::cout << "------------" << i << std::endl;
     }
 
     visualization_ = vis;
@@ -291,12 +289,12 @@ namespace ego_planner
     visualization_->displayAStarList(a_star_pathes, vis_id);
 
     t_start = ros::Time::now();
-    cout << "----------优化前 ts--------" << ts << "----------"<<endl;
+    // cout << "----------优化前 ts--------" << ts << "----------"<<endl;
     /*** STEP 2: OPTIMIZE ***/
     bspline_optimizer_rebound_->setBoundaryStates(start_pt,start_vel,start_acc,local_target_pt,local_target_vel);
     bool flag_step_1_success = bspline_optimizer_rebound_->BsplineOptimizeTrajRebound(ctrl_pts, ts);
     cout << "first_optimize_step_success=" << flag_step_1_success << endl;
-    cout << "----------优化后 ts--------" << ts << "----------"<<endl;
+    // cout << "----------优化后 ts--------" << ts << "----------"<<endl;
     if (!flag_step_1_success)
     {
       // visualization_->displayOptimalList( ctrl_pts, vis_id );
@@ -627,10 +625,6 @@ namespace ego_planner
     int cost_func = BsplineOptimizer_QP::SMOOTHNESS | BsplineOptimizer_QP::WAYPOINTS;
     yaw           = bspline_optimizers_[1]->BsplineOptimizeTraj(yaw, dt_yaw, cost_func, 1, 1); //优化出来的就是b样条控制点，所以是b样条优化
 
-    // for (int i = 0; i < yaw.rows(); ++i) {
-    //     std::cout << "yaw(" << i << ") = " << yaw(i, 0) << std::endl;
-    // }
-
     //ego planner 与 fastplanner中对b样条控制点的矩阵维度处理是相反的，即ego中的行和列，是fast中的列和行，所以这里将计算出的yaw调换一下维度
     Eigen::MatrixXd yaw_trans(1,seg_num + 3); 
 
@@ -655,7 +649,7 @@ namespace ego_planner
     plan_data_.dt_yaw_      = dt_yaw;
     plan_data_.dt_yaw_path_ = dt_yaw;
 
-    std::cout << "plan heading: " << (ros::Time::now() - t1).toSec() << std::endl;
+    // std::cout << "plan heading: " << (ros::Time::now() - t1).toSec() << std::endl;
   }
 
   void EGOPlannerManager::calcNextYaw(const double& last_yaw, double& yaw) {

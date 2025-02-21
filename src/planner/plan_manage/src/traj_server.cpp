@@ -24,6 +24,8 @@ using namespace ego_planner;
 // class PerceptionUtils;
 
 bool receive_traj_ = false;
+
+
 vector<UniformBspline> traj_;
 double traj_duration_;
 ros::Time start_time_;
@@ -31,18 +33,14 @@ ros::Time record_start_time_,record_end_time_;
 int traj_id_;
 int pub_traj_id_;
 
-vector<Eigen::Vector3d> traj_pos_;
-
 // yaw control
 double last_yaw_, last_yaw_dot_;
 double time_forward_;
-
 bool use_planYaw;
 
+vector<Eigen::Vector3d> traj_pos_;
 vector<Eigen::Vector3d> traj_cmd_;
-
 shared_ptr<PerceptionUtils> percep_utils_;
-
 
 void displayTrajWithColor(vector<Eigen::Vector3d> path, double resolution, Eigen::Vector4d color,
                           int id);
@@ -75,7 +73,6 @@ void bsplineCallback(ego_planner::BsplineConstPtr msg)
 
   // parse yaw traj
 
-
   Eigen::MatrixXd yaw_pts(1, msg->yaw_pts.size());
   for (int i = 0; i < msg->yaw_pts.size(); ++i) {
     yaw_pts(0, i) = msg->yaw_pts[i];
@@ -91,7 +88,6 @@ void bsplineCallback(ego_planner::BsplineConstPtr msg)
     ROS_WARN("start flight");
     record_start_time_ = ros::Time::now();
   }
-
 
   traj_.clear();
   traj_.push_back(pos_traj);                    //位置
@@ -222,8 +218,6 @@ void cmdCallback(const ros::TimerEvent &e)
 
     /*** calculate yaw ***/
     yaw_yawdot = calculate_yaw(t_cur, pos, time_now, time_last);
-
-
     yaw = traj_[3].evaluateDeBoorT(t_cur)[0];
     yawdot = traj_[4].evaluateDeBoorT(t_cur)[0];
     /*** calculate yaw ***/
@@ -286,7 +280,7 @@ void cmdCallback(const ros::TimerEvent &e)
 
   pos_cmd_pub.publish(cmd);
 
-
+//通过mavros给px4发ros话题，控制飞行
   mav_cmd.header.stamp = time_now;
   mav_cmd.header.frame_id = "world"; //表示全局参考坐标系，常见的有odom表示机器人从初始位置开始的相对位移，map用于存储和表示地图数据
   mav_cmd.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED; // 北东地，但mavors会自动转为东北天
@@ -318,16 +312,17 @@ void cmdCallback(const ros::TimerEvent &e)
   } else if ((pos - traj_cmd_.back()).norm() > 1e-6) {
     // Add new different commanded position
     traj_cmd_.push_back(pos);
-  }
-
-  if(traj_pos_.size()==0)
-  {
-    traj_pos_.push_back(pos);
-  }else if((pos - traj_pos_.back()).norm() > 1e-6)
-  {
-    traj_pos_.push_back(pos);
     record_end_time_ = ros::Time::now();
   }
+
+  // if(traj_pos_.size()==0)
+  // {
+  //   traj_pos_.push_back(pos);
+  // }else if((pos - traj_pos_.back()).norm() > 1e-6)
+  // {
+  //   traj_pos_.push_back(pos);
+  //   record_end_time_ = ros::Time::now();
+  // }
 
   vector<Eigen::Vector3d> l1, l2;
   if(use_planYaw)
@@ -427,7 +422,6 @@ void new_Callback(ego_planner::BsplineConstPtr msg)
 {
   traj_pos_.clear();
 }
-
 
 
 

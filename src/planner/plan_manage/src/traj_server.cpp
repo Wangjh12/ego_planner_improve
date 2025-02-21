@@ -31,11 +31,13 @@ ros::Time record_start_time_,record_end_time_;
 int traj_id_;
 int pub_traj_id_;
 
+vector<Eigen::Vector3d> traj_pos_;
+
 // yaw control
 double last_yaw_, last_yaw_dot_;
 double time_forward_;
 
-bool use_planYaw = true;
+bool use_planYaw;
 
 vector<Eigen::Vector3d> traj_cmd_;
 
@@ -318,6 +320,15 @@ void cmdCallback(const ros::TimerEvent &e)
     traj_cmd_.push_back(pos);
   }
 
+  if(traj_pos_.size()==0)
+  {
+    traj_pos_.push_back(pos);
+  }else if((pos - traj_pos_.back()).norm() > 1e-6)
+  {
+    traj_pos_.push_back(pos);
+    record_end_time_ = ros::Time::now();
+  }
+
   vector<Eigen::Vector3d> l1, l2;
   if(use_planYaw)
   {
@@ -412,6 +423,13 @@ void drawFOV(const vector<Eigen::Vector3d>& list1, const vector<Eigen::Vector3d>
 
 
 
+void new_Callback(ego_planner::BsplineConstPtr msg)
+{
+  traj_pos_.clear();
+}
+
+
+
 
 int main(int argc, char **argv)
 {
@@ -421,7 +439,9 @@ int main(int argc, char **argv)
 
   percep_utils_ = std::make_shared<PerceptionUtils>(nh);
 
-  ros::Subscriber bspline_sub = node.subscribe("planning/bspline", 10, bsplineCallback);   
+  ros::Subscriber bspline_sub = node.subscribe("planning/bspline", 10, bsplineCallback); 
+
+  ros::Subscriber new_sub = node.subscribe("planning/bspline", 10, new_Callback);
                                                                                           
   pos_cmd_pub = node.advertise<quadrotor_msgs::PositionCommand>("/position_cmd", 50);         
 

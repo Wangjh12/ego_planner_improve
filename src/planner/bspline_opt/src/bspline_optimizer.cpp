@@ -470,18 +470,6 @@ namespace ego_planner
     gradient(0, 0) = double(point_num_ - order_);
   }
 
-void BsplineOptimizer::setBoundaryStates(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel,
-                                        Eigen::Vector3d start_acc, Eigen::Vector3d local_target_pt,
-                                        Eigen::Vector3d local_target_vel) {
-    start_state_.clear();
-    end_state_.clear();
-
-    start_state_.push_back(start_pt);
-    start_state_.push_back(start_vel);
-    start_state_.push_back(start_acc);
-    end_state_.push_back(local_target_pt);
-    end_state_.push_back(local_target_vel);
-}
 
 
 void BsplineOptimizer::calcStartCost(const Eigen::MatrixXd& q, const double& dt, double& cost,
@@ -1363,88 +1351,6 @@ void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen
 
 
 
-void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient) {
-    cost = 0.0;
-    gradient.resize(3, q.cols());
-    gradient.setZero();
-
-    // 视场角参数（转换为弧度）
-    // const double vertical_fov = 60.0 * M_PI / 180.0;    // 垂直视场角
-    // const double horizontal_fov = 80.0 * M_PI / 180.0;  // 水平视场角
-
-    const double vertical_fov = vertical_ * M_PI / 180.0;    // 垂直视场角
-    const double horizontal_fov = horizontal_ * M_PI / 180.0;  // 水平视场角
-    const double tan_vertical = tan(vertical_fov/2);     // 垂直方向tan值
-    const double tan_horizontal = tan(horizontal_fov/2); // 水平方向tan值
-
-
-    Eigen::Vector3d camera_origin_(1.0, 0.0, 0.0);// 假设相机朝向机体 x 轴
-    Eigen::Vector3d camera_dir_; 
-    Eigen::Vector3d camera_pos_ = start_state_[0];
-
-    // 构建相机坐标系
-    odom_orient_.normalize();
-    camera_dir_ = odom_orient_ * camera_origin_;
-
-    Eigen::Vector3d cam_dir = camera_dir_.normalized();
-    Eigen::Vector3d e1 = cam_dir;
-    Eigen::Vector3d e2, e3;
-    
-    // 构建正交基底
-    Eigen::Vector3d ref(0, 1, 0); // 世界坐标系Y轴
-    if(e1.cross(ref).norm() < 1e-3) ref << 0, 0, 1;
-    e2 = e1.cross(ref).normalized();  // 垂直方向基向量
-    e3 = e1.cross(e2).normalized();   // 水平方向基向量
-
-    int end_idx = q.cols() - order_;
-    for (int i = order_ - 1; i < end_idx + 1; ++i) {
-        Eigen::Vector3d Qi = q.col(i) - camera_pos_;
-        
-        // 投影到局部坐标系
-        double x = Qi.dot(e1);  // 沿光轴分量
-        double y = Qi.dot(e2);  // 垂直分量
-        double z = Qi.dot(e3);  // 水平分量
-
-        // 忽略相机后方的点
-        if(x <= 1e-3) continue;
-
-        // 计算允许的边界范围
-        double y_max = x * tan_vertical;
-        double z_max = x * tan_horizontal;
-        double penalty = 0.0;
-        Eigen::Vector3d grad_local = Eigen::Vector3d::Zero();
-
-        // 垂直方向约束
-        if(fabs(y) > y_max) {
-            double delta = fabs(y) - y_max;
-            penalty += delta * delta;
-            double sign = y > 0 ? 1.0 : -1.0;
-            grad_local[0] += -delta * tan_vertical * sign; // x分量梯度
-            grad_local[1] += delta * sign;                  // y分量梯度
-        }
-
-        // 水平方向约束
-        if(fabs(z) > z_max) {
-            double delta = fabs(z) - z_max;
-            penalty += delta * delta;
-            double sign = z > 0 ? 1.0 : -1.0;
-            grad_local[0] += -delta * tan_horizontal * sign; // x分量梯度
-            grad_local[2] += delta * sign;                    // z分量梯度
-        }
-
-        // 累计成本和转换梯度
-        if(penalty > 0) {
-            cost += penalty;
-            Eigen::Vector3d grad_global = 
-                grad_local[0] * e1 + 
-                grad_local[1] * e2 + 
-                grad_local[2] * e3;
-            gradient.col(i) += 2 * grad_global; // 2倍来自平方项的导数
-        }
-    }
-}
-
-
 
   bool BsplineOptimizer::BsplineOptimizeTrajRebound(Eigen::MatrixXd &optimal_points, double &ts)
   {
@@ -1722,20 +1628,18 @@ void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen
     calcEndCost(cps_.points, knot_span_,f_end,g_end, gt_end);
 
     f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility + lambda5_ * f_time + lambda6_*f_start + lambda7_*f_end + lambda8_ * f_fovcost;
-    // printf("origin %f %f %f %f\n", f_smoothness, f_distance, f_feasibility, f_combine);
+
     // ROS_INFO("f_combine: %f, f_smoothness: %f, f_distance: %f, f_feasibility: %f, f_fovcost: %f", 
     //      f_combine, f_smoothness, f_distance, f_feasibility, f_fovcost);
-    cout << "----------------------" << endl;
-    ROS_INFO("f_fovcost: %f", f_fovcost);
 
-    Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility +lambda6_* g_start+lambda7_* g_end;
+    Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility +lambda6_* g_start+lambda7_* g_end+ lambda8_ * g_fovcost;
     // memcpy(grad, grad_3D.data() + 3 * order_, (n - 1) * sizeof(grad[0]));
     memcpy(grad, grad_3D.data(), (n - 1) * sizeof(grad[0]));
-    grad[n - 1] = lambda5_ * g_time(0, 0) + lambda3_ * gt_feasibility + lambda6_* gt_start + lambda7_* gt_end;
+    grad[n - 1] = lambda5_ * g_time(0, 0) + lambda3_ * gt_feasibility + lambda6_* gt_start + lambda7_* gt_end ;
 
 
-    Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility + lambda8_ * g_fovcost;
-    memcpy(grad, grad_3D.data() + 3 * order_, n * sizeof(grad[0]));
+    // Eigen::MatrixXd grad_3D = lambda1_ * g_smoothness + new_lambda2_ * g_distance + lambda3_ * g_feasibility + lambda8_ * g_fovcost;
+    // memcpy(grad, grad_3D.data() + 3 * order_, n * sizeof(grad[0]));
   }
 
   void BsplineOptimizer::combineCostRefine(const double *x, double *grad, double &f_combine, const int n)

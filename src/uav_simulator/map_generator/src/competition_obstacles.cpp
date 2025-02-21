@@ -318,29 +318,25 @@ void testObstacle() {
         {-3.0, -0.0, 0.25, 3.0},
         };
 
-    // 格式：{中心x, 中心y, 半径, 高度, 圆环厚度}
-    RingObstacle ringObstacles[] = { 
-        {0.0, 0.0, 2.0, 1.0, 0.25}, 
-        {5.0, 5.0, 3.0, 1.5, 0.25}, 
-        {-5.0, -5.0, 2.5, 1.0, 0.25}, 
-        {3.0, -3.0, 2.0, 1.2, 0.25}, 
-        {-3.0, 3.0, 2.8, 1.3, 0.25}, 
-        {6.0, 0.0, 1.5, 0.8, 0.25}, 
-        {0.0, 6.0, 2.2, 1.1, 0.25}, 
-        {-6.0, 0.0, 3.2, 1.6, 0.25}, 
-        {0.0, -6.0, 2.7, 1.4, 0.25}, 
-        {4.0, 4.0, 1.8, 0.9, 0.25} 
-    };
+    // // 格式：{中心x, 中心y, 半径, 高度, 圆环厚度}
+    // RingObstacle ringObstacles[] = { 
+    //     {0.0, 0.0, 2.0, 1.0, 0.25}, 
+    //     {5.0, 5.0, 3.0, 1.5, 0.25}, 
+    //     {-5.0, -5.0, 2.5, 1.0, 0.25}, 
+    //     {3.0, -3.0, 2.0, 1.2, 0.25}, 
+    //     {-3.0, 3.0, 2.8, 1.3, 0.25}, 
+    //     {6.0, 0.0, 1.5, 0.8, 0.25}, 
+    //     {0.0, 6.0, 2.2, 1.1, 0.25}, 
+    //     {-6.0, 0.0, 3.2, 1.6, 0.25}, 
+    //     {0.0, -6.0, 2.7, 1.4, 0.25}, 
+    //     {4.0, 4.0, 1.8, 0.9, 0.25} 
+    // };
 
     int numFixedObstacles = sizeof(fixedObstacles) / sizeof(fixedObstacles[0]);
-    int numRingObstacles = sizeof(ringObstacles) / sizeof(ringObstacles[0]);
     for (int i = 0; i < numFixedObstacles; i++) {
         obstacles.push_back(fixedObstacles[i]);
     }
 
-    for (int i = 0; i < numRingObstacles; i++) {
-        ringObstacle.push_back(ringObstacles[i]);
-    }
     pcl::PointXYZ pt_random;
 
     for (int i = 0; i < numFixedObstacles; i++) {
@@ -377,46 +373,67 @@ void testObstacle() {
         }
     }
 
+//生成垂直障碍物
+    Obstacle cuboidObstacle;
+    cuboidObstacle.x = -18.0;
+    cuboidObstacle.y = 0.0;
+    cuboidObstacle.radius = 0.5; // 半径设置为长宽的一半
+    cuboidObstacle.height = 0.5;
 
-        Obstacle cuboidObstacle;
-        cuboidObstacle.x = -18.0;
-        cuboidObstacle.y = 0.0;
-        cuboidObstacle.radius = 0.5; // 半径设置为长宽的一半
-        cuboidObstacle.height = 0.5;
+    double x = cuboidObstacle.x;
+    double y = cuboidObstacle.y;
+    double w = cuboidObstacle.radius * 2; // 长宽
+    double h = cuboidObstacle.height;
 
-        double x = cuboidObstacle.x;
-        double y = cuboidObstacle.y;
-        double w = cuboidObstacle.radius * 2; // 长宽
-        double h = cuboidObstacle.height;
+    x = floor(x / _resolution) * _resolution + _resolution / 2.0;
+    y = floor(y / _resolution) * _resolution + _resolution / 2.0;
 
-        x = floor(x / _resolution) * _resolution + _resolution / 2.0;
-        y = floor(y / _resolution) * _resolution + _resolution / 2.0;
+    int widNum = ceil(w / _resolution);
+    int heiNum = ceil(h / _resolution);
 
-        int widNum = ceil(w / _resolution);
-        int heiNum = ceil(h / _resolution);
-
-        for (int r = -widNum / 2.0; r < widNum / 2.0; r++) {
-            for (int s = -widNum / 2.0; s < widNum / 2.0; s++) {
-                for (int t = 0; t < heiNum; t++) {
+    for (int r = -widNum / 2.0; r < widNum / 2.0; r++) {
+        for (int s = -widNum / 2.0; s < widNum / 2.0; s++) {
+            for (int t = 0; t < heiNum; t++) {
                     pt_random.x = x + (r + 0.5) * _resolution + 1e-2;
                     pt_random.y = y + (s + 0.5) * _resolution + 1e-2;
                     pt_random.z = 1.0 + (t + 0.5) * _resolution + 1e-2; // 设置高度从2.5开始
                     cloudMap.points.push_back(pt_random);
-                }
             }
         }
+    }
+
+//生成一面墙
+    double wallX = 3.0;
+    double wallY = 0.0;
+    double wallLength = 1.0;
+    double wallWidth = 6.0;
+    double wallHeight = 3.0;
+
+    int wallLengthNum = ceil(wallLength / _resolution);
+    int wallWidthNum = ceil(wallWidth / _resolution);
+    int wallHeightNum = ceil(wallHeight / _resolution);
+
+    for (int r = -wallLengthNum / 2.0; r < wallLengthNum / 2.0; r++) {
+        for (int s = -wallWidthNum / 2.0; s < wallWidthNum / 2.0; s++) {
+            for (int t = 0; t < wallHeightNum; t++) {
+                pt_random.x = wallX + (r + 0.5) * _resolution + 1e-2;
+                pt_random.y = wallY + (s + 0.5) * _resolution + 1e-2;
+                pt_random.z = (t + 0.5) * _resolution + 1e-2; // 从地面开始生成墙
+                cloudMap.points.push_back(pt_random);
+            }
+        }
+    }
 
 
+        cloudMap.width = cloudMap.points.size();
+        cloudMap.height = 1;
+        cloudMap.is_dense = true;
 
-    cloudMap.width = cloudMap.points.size();
-    cloudMap.height = 1;
-    cloudMap.is_dense = true;
+        ROS_WARN("Finished generating specified map");
 
-    ROS_WARN("Finished generating specified map");
+        kdtreeLocalMap.setInputCloud(cloudMap.makeShared());
 
-    kdtreeLocalMap.setInputCloud(cloudMap.makeShared());
-
-    _map_ok = true;
+        _map_ok = true;
 }
 
 

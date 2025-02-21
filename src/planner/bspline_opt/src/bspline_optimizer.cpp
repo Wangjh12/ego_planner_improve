@@ -424,7 +424,6 @@ namespace ego_planner
     double duration = (point_num_ - order_) * knot_span;
     cost = duration;
     gradient(0, 0) = double(point_num_ - order_);
-    // std::cout << "calcTimeCost: cost = " << cost << std::endl;
   }
 
 void BsplineOptimizer::setBoundaryStates(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel,
@@ -557,7 +556,6 @@ void BsplineOptimizer::calcEndCost(const Eigen::MatrixXd& q, const double& dt, d
       }
     }
 
-    // std::cout << "calcSmoothnessCost: cost = " << cost << std::endl;
   }
 
   void BsplineOptimizer::calcFeasibilityCost(const Eigen::MatrixXd &q, double &cost,
@@ -690,8 +688,6 @@ void BsplineOptimizer::calcEndCost(const Eigen::MatrixXd& q, const double& dt, d
     cost = 0.0;
     /* abbreviation */
     double ts, /*vm2, am2, */ ts_inv2;
-    // vm2 = max_vel_ * max_vel_;
-    // am2 = max_acc_ * max_acc_;
 
       ts = bspline_interval_;
   
@@ -707,8 +703,6 @@ void BsplineOptimizer::calcEndCost(const Eigen::MatrixXd& q, const double& dt, d
       {
         if (vi(j) > max_vel_)
         {
-          // cout << "fuck VEL" << endl;
-          // cout << vi(j) << endl;
           cost += pow(vi(j) - max_vel_, 2) * ts_inv2; // multiply ts_inv3 to make vel and acc has similar magnitude
 
           gradient(j, i + 0) += -2 * (vi(j) - max_vel_) / ts * ts_inv2;
@@ -1037,7 +1031,6 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
     // variable_num_ = 3 * (end_id - start_id);
     // variable_num_ = 3 * (end_id - start_id) + 1;
     variable_num_ = 3 * cps_.size + 1;
-    cout << "---------variable_num_ = " << variable_num_ << endl;
     double final_cost;
 
     ros::Time t0 = ros::Time::now(), t1, t2;
@@ -1045,6 +1038,10 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
     bool flag_force_return, flag_occ, success;
     new_lambda2_ = lambda2_;
     constexpr int MAX_RESART_NUMS_SET = 3;
+
+    // 定义 knot_span 的上下限，防止数值不稳定
+    constexpr double MIN_KNOT_SPAN = 0.01;
+    constexpr double MAX_KNOT_SPAN = 1.0;  
     do
     {
       /* ---------- prepare ---------- */
@@ -1054,18 +1051,18 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
       flag_occ = false;
       success = false;
 
-      double q[variable_num_];
-      std::cout << "---------variable_num_--------------------" << variable_num_ << std::endl;
+      // double q[variable_num_];
       // memcpy(q, cps_.points.data() + 3 * start_id, (variable_num_ - 1) * sizeof(q[0]));
-      memcpy(q, cps_.points.data(), (variable_num_ - 1) * sizeof(q[0]));
-      q[variable_num_-1] = knot_span_;
-      // std::cout << "--------------------count q ---------------" << std::endl;
-      // for (int i = 0; i < variable_num_;++i)
-      // {
-      //   std::cout << q[i] << " ";
-      // }
-      // cout << endl;
-      // std::cout << "--------------------------------------" << std::endl;
+      // memcpy(q, cps_.points.data(), (variable_num_ - 1) * sizeof(q[0]));
+      // q[variable_num_-1] = knot_span_;
+
+
+      // 用 std::vector 保存优化变量，并使用 Eigen::Map 赋值避免直接 memcpy
+      std::vector<double> q(variable_num_, 0.0);
+      Eigen::Map<Eigen::VectorXd> q_map(q.data(), variable_num_ - 1);
+      q_map = Eigen::Map<const Eigen::VectorXd>(cps_.points.data(), variable_num_ - 1);
+      q[variable_num_ - 1] = knot_span_;
+
       lbfgs::lbfgs_parameter_t lbfgs_params;
       lbfgs::lbfgs_load_default_parameters(&lbfgs_params);
       lbfgs_params.mem_size = 16;
@@ -1074,11 +1071,14 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
 
       /* ---------- optimize ---------- */
       t1 = ros::Time::now();
-      int result = lbfgs::lbfgs_optimize(variable_num_, q, &final_cost, BsplineOptimizer::costFunctionRebound, NULL, BsplineOptimizer::earlyExit, this, &lbfgs_params);
+      int result = lbfgs::lbfgs_optimize(variable_num_, q.data(), &final_cost, BsplineOptimizer::costFunctionRebound, NULL, BsplineOptimizer::earlyExit, this, &lbfgs_params);
       t2 = ros::Time::now();
       double time_ms = (t2 - t1).toSec() * 1000;
       double total_time_ms = (t2 - t0).toSec() * 1000;
       knot_span_ = q[variable_num_ - 1];
+    
+    // // 更新 knot_span_ 时，进行范围检查
+    //   knot_span_ = std::max(MIN_KNOT_SPAN, std::min(MAX_KNOT_SPAN, knot_span_));
 
       /* ---------- success temporary, check collision again ---------- */
       if (result == lbfgs::LBFGS_CONVERGENCE ||
@@ -1124,7 +1124,10 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
         {
           restart_nums++;
           initControlPoints(cps_.points, false);
-          new_lambda2_ *= 2;
+          // new_lambda2_ *= 2;
+
+          // 修改 new_lambda2_ 更新策略，增幅改为1.5倍并限制上限
+          new_lambda2_ = std::min(new_lambda2_ * 1.5, 1000.0);
 
           printf("\033[32miter(+1)=%d,time(ms)=%5.3f,keep optimizing\n\033[0m", iter_num_, time_ms);
         }
@@ -1221,10 +1224,16 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
   {
 
     // memcpy(cps_.points.data() + 3 * order_, x, (n-1) * sizeof(x[0]));
-    memcpy(cps_.points.data(), x, (n-1) * sizeof(x[0]));
-    // std::cout << "-------cps.point-------------"  << std::endl << cps_.points << std::endl;  
+    // memcpy(cps_.points.data(), x, (n-1) * sizeof(x[0]));
+    // knot_span_ = x[n - 1];
 
+    // 使用 Eigen::Map 替代 memcpy 操作
+    Eigen::Map<const Eigen::VectorXd> x_map(x, n - 1);
+    Eigen::Map<Eigen::MatrixXd> cps_points(const_cast<double*>(cps_.points.data()), cps_.points.rows(), cps_.points.cols());
+    // 假定 cps_.points 已正确初始化，直接赋值
+    cps_points = Eigen::Map<const Eigen::MatrixXd>(x, cps_.points.rows(), cps_.points.cols());
     knot_span_ = x[n - 1];
+
     /* ---------- evaluate cost and gradient ---------- */
 
     double f_smoothness, f_distance, f_feasibility;

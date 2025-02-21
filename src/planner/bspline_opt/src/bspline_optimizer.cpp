@@ -1253,7 +1253,7 @@ void BsplineOptimizer::calcFeasibilityCost_test(const Eigen::MatrixXd &q, double
     calcTimeCost(cpsNumsize, f_time, g_time, knot_span_);
 
     calcStartCost(cps_.points, knot_span_,f_start,g_start, gt_start);
-    calcEndCost(cps_.points, knot_span_,f_start,g_start, gt_end);
+    calcEndCost(cps_.points, knot_span_,f_end,g_end, gt_end);
 
     f_combine = lambda1_ * f_smoothness + new_lambda2_ * f_distance + lambda3_ * f_feasibility + lambda5_ * f_time + lambda6_*f_start + lambda7_*f_end;
     // printf("origin %f %f %f %f\n", f_smoothness, f_distance, f_feasibility, f_combine);

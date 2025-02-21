@@ -2,7 +2,7 @@
   <!-- size of map, change the size inflate x, y, z according to your application -->
   <arg name="map_size_x" value="40.0"/>
   <arg name="map_size_y" value="40.0"/>
-  <arg name="map_size_z" value=" 4.5"/>
+  <arg name="map_size_z" value="4.0"/>
 
   <!-- topic of your odometry such as VIO or LIO -->
   <arg name="odom_topic" value="/visual_slam/odom" />
@@ -46,7 +46,7 @@
     <!-- It generates a piecewise min-snap traj passing all waypoints -->
 
 
-    <!-- <arg name="point_num" value="5" />
+    <arg name="point_num" value="5" />
 
 
     <arg name="point0_x" value="-15.0" />
@@ -67,15 +67,17 @@
 
     <arg name="point4_x" value="-15.0" />
     <arg name="point4_y" value="0.0" />
-    <arg name="point4_z" value="1.0" /> -->
+    <arg name="point4_z" value="1.0" />
 
 
 
-    <arg name="point_num" value="1" />
 
-    <arg name="point0_x" value="-17.7" />
+
+    <!-- <arg name="point_num" value="1" />
+
+    <arg name="point0_x" value="-17.5" />
     <arg name="point0_y" value="0.0" />
-    <arg name="point0_z" value="3.5" />
+    <arg name="point0_z" value="3.0" />
 
     <arg name="point1_x" value="15.0" />
     <arg name="point1_y" value="0.0" />
@@ -91,9 +93,7 @@
 
     <arg name="point4_x" value="-15.0" />
     <arg name="point4_y" value="0.0" />
-    <arg name="point4_z" value="1.0" />
-
-
+    <arg name="point4_z" value="1.0" /> -->
 
 
     

@@ -36,7 +36,16 @@ include_directories(
 
 add_library( path_searching 
     src/dyn_a_star.cpp
+    src/perception_utils.cpp
     )
 target_link_libraries( path_searching
     ${catkin_LIBRARIES} 
     )  
+
+# add_library(active_perception
+#     src/perception_utils.cpp
+#     )
+# target_link_libraries(active_perception
+#     ${catkin_LIBRARIES} 
+#     ${PCL_LIBRARIES}
+#     )  

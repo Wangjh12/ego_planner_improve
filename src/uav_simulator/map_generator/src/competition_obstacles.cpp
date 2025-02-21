@@ -19,6 +19,17 @@ struct Obstacle {
     double radius, height;
 };
 
+
+struct RingObstacle
+{
+    double x;
+    double y;
+    double radius;
+    double height;
+    double thickness;
+};
+
+
 struct RingObstacle
 {
     double x;
@@ -273,6 +284,169 @@ void GenerateObstaclesInD() {
 
     _map_ok = true;
 }
+
+
+
+void testObstacle() {
+    vector<Obstacle> obstacles;
+    vector<RingObstacle> ringObstacle;
+
+    // 定义固定障碍物的位置和属性
+    Obstacle fixedObstacles[] = {
+        {-1.0, 2.0, 0.25, 2.0},
+        {-1.5, -6.0, 0.25, 3.0},
+        {-3.0, 5.0, 0.25, 3.0},
+        {-2.0, 7.0, 0.25, 2.0},
+        {-4.0, -5.0, 0.25, 1.0},
+        {-3.0, -4.0, 0.25, 2.0},
+        {-5.0, 4.0, 0.25, 2.0},
+        {-4.0, -3.0, 0.25, 3.0},
+        {-6.0, -4.0, 0.25, 2.0},
+        {-5.0, -2.0, 0.25, 1.0},
+        {-7.0, 3.0, 0.25, 2.0},
+        {-6.0, 6.0, 0.25, 3.0},
+        {-8.0, -6.0, 0.25, 3.0},
+        {-7.0, 7.0, 0.25, 2.0},
+        {-8.0, -7.0, 0.25, 2.0},
+        {-10.0, -4.0, 0.25, 2.0},
+        {-9.0, 6.0, 0.25, 3.0},
+        {-11.0, 5.0, 0.25, 3.0},
+        {-10.0, -3.0, 0.25, 2.0},
+        {-12.0, 1.0, 0.25, 2.0},
+        {-11.0, 2.0, 0.25, 3.0},
+        {-13.0, -4.0, 0.25, 2.0},
+        {-12.0, -2.0, 0.25, 2.0},
+        {-14.0, 4.0, 0.25, 3.0},
+        {-13.0, 3.0, 0.25, 2.0},
+        {-15.0, -6.0, 0.25, 2.0},
+        {-14.0, -4.0, 0.25, 3.0},
+        {-16.0, -7.0, 0.25, 2.0},
+        {-15.0, -0.0, 0.25, 2.0},
+        {-12.0, -0.0, 0.25, 2.0},
+        {-9.0, -0.0, 0.25, 3.0},
+        {-6.0, -0.0, 0.25, 2.0},
+        {-3.0, -0.0, 0.25, 3.0},
+        };
+
+    // // 格式：{中心x, 中心y, 半径, 高度, 圆环厚度}
+    // RingObstacle ringObstacles[] = { 
+    //     {0.0, 0.0, 2.0, 1.0, 0.25}, 
+    //     {5.0, 5.0, 3.0, 1.5, 0.25}, 
+    //     {-5.0, -5.0, 2.5, 1.0, 0.25}, 
+    //     {3.0, -3.0, 2.0, 1.2, 0.25}, 
+    //     {-3.0, 3.0, 2.8, 1.3, 0.25}, 
+    //     {6.0, 0.0, 1.5, 0.8, 0.25}, 
+    //     {0.0, 6.0, 2.2, 1.1, 0.25}, 
+    //     {-6.0, 0.0, 3.2, 1.6, 0.25}, 
+    //     {0.0, -6.0, 2.7, 1.4, 0.25}, 
+    //     {4.0, 4.0, 1.8, 0.9, 0.25} 
+    // };
+
+    int numFixedObstacles = sizeof(fixedObstacles) / sizeof(fixedObstacles[0]);
+    for (int i = 0; i < numFixedObstacles; i++) {
+        obstacles.push_back(fixedObstacles[i]);
+    }
+
+    pcl::PointXYZ pt_random;
+
+    for (int i = 0; i < numFixedObstacles; i++) {
+        double x, y, w, h;
+        x = obstacles[i].x;
+        y = obstacles[i].y;
+        w = obstacles[i].radius;
+
+        // if (sqrt(pow(x - _init_x, 2) + pow(y - _init_y, 2)) < 2.0) {
+        // i--;
+        // continue;
+        // }
+
+        // if (sqrt(pow(x - 19.0, 2) + pow(y - 0.0, 2)) < 2.0) {
+        // i--;
+        // continue;
+        // }
+
+        x = floor(x / _resolution) * _resolution + _resolution / 2.0;
+        y = floor(y / _resolution) * _resolution + _resolution / 2.0;
+
+        int widNum = ceil(w / _resolution);
+
+        for (int r = -widNum / 2.0; r < widNum / 2.0; r++)
+        for (int s = -widNum / 2.0; s < widNum / 2.0; s++) {
+            h = obstacles[i].height;
+            int heiNum = ceil(h / _resolution);
+            for (int t = -20; t < heiNum; t++) {
+            pt_random.x = x + (r + 0.5) * _resolution + 1e-2;
+            pt_random.y = y + (s + 0.5) * _resolution + 1e-2;
+            pt_random.z = (t + 0.5) * _resolution + 1e-2;
+            cloudMap.points.push_back(pt_random);
+            }
+        }
+    }
+
+//生成垂直障碍物
+    Obstacle cuboidObstacle;
+    cuboidObstacle.x = -18.0;
+    cuboidObstacle.y = 0.0;
+    cuboidObstacle.radius = 0.5; // 半径设置为长宽的一半
+    cuboidObstacle.height = 0.5;
+
+    double x = cuboidObstacle.x;
+    double y = cuboidObstacle.y;
+    double w = cuboidObstacle.radius * 2; // 长宽
+    double h = cuboidObstacle.height;
+
+    x = floor(x / _resolution) * _resolution + _resolution / 2.0;
+    y = floor(y / _resolution) * _resolution + _resolution / 2.0;
+
+    int widNum = ceil(w / _resolution);
+    int heiNum = ceil(h / _resolution);
+
+    for (int r = -widNum / 2.0; r < widNum / 2.0; r++) {
+        for (int s = -widNum / 2.0; s < widNum / 2.0; s++) {
+            for (int t = 0; t < heiNum; t++) {
+                    pt_random.x = x + (r + 0.5) * _resolution + 1e-2;
+                    pt_random.y = y + (s + 0.5) * _resolution + 1e-2;
+                    pt_random.z = 1.0 + (t + 0.5) * _resolution + 1e-2; // 设置高度从2.5开始
+                    cloudMap.points.push_back(pt_random);
+            }
+        }
+    }
+
+//生成一面墙
+    double wallX = 3.0;
+    double wallY = 0.0;
+    double wallLength = 1.0;
+    double wallWidth = 6.0;
+    double wallHeight = 3.0;
+
+    int wallLengthNum = ceil(wallLength / _resolution);
+    int wallWidthNum = ceil(wallWidth / _resolution);
+    int wallHeightNum = ceil(wallHeight / _resolution);
+
+    for (int r = -wallLengthNum / 2.0; r < wallLengthNum / 2.0; r++) {
+        for (int s = -wallWidthNum / 2.0; s < wallWidthNum / 2.0; s++) {
+            for (int t = 0; t < wallHeightNum; t++) {
+                pt_random.x = wallX + (r + 0.5) * _resolution + 1e-2;
+                pt_random.y = wallY + (s + 0.5) * _resolution + 1e-2;
+                pt_random.z = (t + 0.5) * _resolution + 1e-2; // 从地面开始生成墙
+                cloudMap.points.push_back(pt_random);
+            }
+        }
+    }
+
+
+        cloudMap.width = cloudMap.points.size();
+        cloudMap.height = 1;
+        cloudMap.is_dense = true;
+
+        ROS_WARN("Finished generating specified map");
+
+        kdtreeLocalMap.setInputCloud(cloudMap.makeShared());
+
+        _map_ok = true;
+}
+
+
 
 void rcvOdometryCallbck(const nav_msgs::Odometry odom) {
   if (odom.child_frame_id == "X" || odom.child_frame_id == "O") return;
@@ -540,10 +714,12 @@ int main(int argc, char** argv) {
 
 
 
-    // GenerateObstaclesInA();
-    // GenerateObstaclesInB();
-    // GenerateObstaclesInC();
-    // GenerateObstaclesInD();
+    // // GenerateObstaclesInA();
+    // // GenerateObstaclesInB();
+    // // GenerateObstaclesInC();
+    // // GenerateObstaclesInD();
+
+    testObstacle();
     GenerateObstaclesInE();
 
     ros::Rate loop_rate(_sense_rate);

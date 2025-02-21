@@ -6,9 +6,13 @@
 #include "visualization_msgs/Marker.h"
 #include <ros/ros.h>
 #include <mavros_msgs/PositionTarget.h>
+#include <Eigen/Eigen>
+#include <path_searching/perception_utils.h>
 
 ros::Publisher pos_cmd_pub;
 ros::Publisher mav_cmd_pub;
+
+ros::Publisher cmd_vis_pub, traj_pub;
 
 quadrotor_msgs::PositionCommand cmd;
 mavros_msgs::PositionTarget mav_cmd;
@@ -16,6 +20,8 @@ double pos_gain[3] = {0, 0, 0};
 double vel_gain[3] = {0, 0, 0};
 
 using ego_planner::UniformBspline;
+using namespace ego_planner;
+// class PerceptionUtils;
 
 bool receive_traj_ = false;
 vector<UniformBspline> traj_;
@@ -23,6 +29,7 @@ double traj_duration_;
 ros::Time start_time_;
 ros::Time record_start_time_,record_end_time_;
 int traj_id_;
+int pub_traj_id_;
 
 // yaw control
 double last_yaw_, last_yaw_dot_;
@@ -30,10 +37,19 @@ double time_forward_;
 
 bool use_planYaw = true;
 
-vector<Eigen::Vector3d> traj_pos_;
+vector<Eigen::Vector3d> traj_cmd_;
+
+shared_ptr<PerceptionUtils> percep_utils_;
+
+
+void displayTrajWithColor(vector<Eigen::Vector3d> path, double resolution, Eigen::Vector4d color,
+                          int id);
+void drawFOV(const vector<Eigen::Vector3d> &list1, const vector<Eigen::Vector3d> &list2);
+
 
 void bsplineCallback(ego_planner::BsplineConstPtr msg)
 {
+  // traj_cmd_.clear();
   // parse pos traj
 
   Eigen::MatrixXd pos_pts(3, msg->pos_pts.size());
@@ -269,7 +285,6 @@ void cmdCallback(const ros::TimerEvent &e)
   pos_cmd_pub.publish(cmd);
 
 
-
   mav_cmd.header.stamp = time_now;
   mav_cmd.header.frame_id = "world"; //表示全局参考坐标系，常见的有odom表示机器人从初始位置开始的相对位移，map用于存储和表示地图数据
   mav_cmd.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED; // 北东地，但mavors会自动转为东北天
@@ -294,21 +309,109 @@ void cmdCallback(const ros::TimerEvent &e)
 
   mav_cmd_pub.publish(mav_cmd);
 
-  if(traj_pos_.size()==0)
-  {
-    traj_pos_.push_back(pos);
-  }else if((pos - traj_pos_.back()).norm() > 1e-6)
-  {
-    traj_pos_.push_back(pos);
-    record_end_time_ = ros::Time::now();
+
+  if (traj_cmd_.size() == 0) {
+    // Add the first position
+    traj_cmd_.push_back(pos);
+  } else if ((pos - traj_cmd_.back()).norm() > 1e-6) {
+    // Add new different commanded position
+    traj_cmd_.push_back(pos);
   }
+
+  vector<Eigen::Vector3d> l1, l2;
+  if(use_planYaw)
+  {
+    percep_utils_->setPose(pos, yaw);
+  }else{
+    percep_utils_->setPose(pos, yaw_yawdot.first);
+  }
+  percep_utils_->getFOV(l1, l2);
+  drawFOV(l1, l2);
+
+}
+
+void visCallback(const ros::TimerEvent& e) {
+
+  displayTrajWithColor(traj_cmd_, 0.05, Eigen::Vector4d(0, 0, 1, 1), pub_traj_id_);
+
+}
+void displayTrajWithColor(vector<Eigen::Vector3d> path, double resolution, Eigen::Vector4d color,
+                          int id) {
+  visualization_msgs::Marker mk;
+  mk.header.frame_id = "world";
+  mk.header.stamp = ros::Time::now();
+  mk.type = visualization_msgs::Marker::SPHERE_LIST;
+  mk.action = visualization_msgs::Marker::DELETE;
+  mk.id = id;
+  traj_pub.publish(mk);
+
+  mk.action = visualization_msgs::Marker::ADD;
+  mk.pose.orientation.x = 0.0;
+  mk.pose.orientation.y = 0.0;
+  mk.pose.orientation.z = 0.0;
+  mk.pose.orientation.w = 1.0;
+  mk.color.r = color(0);
+  mk.color.g = color(1);
+  mk.color.b = color(2);
+  mk.color.a = color(3);
+  mk.scale.x = resolution;
+  mk.scale.y = resolution;
+  mk.scale.z = resolution;
+  geometry_msgs::Point pt;
+  for (int i = 0; i < int(path.size()); i++) {
+    pt.x = path[i](0);
+    pt.y = path[i](1);
+    pt.z = path[i](2);
+    mk.points.push_back(pt);
+  }
+  traj_pub.publish(mk);
+  ros::Duration(0.001).sleep();
+}
+
+void drawFOV(const vector<Eigen::Vector3d>& list1, const vector<Eigen::Vector3d>& list2) {
+  visualization_msgs::Marker mk;
+  mk.header.frame_id = "world";
+  mk.header.stamp = ros::Time::now();
+  mk.id = 0;
+  mk.ns = "current_pose";
+  mk.type = visualization_msgs::Marker::LINE_LIST;
+  mk.pose.orientation.x = 0.0;
+  mk.pose.orientation.y = 0.0;
+  mk.pose.orientation.z = 0.0;
+  mk.pose.orientation.w = 1.0;
+  mk.color.r = 1.0;
+  mk.color.g = 0.0;
+  mk.color.b = 0.0;
+  mk.color.a = 1.0;
+  mk.scale.x = 0.04;
+  mk.scale.y = 0.04;
+  mk.scale.z = 0.04;
+
+  // Clean old marker
+  mk.action = visualization_msgs::Marker::DELETE;
+  cmd_vis_pub.publish(mk);
+
+  if (list1.size() == 0) return;
+
+  // Pub new marker
+  geometry_msgs::Point pt;
+  for (int i = 0; i < int(list1.size()); ++i) {
+    pt.x = list1[i](0);
+    pt.y = list1[i](1);
+    pt.z = list1[i](2);
+    mk.points.push_back(pt);
+
+    pt.x = list2[i](0);
+    pt.y = list2[i](1);
+    pt.z = list2[i](2);
+    mk.points.push_back(pt);
+  }
+  mk.action = visualization_msgs::Marker::ADD;
+  cmd_vis_pub.publish(mk);
 }
 
 
-void new_Callback(ego_planner::BsplineConstPtr msg)
-{
-  traj_pos_.clear();
-}
+
 
 int main(int argc, char **argv)
 {
@@ -316,16 +419,18 @@ int main(int argc, char **argv)
   ros::NodeHandle node;
   ros::NodeHandle nh("~");
 
-  ros::Subscriber bspline_sub = node.subscribe("planning/bspline", 10, bsplineCallback);
+  percep_utils_ = std::make_shared<PerceptionUtils>(nh);
 
-  ros::Subscriber new_sub = node.subscribe("planning/bspline", 10, new_Callback);
-
-  pos_cmd_pub = node.advertise<quadrotor_msgs::PositionCommand>("/position_cmd", 50);           //50 代表了发布者（publisher）的缓存队列大小。当你创建一个发布者时，指定的数字（这里是 50）表示发布者能够缓存未被订阅者接收的消息数量。
-
+  ros::Subscriber bspline_sub = node.subscribe("planning/bspline", 10, bsplineCallback);   
+                                                                                          
+  pos_cmd_pub = node.advertise<quadrotor_msgs::PositionCommand>("/position_cmd", 50);         
 
   mav_cmd_pub = node.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 1);
+  traj_pub = node.advertise<visualization_msgs::Marker>("planning/travel_traj", 10);
+  cmd_vis_pub = node.advertise<visualization_msgs::Marker>("planning/position_cmd_vis", 10);
 
   ros::Timer cmd_timer = node.createTimer(ros::Duration(0.01), cmdCallback); // 每0.01s执行一次，这个独立于ros::spin()函数，可以独立于其他线程运行。
+  ros::Timer vis_timer = node.createTimer(ros::Duration(0.25), visCallback);
 
   /* control parameter */
   cmd.kx[0] = pos_gain[0];
@@ -337,6 +442,8 @@ int main(int argc, char **argv)
   cmd.kv[2] = vel_gain[2];
 
   nh.param("traj_server/time_forward", time_forward_, -1.0);
+  nh.param("traj_server/pub_traj_id", pub_traj_id_, -1);
+  nh.param("traj_server/use_planYaw", use_planYaw, true);
   last_yaw_ = 0.0;
   last_yaw_dot_ = 0.0;
 

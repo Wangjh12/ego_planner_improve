@@ -131,9 +131,12 @@
     <param name="optimization/lambda_mintime" value="0.2" type="double"/>
     <param name="optimization/lambda_start" value="1.0" type="double"/>
     <param name="optimization/lambda_end" value="1.0" type="double"/>
+    <param name="optimization/lambda_fovcost" value="1.0" type="double"/>
     <param name="optimization/dist0" value="0.5" type="double"/>
     <param name="optimization/max_vel" value="$(arg max_vel)" type="double"/>
     <param name="optimization/max_acc" value="$(arg max_acc)" type="double"/>
+    <param name="optimization/vertical_fov" value="60.0" type="double"/>
+    <param name="optimization/horizontal_fov" value="80.0" type="double"/>
 
     <param name="bspline/limit_vel" value="$(arg max_vel)" type="double"/>
     <param name="bspline/limit_acc" value="$(arg max_acc)" type="double"/>

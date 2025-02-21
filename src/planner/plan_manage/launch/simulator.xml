@@ -1,6 +1,9 @@
 <launch>
-  <arg name="init_x" value="-18.0"/>
+  <!-- <arg name="init_x" value="-18.0"/>
   <arg name="init_y" value="0.0"/>
+  <arg name="init_z" value="0.0"/>  -->
+  <arg name="init_x" value="1.0"/>
+  <arg name="init_y" value="-3.0"/>
   <arg name="init_z" value="0.0"/> 
   <arg name="obj_num" value="1" />
   <arg name="map_size_x_"/>
@@ -25,7 +28,7 @@
         <param name="map/obs_num" value="30"/>
         <param name="pub_rate" value="1.0"/>
         <param name="min_distance" value="0.8"/>
-    </node> -->
+    </node>
 
 
   <node pkg ="map_generator" name ="random_forest" type ="random_forest" output = "screen">    
@@ -57,6 +60,7 @@
     <param name="min_distance" value="$(arg min_dist)"/>         
   </node>
 
+  <!-- <node pkg="mockamap" type="mockamap_node" name="mockamap_node" output="screen">  
   <!-- <node pkg="mockamap" type="mockamap_node" name="mockamap_node" output="screen">  
       <remap from="/mock_map" to="/map_generator/global_cloud"/>
       <param name="seed" type="int" value="127"/>

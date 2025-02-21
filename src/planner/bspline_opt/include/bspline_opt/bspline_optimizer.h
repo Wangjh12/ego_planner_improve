@@ -27,6 +27,7 @@ namespace ego_planner
     std::vector<bool> flag_temp;                          // A flag that used in many places. Initialize it everytime before using it.
     // std::vector<bool> occupancy;
 
+
     void resize(const int size_set)
     {
       size = size_set;
@@ -77,13 +78,20 @@ namespace ego_planner
     AStar::Ptr a_star_;
     std::vector<Eigen::Vector3d> ref_pts_;
 
+    Eigen::Quaterniond odom_orient_;
+
+    ros::Subscriber odom_sub_fov_;
+
     std::vector<std::vector<Eigen::Vector3d>> initControlPoints(Eigen::MatrixXd &init_points, bool flag_first_init = true);
     bool BsplineOptimizeTrajRebound(Eigen::MatrixXd &optimal_points, double& ts); // must be called after initControlPoints()
     bool BsplineOptimizeTrajRefine(const Eigen::MatrixXd &init_points, const double ts, Eigen::MatrixXd &optimal_points);
-
     void setBoundaryStates(Eigen::Vector3d start_pt, Eigen::Vector3d start_vel,
                            Eigen::Vector3d start_acc, Eigen::Vector3d local_target_pt,
                            Eigen::Vector3d local_target_vel);
+
+    void odometryCallback(const nav_msgs::OdometryConstPtr &msg);
+
+
 
     inline int getOrder(void) { return order_; }
 
@@ -117,9 +125,12 @@ namespace ego_planner
     double lambda2_, new_lambda2_; // distance weight
     double lambda3_;               // feasibility weight
     double lambda4_;               // curve fitting
-    double lambda5_; 
+
+    double lambda5_;    
     double lambda6_; 
     double lambda7_; 
+    double lambda8_; 
+
 
     int a;
     //
@@ -131,11 +142,15 @@ namespace ego_planner
     Eigen::VectorXd best_variable_; //
     double min_cost_;               //
 
+    double vertical_, horizontal_;
+
     double knot_span_;
 
     ControlPoints cps_;
 
     vector<Eigen::Vector3d> start_state_, end_state_;
+
+
 
     /* cost function */
     /* calculate each part of cost function with control points q as input */
@@ -152,6 +167,7 @@ namespace ego_planner
                              Eigen::MatrixXd &gradient);
     void calcDistanceCostRebound(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient, int iter_num, double smoothness_cost);
     void calcFitnessCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient);
+    void calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen::MatrixXd &gradient);
     bool check_collision_and_rebound(void);
 
     static int earlyExit(void *func_data, const double *x, const double *g, const double fx, const double xnorm, const double gnorm, const double step, int n, int k, int ls);

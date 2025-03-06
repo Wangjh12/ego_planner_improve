@@ -1186,6 +1186,8 @@ void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen
   {
     setBsplineInterval(ts);
 
+    ts_origin_ = ts;
+
     bool flag_success = rebound_optimize();
 
     //增加ts的重新赋值
@@ -1228,8 +1230,8 @@ void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen
     constexpr int MAX_RESART_NUMS_SET = 3;
 
     // 定义 knot_span 的上下限，防止数值不稳定
-    // constexpr double MIN_KNOT_SPAN = 0.01;
-    // constexpr double MAX_KNOT_SPAN = 1.0;  
+    constexpr double MIN_KNOT_SPAN = 0.01;
+    constexpr double MAX_KNOT_SPAN = 1.0;  
     do
     {
       /* ---------- prepare ---------- */
@@ -1264,7 +1266,11 @@ void BsplineOptimizer::calcFoVCost(const Eigen::MatrixXd &q, double &cost, Eigen
       double time_ms = (t2 - t1).toSec() * 1000;
       double total_time_ms = (t2 - t0).toSec() * 1000;
       knot_span_ = q[variable_num_ - 1];
-    
+      
+      if(knot_span_>MAX_KNOT_SPAN || knot_span_<MIN_KNOT_SPAN)
+      {
+        knot_span_ = ts_origin_;
+      }
 
       /* ---------- success temporary, check collision again ---------- */
       if (result == lbfgs::LBFGS_CONVERGENCE ||

@@ -1,0 +1,63 @@
+Flight Time Log - 所有运行记录
+Flight Time Log - 第 1 次运行
+flight time: 41.891628
+Flight Time Log - 第 4 次运行
+flight time: 42.142644
+Flight Time Log - 第 13 次运行
+flight time: 41.961711
+Flight Time Log - 第 14 次运行
+flight time: 41.508565
+Flight Time Log - 第 15 次运行
+flight time: 39.718664
+Flight Time Log - 第 18 次运行
+flight time: 41.256484
+Flight Time Log - 第 27 次运行
+flight time: 42.719700
+Flight Time Log - 第 30 次运行
+flight time: 41.946937
+Flight Time Log - 第 35 次运行
+flight time: 43.269454
+Flight Time Log - 第 38 次运行
+flight time: 45.587970
+Flight Time Log - 第 39 次运行
+flight time: 42.654168
+Flight Time Log - 第 42 次运行
+flight time: 41.414884
+Flight Time Log - 第 43 次运行
+flight time: 41.666139
+Flight Time Log - 第 44 次运行
+flight time: 43.429805
+Flight Time Log - 第 45 次运行
+flight time: 39.009851
+Flight Time Log - 第 50 次运行
+flight time: 42.180633
+Flight Time Log - 第 59 次运行
+flight time: 41.498871
+Flight Time Log - 第 60 次运行
+flight time: 39.971640
+Flight Time Log - 第 61 次运行
+flight time: 42.137463
+Flight Time Log - 第 62 次运行
+flight time: 41.979149
+Flight Time Log - 第 67 次运行
+flight time: 43.535612
+Flight Time Log - 第 68 次运行
+flight time: 40.867819
+Flight Time Log - 第 69 次运行
+flight time: 42.271561
+Flight Time Log - 第 70 次运行
+flight time: 42.010662
+Flight Time Log - 第 77 次运行
+flight time: 42.312631
+Flight Time Log - 第 80 次运行
+flight time: 43.972505
+Flight Time Log - 第 81 次运行
+flight time: 42.576622
+Flight Time Log - 第 88 次运行
+flight time: 40.449176
+Flight Time Log - 第 89 次运行
+flight time: 40.527577
+Flight Time Log - 第 94 次运行
+flight time: 41.218360
+Flight Time Log - 第 97 次运行
+flight time: 43.606232

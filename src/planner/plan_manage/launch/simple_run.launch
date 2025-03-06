@@ -2,7 +2,7 @@
   <!-- size of map, change the size inflate x, y, z according to your application -->
   <arg name="map_size_x" value="40.0"/>
   <arg name="map_size_y" value="40.0"/>
-  <arg name="map_size_z" value="4.0"/>
+  <arg name="map_size_z" value="4.5"/>
 
   <!-- topic of your odometry such as VIO or LIO -->
   <arg name="odom_topic" value="/visual_slam/odom" />
@@ -117,13 +117,15 @@
     <arg name="map_size_x_" value="$(arg map_size_x)"/>
     <arg name="map_size_y_" value="$(arg map_size_y)"/>
     <arg name="map_size_z_" value="$(arg map_size_z)"/>
-    <arg name="c_num" value="200"/>
-    <arg name="p_num" value="200"/>
+    <!-- <arg name="c_num" value="200"/>
+    <arg name="p_num" value="200"/> -->
+    <arg name="c_num" value="50"/>
+    <arg name="p_num" value="50"/>
     <arg name="min_dist" value="1.2"/>
 
     <arg name="odometry_topic" value="$(arg odom_topic)" />
   </include>
 
-  <include file="$(find ego_planner)/launch/rviz.launch"/>
+  <!-- <include file="$(find ego_planner)/launch/rviz.launch"/> -->
 
 </launch>

@@ -142,6 +142,8 @@ namespace ego_planner
 
     double knot_span_;
 
+    double ts_origin_;
+
     ControlPoints cps_;
 
     vector<Eigen::Vector3d> start_state_, end_state_;

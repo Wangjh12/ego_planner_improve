@@ -8,7 +8,7 @@ Panels:
         - /Mapping1
         - /Mapping1/simulation_map1/Autocompute Value Bounds1
       Splitter Ratio: 0.5
-    Tree Height: 856
+    Tree Height: 441
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -285,7 +285,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 74.3011474609375
+      Distance: 43.916419982910156
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -293,17 +293,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: -14.570169448852539
-        Y: -4.297760009765625
+        X: -13.069091796875
+        Y: -0.40172266960144043
         Z: 0.47689178586006165
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8297970294952393
+      Pitch: 1.1697967052459717
       Target Frame: world
-      Yaw: 2.980437994003296
+      Yaw: 3.12044095993042
     Saved:
       - Class: rviz/ThirdPersonFollower
         Distance: 17.48538589477539
@@ -342,6 +342,6 @@ Window Geometry:
     collapsed: false
   Width: 1180
   X: 876
-  Y: 161
+  Y: 124
   depth:
     collapsed: false

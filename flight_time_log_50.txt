@@ -225,7 +225,6 @@ Flight Time Log - 第 113 次运行
 flight time: 41.024130
 Flight Time Log - 第 114 次运行
 flight time: 40.263071
-Flight Time Log - 所有运行记录
 Flight Time Log - 第 115 次运行
 flight time: 40.642855
 Flight Time Log - 第 116 次运行

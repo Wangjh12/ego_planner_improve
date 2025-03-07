@@ -9,6 +9,16 @@
 #include <Eigen/Eigen>
 #include <path_searching/perception_utils.h>
 
+#include <fstream>
+#include <chrono>
+#include <ctime>
+#include <iomanip> // 用于std::setprecision
+
+// 全局文件流对象
+std::ofstream csv_file;
+
+vector<double> mavros_yaw, mavros_yawdot, pos_yaw, pos_yawdot;
+
 ros::Publisher pos_cmd_pub;
 ros::Publisher mav_cmd_pub;
 
@@ -46,6 +56,28 @@ void displayTrajWithColor(vector<Eigen::Vector3d> path, double resolution, Eigen
                           int id);
 void drawFOV(const vector<Eigen::Vector3d> &list1, const vector<Eigen::Vector3d> &list2);
 
+
+
+double calculateMean(const std::vector<double>& data) {
+    if (data.empty()) return 0.0;
+    
+    double sum = 0.0;
+    for (double value : data) {
+        sum += value;
+    }
+    return sum / data.size();
+}
+
+
+// 计算方差的函数
+double calculateVariance(const std::vector<double>& data, double mean) {
+    if (data.size() <= 1) return 0.0;
+    double sum = 0.0;
+    for (double value : data) {
+        sum += std::pow(value - mean, 2);
+    }
+    return sum / (data.size() - 1);
+}
 
 void bsplineCallback(ego_planner::BsplineConstPtr msg)
 {
@@ -195,8 +227,7 @@ std::pair<double, double> calculate_yaw(double t_cur, Eigen::Vector3d &pos, ros:
   return yaw_yawdot;
 }
 
-void cmdCallback(const ros::TimerEvent &e)
-{
+void cmdCallback(const ros::TimerEvent &e) {
   /* no publishing before receive traj_ */
   if (!receive_traj_)
     return;
@@ -209,9 +240,10 @@ void cmdCallback(const ros::TimerEvent &e)
   double yaw, yawdot;
 
   static ros::Time time_last = ros::Time::now();
-  if (t_cur < traj_duration_ && t_cur >= 0.0)
-  {
-    //当前时间下的位置，速度和加速度
+  static ros::Time last_record_time = ros::Time::now(); // 上一次记录数据的时间
+
+  if (t_cur < traj_duration_ && t_cur >= 0.0) {
+    // 当前时间下的位置，速度和加速度
     pos = traj_[0].evaluateDeBoorT(t_cur);
     vel = traj_[1].evaluateDeBoorT(t_cur);
     acc = traj_[2].evaluateDeBoorT(t_cur);
@@ -224,10 +256,8 @@ void cmdCallback(const ros::TimerEvent &e)
 
     double tf = min(traj_duration_, t_cur + 2.0);
     pos_f = traj_[0].evaluateDeBoorT(tf);
-  }
-  else if (t_cur >= traj_duration_)
-  {
-    /* hover when finish traj_ 最后一段轨迹*/
+  } else if (t_cur >= traj_duration_) {
+    /* hover when finish traj_ 最后一段轨迹 */
     pos = traj_[0].evaluateDeBoorT(traj_duration_);
     vel.setZero();
     acc.setZero();
@@ -239,13 +269,10 @@ void cmdCallback(const ros::TimerEvent &e)
     yawdot = traj_[4].evaluateDeBoorT(traj_duration_)[0];
 
     double flight_t = (record_end_time_ - record_start_time_).toSec();
-
-    ROS_WARN_THROTTLE(2, "flight time: %lf",  flight_t);
+    ROS_WARN_THROTTLE(2, "flight time: %lf", flight_t);
 
     pos_f = pos;
-  }
-  else
-  {
+  } else {
     cout << "[Traj server]: invalid time." << endl;
   }
   time_last = time_now;
@@ -267,11 +294,10 @@ void cmdCallback(const ros::TimerEvent &e)
   cmd.acceleration.y = acc(1);
   cmd.acceleration.z = acc(2);
 
-  if(use_planYaw)
-  {
+  if (use_planYaw) {
     cmd.yaw = yaw;
     cmd.yaw_dot = yawdot;
-  }else{
+  } else {
     cmd.yaw = yaw_yawdot.first;
     cmd.yaw_dot = yaw_yawdot.second;
 
@@ -280,12 +306,12 @@ void cmdCallback(const ros::TimerEvent &e)
 
   pos_cmd_pub.publish(cmd);
 
-//通过mavros给px4发ros话题，控制飞行
+  // 通过mavros给px4发ros话题，控制飞行
   mav_cmd.header.stamp = time_now;
-  mav_cmd.header.frame_id = "world"; //表示全局参考坐标系，常见的有odom表示机器人从初始位置开始的相对位移，map用于存储和表示地图数据
+  mav_cmd.header.frame_id = "world"; // 表示全局参考坐标系，常见的有odom表示机器人从初始位置开始的相对位移，map用于存储和表示地图数据
   mav_cmd.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED; // 北东地，但mavors会自动转为东北天
 
-  mav_cmd.type_mask =  0b0001100000000000;
+  mav_cmd.type_mask = 0b0001100000000000;
   mav_cmd.position.x = pos(0);
   mav_cmd.position.y = pos(1);
   mav_cmd.position.z = pos(2);
@@ -305,7 +331,6 @@ void cmdCallback(const ros::TimerEvent &e)
 
   mav_cmd_pub.publish(mav_cmd);
 
-
   if (traj_cmd_.size() == 0) {
     // Add the first position
     traj_cmd_.push_back(pos);
@@ -315,25 +340,58 @@ void cmdCallback(const ros::TimerEvent &e)
     record_end_time_ = ros::Time::now();
   }
 
-  // if(traj_pos_.size()==0)
-  // {
-  //   traj_pos_.push_back(pos);
-  // }else if((pos - traj_pos_.back()).norm() > 1e-6)
-  // {
-  //   traj_pos_.push_back(pos);
-  //   record_end_time_ = ros::Time::now();
-  // }
-
   vector<Eigen::Vector3d> l1, l2;
-  if(use_planYaw)
-  {
+  if (use_planYaw) {
     percep_utils_->setPose(pos, yaw);
-  }else{
+  } else {
     percep_utils_->setPose(pos, yaw_yawdot.first);
   }
   percep_utils_->getFOV(l1, l2);
   drawFOV(l1, l2);
 
+
+  if(cmd.yaw_dot==0&&mav_cmd.yaw_rate==0)
+  {
+
+    double mean_mavros_yaw = calculateMean(mavros_yaw);
+    double mean_mavros_yawdot = calculateMean(mavros_yawdot);
+    double mean_pos_yaw = calculateMean(pos_yaw);
+    double mean_pos_yawdot = calculateMean(pos_yawdot);
+
+    // 计算方差
+    double variance_mavros_yaw = calculateVariance(mavros_yaw, mean_mavros_yaw);
+    double variance_mavros_yawdot = calculateVariance(mavros_yawdot, mean_mavros_yawdot);
+    double variance_pos_yaw = calculateVariance(pos_yaw, mean_pos_yaw);
+    double variance_pos_yawdot = calculateVariance(pos_yawdot, mean_pos_yawdot);
+
+        // 输出数据到CSV文件
+    csv_file << variance_mavros_yaw << ","
+             << variance_mavros_yawdot << ","
+             << variance_pos_yaw << ","
+             << variance_pos_yawdot << "\n";
+
+    // 关闭文件
+    csv_file.close();
+
+
+  }else{
+    mavros_yaw.push_back(cmd.yaw);
+    mavros_yawdot.push_back(cmd.yaw_dot);
+    pos_yaw.push_back(mav_cmd.yaw);
+    pos_yawdot.push_back(mav_cmd.yaw_rate);
+  }
+
+  // // 每0.5秒记录一次数据
+  // if ((time_now - last_record_time).toSec() >= 1.0) {
+  //   csv_file << std::fixed << std::setprecision(6)
+  //            << time_now.toSec() << ","
+  //            << cmd.yaw << ","
+  //            << cmd.yaw_dot << ","
+  //            << mav_cmd.yaw << ","
+  //            << mav_cmd.yaw_rate << "\n";
+  //   csv_file.flush(); // 立即刷新缓冲区
+  //   last_record_time = time_now; // 更新上一次记录时间
+  // }
 }
 
 void visCallback(const ros::TimerEvent& e) {
@@ -431,6 +489,31 @@ int main(int argc, char **argv)
   ros::NodeHandle node;
   ros::NodeHandle nh("~");
 
+
+  // 打开CSV文件
+  auto now = std::chrono::system_clock::now();
+  std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+  // std::stringstream ss;
+  // ss << "yaw_data_" << std::put_time(std::localtime(&now_c), "%Y%m%d_%H%M%S") << ".csv";
+  // csv_file.open(ss.str());
+
+  std::string filename = "/home/wjh/work/csv/yaw_data.csv";
+  // csv_file.open(filename);
+
+
+  csv_file.open(filename, std::ios::app);//追加模式
+
+  if (!csv_file.is_open()) {
+    ROS_ERROR("Failed to open CSV file!");
+    return 1;
+  }
+
+  // 写入表头
+  // csv_file << "timestamp,cmd_yaw,cmd_yaw_dot,mav_cmd_yaw,mav_cmd_yaw_rate\n";
+  csv_file << "variance_mavrosyaw,variance_mavrosyawdot,variance_posyaw,variance_posyawdot\n";
+  csv_file.flush();
+
+
   percep_utils_ = std::make_shared<PerceptionUtils>(nh);
 
   ros::Subscriber bspline_sub = node.subscribe("planning/bspline", 10, bsplineCallback); 
@@ -467,7 +550,10 @@ int main(int argc, char **argv)
 
   ros::spin();//ros::spin()调用后不会再返回，也就是主程序到这儿一直循环执行消息回调而不会往下执行后面的代码，而ros::spinOnce()只会调用一次消息回调然后继续执行之后的程序。用ros::spin()时，最好把发布放到回调函数中，这样可以做到每订阅到一条消息就发布一次。
 
-
+  // 关闭文件
+  if (csv_file.is_open()) {
+    csv_file.close();
+  }
 
   return 0;
 }

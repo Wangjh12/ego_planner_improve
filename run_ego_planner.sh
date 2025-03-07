@@ -80,15 +80,15 @@
 
 
 #!/bin/bash
-LOG_FILE="/home/wjh/work/ego_planner/flight_time_log_50.txt"  # 定义日志文件路径
+LOG_FILE="/home/wjh1/code/ego_planner/flight_time_log_200.txt"  # 定义日志文件路径
 echo "Flight Time Log - 所有运行记录" >> "$LOG_FILE"  # 追加写入日志文件，不清空上次内容
 
-for i in {115..300}
+for i in {121..1000}
 do
   echo "第 $i 次执行 roslaunch ego_planner simple_run.launch"
   gnome-terminal -- bash -c "\
     sleep 5; \
-    cd /home/wjh/work/ego_planner; \
+    cd /home/wjh1/code/ego_planner; \
     source /opt/ros/noetic/setup.bash; \
     source devel/setup.bash; \
     mkfifo /tmp/ros_output_$$; \

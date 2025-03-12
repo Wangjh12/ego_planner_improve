@@ -13,7 +13,7 @@
 
   <!-- There are two kinds of maps you can choose, just comment out the one you don’t need like the follow. Have a try. /-->
 
-  <!-- <node pkg ="map_generator" name ="competition_obstacles" type ="competition_obstacles" output = "screen">
+  <node pkg ="map_generator" name ="competition_obstacles" type ="competition_obstacles" output = "screen">
       <param name="map/x_size" value="26" />
       <param name="map/y_size" value="20" />
       <param name="map/z_size" value="3" />
@@ -22,10 +22,10 @@
       <param name="map/obs_num" value="30"/>
       <param name="pub_rate" value="1.0"/>
       <param name="min_distance" value="0.8"/>
-  </node> -->
+  </node>
 
 
-  <node pkg ="map_generator" name ="random_forest" type ="random_forest" output = "screen">    
+  <!-- <node pkg ="map_generator" name ="random_forest" type ="random_forest" output = "screen">    
     <remap from="~odometry"   to="$(arg odometry_topic)"/>    
     <param name="init_state_x"   value="$(arg init_x)"/>
     <param name="init_state_y"   value="$(arg init_y)"/>
@@ -52,7 +52,7 @@
     <param name="sensing/rate"   value="10.0"/>  
     
     <param name="min_distance" value="$(arg min_dist)"/>         
-  </node>
+  </node> -->
 
 
   <!-- <node pkg="mockamap" type="mockamap_node" name="mockamap_node" output="screen">  

@@ -354,7 +354,7 @@ void testObstacle() {
 
 //生成垂直障碍物
     Obstacle cuboidObstacle;
-    cuboidObstacle.x = -17.2;
+    cuboidObstacle.x = -17.20;
     cuboidObstacle.y = 0.0;
     cuboidObstacle.radius = 0.5; // 半径设置为长宽的一半
     cuboidObstacle.height = 0.5;

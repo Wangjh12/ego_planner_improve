@@ -328,7 +328,7 @@ void RandomMapGenerateCylinder() {
 
 void TestRandomMapGenerate() {
   // 从 ROS 参数中读取障碍物生成的种子（如果没有则默认使用1）
-  unsigned int seed = 1;
+  unsigned int seed = 3;
   ros::NodeHandle nh("~");
   // nh.param("ObstacleShape/seed", seed, 1u);
 

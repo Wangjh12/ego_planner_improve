@@ -61,7 +61,7 @@ pcl::PointCloud<pcl::PointXYZ> cloudMap;
 sensor_msgs::PointCloud2 localMap_pcd;
 pcl::PointCloud<pcl::PointXYZ> clicked_cloud_;
 
-
+double seed;
 
 // 该函数用于生成随机地图，包含两种类型的障碍物：极坐标障碍物和圆形障碍物。其中，使用了随机数生成器来确定障碍物的位置、尺寸和形状等属性。
 
@@ -328,7 +328,7 @@ void RandomMapGenerateCylinder() {
 
 void TestRandomMapGenerate() {
   // 从 ROS 参数中读取障碍物生成的种子（如果没有则默认使用1）
-  unsigned int seed = 3;
+  // unsigned int seed = 3;
   ros::NodeHandle nh("~");
   // nh.param("ObstacleShape/seed", seed, 1u);
 
@@ -605,6 +605,8 @@ int main(int argc, char** argv) {
   n.param("sensing/radius", _sense_rate, 10.0);        // 感知频率
 
   n.param("min_distance", _min_dist, 1.0);     // 最小距离
+
+  n.param("ObstacleShape/seed", seed, 1.0);    
 
   _x_l = -_x_size / 2.0;
   _x_h = +_x_size / 2.0;

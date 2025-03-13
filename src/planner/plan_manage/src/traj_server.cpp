@@ -29,6 +29,8 @@ mavros_msgs::PositionTarget mav_cmd;
 double pos_gain[3] = {0, 0, 0};
 double vel_gain[3] = {0, 0, 0};
 
+double flight_t;
+
 using ego_planner::UniformBspline;
 using namespace ego_planner;
 // class PerceptionUtils;
@@ -77,6 +79,19 @@ double calculateVariance(const std::vector<double>& data, double mean) {
         sum += std::pow(value - mean, 2);
     }
     return sum / (data.size() - 1);
+}
+
+// 计算 RMS 的函数
+double calculateRMS(const std::vector<double>& data) {
+    if (data.empty()) return 0.0;  // 如果数据为空，返回 0.0
+
+    double sumOfSquares = 0.0;
+    for (double value : data) {
+        sumOfSquares += std::pow(value, 2);  // 计算每个值的平方并累加
+    }
+
+    double meanOfSquares = sumOfSquares / data.size();  // 计算平方的均值
+    return std::sqrt(meanOfSquares);  // 返回平方均值的平方根
 }
 
 void bsplineCallback(ego_planner::BsplineConstPtr msg)
@@ -268,7 +283,7 @@ void cmdCallback(const ros::TimerEvent &e) {
     yaw = traj_[3].evaluateDeBoorT(traj_duration_)[0];
     yawdot = traj_[4].evaluateDeBoorT(traj_duration_)[0];
 
-    double flight_t = (record_end_time_ - record_start_time_).toSec();
+    flight_t = (record_end_time_ - record_start_time_).toSec();
     ROS_WARN_THROTTLE(2, "flight time: %lf", flight_t);
 
     pos_f = pos;
@@ -364,11 +379,20 @@ void cmdCallback(const ros::TimerEvent &e) {
     double variance_pos_yaw = calculateVariance(pos_yaw, mean_pos_yaw);
     double variance_pos_yawdot = calculateVariance(pos_yawdot, mean_pos_yawdot);
 
-        // 输出数据到CSV文件
-    csv_file << variance_mavros_yaw << ","
-             << variance_mavros_yawdot << ","
-             << variance_pos_yaw << ","
-             << variance_pos_yawdot << "\n";
+    double rms_mavros_yawdot = calculateRMS(mavros_yawdot);
+    double rms_pos_yawdot = calculateRMS(pos_yawdot);
+
+    // // 输出数据到CSV文件
+    // csv_file << variance_mavros_yaw << ","
+    //          <<  << ","
+    //          << variance_pos_yaw << ","
+    //          <<  << "\n";
+
+    csv_file << variance_mavros_yawdot << ","
+             << variance_pos_yawdot << ","
+             << rms_mavros_yawdot << ","
+             << rms_pos_yawdot << ","
+             << flight_t <<"\n";
 
     // 关闭文件
     csv_file.close();
@@ -381,17 +405,6 @@ void cmdCallback(const ros::TimerEvent &e) {
     pos_yawdot.push_back(mav_cmd.yaw_rate);
   }
 
-  // // 每0.5秒记录一次数据
-  // if ((time_now - last_record_time).toSec() >= 1.0) {
-  //   csv_file << std::fixed << std::setprecision(6)
-  //            << time_now.toSec() << ","
-  //            << cmd.yaw << ","
-  //            << cmd.yaw_dot << ","
-  //            << mav_cmd.yaw << ","
-  //            << mav_cmd.yaw_rate << "\n";
-  //   csv_file.flush(); // 立即刷新缓冲区
-  //   last_record_time = time_now; // 更新上一次记录时间
-  // }
 }
 
 void visCallback(const ros::TimerEvent& e) {
@@ -510,7 +523,7 @@ int main(int argc, char **argv)
 
   // 写入表头
   // csv_file << "timestamp,cmd_yaw,cmd_yaw_dot,mav_cmd_yaw,mav_cmd_yaw_rate\n";
-  csv_file << "variance_mavrosyaw,variance_mavrosyawdot,variance_posyaw,variance_posyawdot\n";
+  csv_file << "ori_yawdot_variance,imp_yawdot_variance,ori_yawdot_rms,imp_yawdot_rms,flight_time\n";
   csv_file.flush();
 
 

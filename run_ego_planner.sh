@@ -1,12 +1,12 @@
 #!/bin/bash
-LOG_FILE="/home/wjh/work/ego_planner/new_time_50.txt"  # 定义日志文件路径
+LOG_FILE="/home/wjh/work/ego_planner/new_time_200.txt"  # 定义日志文件路径
 echo "Flight Time Log - 所有运行记录" >> "$LOG_FILE"  # 追加写入日志文件，不清空上次内容
 
 # 外层循环：10 次
 for j in {1..10}
 do
   # 内层循环：20 次
-  for i in {1..20}
+  for i in {1..58}
   do
     echo "外层循环第 $j 次 | 内层循环第 $i 次 | 总计第 $(( (j-1)*20 + i )) 次运行"
     gnome-terminal -- bash -c "\

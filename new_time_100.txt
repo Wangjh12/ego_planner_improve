@@ -1,0 +1,362 @@
+Flight Time Log - 所有运行记录
+[Run 1-1] Flight Time Log
+flight time: 42.836259
+[Run 1-2] Flight Time Log
+flight time: 41.073131
+[Run 1-3] Flight Time Log
+flight time: 39.309408
+[Run 1-4] Flight Time Log
+flight time: 43.075930
+[Run 1-5] Flight Time Log
+flight time: 40.251489
+[Run 1-6] Flight Time Log
+flight time: 40.412270
+[Run 1-7] Flight Time Log
+flight time: 40.676883
+[Run 1-8] Flight Time Log
+flight time: 41.062798
+[Run 1-9] Flight Time Log
+flight time: 42.032022
+[Run 1-14] Flight Time Log
+flight time: 39.826903
+[Run 1-17] Flight Time Log
+flight time: 41.607055
+[Run 1-18] Flight Time Log
+flight time: 39.468540
+[Run 1-19] Flight Time Log
+flight time: 43.671590
+[Run 1-22] Flight Time Log
+flight time: 40.113716
+[Run 1-23] Flight Time Log
+flight time: 40.891339
+[Run 1-24] Flight Time Log
+flight time: 38.399193
+[Run 1-25] Flight Time Log
+flight time: 41.240075
+[Run 2-1] Flight Time Log
+flight time: 41.413469
+[Run 2-2] Flight Time Log
+flight time: 42.508468
+[Run 2-5] Flight Time Log
+flight time: 42.155961
+[Run 2-6] Flight Time Log
+flight time: 42.221498
+[Run 2-7] Flight Time Log
+flight time: 41.710019
+[Run 2-8] Flight Time Log
+flight time: 41.513404
+[Run 2-9] Flight Time Log
+flight time: 39.927761
+[Run 2-14] Flight Time Log
+flight time: 43.464233
+[Run 2-15] Flight Time Log
+flight time: 40.884906
+[Run 2-16] Flight Time Log
+flight time: 46.395026
+[Run 2-17] Flight Time Log
+flight time: 42.531551
+[Run 2-18] Flight Time Log
+flight time: 43.641318
+[Run 2-19] Flight Time Log
+flight time: 42.290236
+[Run 2-20] Flight Time Log
+flight time: 43.571298
+[Run 2-21] Flight Time Log
+flight time: 43.732510
+[Run 2-22] Flight Time Log
+flight time: 42.495117
+[Run 2-23] Flight Time Log
+flight time: 41.798903
+[Run 3-1] Flight Time Log
+flight time: 42.583138
+[Run 3-2] Flight Time Log
+flight time: 41.762278
+[Run 3-3] Flight Time Log
+flight time: 43.527653
+[Run 3-4] Flight Time Log
+flight time: 42.057275
+[Run 3-7] Flight Time Log
+flight time: 41.340943
+[Run 3-8] Flight Time Log
+flight time: 43.169821
+[Run 3-9] Flight Time Log
+flight time: 41.736686
+[Run 3-10] Flight Time Log
+flight time: 42.984356
+[Run 3-15] Flight Time Log
+flight time: 41.823769
+[Run 3-16] Flight Time Log
+flight time: 44.436709
+[Run 3-17] Flight Time Log
+flight time: 42.453344
+[Run 3-18] Flight Time Log
+flight time: 43.667949
+[Run 3-19] Flight Time Log
+flight time: 41.743740
+[Run 3-20] Flight Time Log
+flight time: 44.030634
+[Run 3-23] Flight Time Log
+flight time: 42.941077
+[Run 3-24] Flight Time Log
+flight time: 40.622286
+[Run 3-25] Flight Time Log
+flight time: 42.300007
+[Run 4-1] Flight Time Log
+flight time: 41.425295
+[Run 4-2] Flight Time Log
+flight time: 42.985423
+[Run 4-3] Flight Time Log
+flight time: 41.004965
+[Run 4-4] Flight Time Log
+flight time: 41.758676
+[Run 4-5] Flight Time Log
+flight time: 41.150867
+[Run 4-8] Flight Time Log
+flight time: 42.737734
+[Run 4-9] Flight Time Log
+flight time: 42.509547
+[Run 4-10] Flight Time Log
+flight time: 44.019898
+[Run 4-11] Flight Time Log
+flight time: 40.227447
+[Run 4-12] Flight Time Log
+flight time: 42.587214
+[Run 4-13] Flight Time Log
+flight time: 41.718839
+[Run 4-14] Flight Time Log
+flight time: 43.463435
+[Run 4-15] Flight Time Log
+flight time: 40.737743
+[Run 4-18] Flight Time Log
+flight time: 41.128515
+[Run 4-19] Flight Time Log
+flight time: 41.782015
+[Run 4-20] Flight Time Log
+flight time: 40.731303
+[Run 4-21] Flight Time Log
+flight time: 43.735488
+[Run 4-22] Flight Time Log
+flight time: 40.690122
+[Run 4-23] Flight Time Log
+flight time: 49.768958
+[Run 5-1] Flight Time Log
+flight time: 42.607605
+[Run 5-2] Flight Time Log
+flight time: 41.055076
+[Run 5-3] Flight Time Log
+flight time: 43.806764
+[Run 5-4] Flight Time Log
+flight time: 41.802627
+[Run 5-5] Flight Time Log
+flight time: 41.090219
+[Run 5-6] Flight Time Log
+flight time: 41.798801
+[Run 5-7] Flight Time Log
+flight time: 42.715320
+[Run 5-10] Flight Time Log
+flight time: 45.413642
+[Run 5-11] Flight Time Log
+flight time: 42.338553
+[Run 5-12] Flight Time Log
+flight time: 41.618218
+[Run 5-13] Flight Time Log
+flight time: 40.482510
+[Run 5-14] Flight Time Log
+flight time: 41.488818
+[Run 5-15] Flight Time Log
+flight time: 42.803268
+[Run 5-16] Flight Time Log
+flight time: 40.710922
+[Run 5-17] Flight Time Log
+flight time: 41.321562
+[Run 5-18] Flight Time Log
+flight time: 41.852358
+[Run 5-19] Flight Time Log
+flight time: 41.721448
+[Run 5-20] Flight Time Log
+flight time: 41.343172
+[Run 5-21] Flight Time Log
+flight time: 41.325397
+[Run 5-22] Flight Time Log
+flight time: 41.636981
+[Run 5-23] Flight Time Log
+flight time: 43.231007
+[Run 5-24] Flight Time Log
+flight time: 41.434869
+[Run 5-25] Flight Time Log
+flight time: 40.536894
+[Run 6-1] Flight Time Log
+flight time: 40.277638
+[Run 6-2] Flight Time Log
+flight time: 43.468721
+[Run 6-3] Flight Time Log
+flight time: 42.723935
+[Run 6-8] Flight Time Log
+flight time: 42.275221
+[Run 6-9] Flight Time Log
+flight time: 43.830269
+[Run 6-10] Flight Time Log
+flight time: 44.181576
+[Run 6-11] Flight Time Log
+flight time: 47.338257
+[Run 6-12] Flight Time Log
+flight time: 45.302207
+[Run 6-15] Flight Time Log
+flight time: 41.460153
+[Run 6-16] Flight Time Log
+flight time: 43.257340
+[Run 6-17] Flight Time Log
+flight time: 45.828718
+[Run 6-20] Flight Time Log
+flight time: 43.819749
+[Run 6-21] Flight Time Log
+flight time: 44.511826
+[Run 6-22] Flight Time Log
+flight time: 41.832115
+[Run 6-23] Flight Time Log
+flight time: 42.774114
+[Run 6-24] Flight Time Log
+flight time: 45.073556
+[Run 6-25] Flight Time Log
+flight time: 43.738406
+[Run 7-1] Flight Time Log
+flight time: 43.372392
+[Run 7-2] Flight Time Log
+flight time: 42.159768
+[Run 7-3] Flight Time Log
+flight time: 43.141723
+[Run 7-4] Flight Time Log
+flight time: 39.790620
+[Run 7-5] Flight Time Log
+flight time: 40.458694
+[Run 7-6] Flight Time Log
+flight time: 39.471646
+[Run 7-7] Flight Time Log
+flight time: 43.020617
+[Run 7-8] Flight Time Log
+flight time: 40.459360
+[Run 7-9] Flight Time Log
+flight time: 44.163413
+[Run 7-10] Flight Time Log
+flight time: 42.003245
+[Run 7-11] Flight Time Log
+flight time: 42.963055
+[Run 7-12] Flight Time Log
+flight time: 41.032306
+[Run 7-13] Flight Time Log
+flight time: 38.770942
+[Run 7-14] Flight Time Log
+flight time: 43.232909
+[Run 7-15] Flight Time Log
+flight time: 39.531094
+[Run 7-16] Flight Time Log
+flight time: 40.513432
+[Run 7-17] Flight Time Log
+flight time: 39.170890
+[Run 7-18] Flight Time Log
+flight time: 40.216567
+[Run 7-19] Flight Time Log
+flight time: 44.419419
+[Run 7-20] Flight Time Log
+flight time: 40.377163
+[Run 7-21] Flight Time Log
+flight time: 39.240185
+[Run 7-22] Flight Time Log
+flight time: 42.747198
+[Run 7-23] Flight Time Log
+flight time: 39.357208
+[Run 7-24] Flight Time Log
+flight time: 41.697953
+[Run 7-25] Flight Time Log
+flight time: 42.592866
+[Run 8-1] Flight Time Log
+flight time: 42.561126
+[Run 8-2] Flight Time Log
+flight time: 42.376621
+[Run 8-3] Flight Time Log
+flight time: 39.953058
+[Run 8-4] Flight Time Log
+flight time: 44.532854
+[Run 8-7] Flight Time Log
+flight time: 41.809257
+[Run 8-8] Flight Time Log
+flight time: 43.876445
+[Run 8-9] Flight Time Log
+flight time: 41.568286
+[Run 8-10] Flight Time Log
+flight time: 42.971431
+[Run 8-11] Flight Time Log
+flight time: 41.260795
+[Run 8-12] Flight Time Log
+flight time: 41.028241
+[Run 8-13] Flight Time Log
+flight time: 40.888920
+[Run 8-14] Flight Time Log
+flight time: 42.413061
+[Run 8-15] Flight Time Log
+flight time: 40.418734
+[Run 8-16] Flight Time Log
+flight time: 42.022350
+[Run 8-17] Flight Time Log
+flight time: 40.506367
+[Run 8-18] Flight Time Log
+flight time: 43.086589
+[Run 8-19] Flight Time Log
+flight time: 41.218796
+[Run 8-20] Flight Time Log
+flight time: 42.720264
+[Run 8-21] Flight Time Log
+flight time: 40.659825
+[Run 8-24] Flight Time Log
+flight time: 41.643594
+[Run 8-25] Flight Time Log
+flight time: 44.282667
+[Run 9-1] Flight Time Log
+flight time: 42.900104
+[Run 9-2] Flight Time Log
+flight time: 45.621557
+[Run 9-3] Flight Time Log
+flight time: 39.963195
+[Run 9-4] Flight Time Log
+flight time: 41.176537
+[Run 9-5] Flight Time Log
+flight time: 39.548186
+[Run 9-6] Flight Time Log
+flight time: 42.061888
+Flight Time Log - 所有运行记录
+[Run 10-3] Flight Time Log
+flight time: 41.985442
+[Run 10-4] Flight Time Log
+flight time: 43.422555
+[Run 10-5] Flight Time Log
+flight time: 41.419619
+[Run 10-6] Flight Time Log
+flight time: 42.411986
+[Run 10-7] Flight Time Log
+flight time: 41.993544
+[Run 10-8] Flight Time Log
+flight time: 46.522236
+[Run 10-11] Flight Time Log
+flight time: 43.235604
+[Run 10-12] Flight Time Log
+flight time: 43.702560
+[Run 10-13] Flight Time Log
+flight time: 48.706268
+[Run 10-14] Flight Time Log
+flight time: 54.560383
+[Run 10-18] Flight Time Log
+flight time: 41.662915
+[Run 10-19] Flight Time Log
+flight time: 44.282112
+[Run 10-20] Flight Time Log
+flight time: 45.357861
+[Run 10-21] Flight Time Log
+flight time: 41.979531
+[Run 10-22] Flight Time Log
+flight time: 43.096722
+[Run 10-23] Flight Time Log
+flight time: 41.037754
+[Run 10-24] Flight Time Log
+flight time: 45.728857
+[Run 10-25] Flight Time Log
+flight time: 44.677363

@@ -431,9 +431,13 @@ void displayTrajWithColor(vector<Eigen::Vector3d> path, double resolution, Eigen
   mk.color.g = color(1);
   mk.color.b = color(2);
   mk.color.a = color(3);
-  mk.scale.x = resolution;
-  mk.scale.y = resolution;
-  mk.scale.z = resolution;
+  //曲线宽度
+  // mk.scale.x = resolution;
+  // mk.scale.y = resolution;
+  // mk.scale.z = resolution;
+  mk.scale.x = resolution * 5.0;  // 增加宽度
+  mk.scale.y = resolution * 5.0;  // 增加宽度
+  mk.scale.z = resolution;        // 保持高度不变
   geometry_msgs::Point pt;
   for (int i = 0; i < int(path.size()); i++) {
     pt.x = path[i](0);

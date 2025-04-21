@@ -8,10 +8,10 @@
 #include <mavros_msgs/PositionTarget.h>
 
 ros::Publisher pos_cmd_pub;
-ros::Publisher mav_cmd_pub;
+// ros::Publisher mav_cmd_pub;
 
 quadrotor_msgs::PositionCommand cmd;
-mavros_msgs::PositionTarget mav_cmd;
+// mavros_msgs::PositionTarget mav_cmd;
 double pos_gain[3] = {0, 0, 0};
 double vel_gain[3] = {0, 0, 0};
 
@@ -233,29 +233,29 @@ void cmdCallback(const ros::TimerEvent &e)
 
   pos_cmd_pub.publish(cmd);
 
-  mav_cmd.header.stamp = time_now;
-  mav_cmd.header.frame_id = "world"; //表示全局参考坐标系，常见的有odom表示机器人从初始位置开始的相对位移，map用于存储和表示地图数据
-  mav_cmd.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED; // 北东地，但mavors会自动转为东北天
+  // mav_cmd.header.stamp = time_now;
+  // mav_cmd.header.frame_id = "world"; //表示全局参考坐标系，常见的有odom表示机器人从初始位置开始的相对位移，map用于存储和表示地图数据
+  // mav_cmd.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED; // 北东地，但mavors会自动转为东北天
 
-  mav_cmd.type_mask =  0b0001100000000000;
-  mav_cmd.position.x = pos(0);
-  mav_cmd.position.y = pos(1);
-  mav_cmd.position.z = pos(2);
+  // mav_cmd.type_mask =  0b0001100000000000;
+  // mav_cmd.position.x = pos(0);
+  // mav_cmd.position.y = pos(1);
+  // mav_cmd.position.z = pos(2);
 
-  mav_cmd.velocity.x = vel(0);
-  mav_cmd.velocity.y = vel(1);
-  mav_cmd.velocity.z = vel(2);
+  // mav_cmd.velocity.x = vel(0);
+  // mav_cmd.velocity.y = vel(1);
+  // mav_cmd.velocity.z = vel(2);
 
-  mav_cmd.acceleration_or_force.x = acc(0);
-  mav_cmd.acceleration_or_force.y = acc(1);
-  mav_cmd.acceleration_or_force.z = acc(2);
+  // mav_cmd.acceleration_or_force.x = acc(0);
+  // mav_cmd.acceleration_or_force.y = acc(1);
+  // mav_cmd.acceleration_or_force.z = acc(2);
 
-  mav_cmd.yaw = yaw_yawdot.first;
-  mav_cmd.yaw_rate = yaw_yawdot.second;
+  // mav_cmd.yaw = yaw_yawdot.first;
+  // mav_cmd.yaw_rate = yaw_yawdot.second;
 
-  last_yaw_ = mav_cmd.yaw;
+  // last_yaw_ = mav_cmd.yaw;
 
-  mav_cmd_pub.publish(mav_cmd);
+  // mav_cmd_pub.publish(mav_cmd);
 
 
 }
@@ -275,7 +275,7 @@ int main(int argc, char **argv)
   pos_cmd_pub = node.advertise<quadrotor_msgs::PositionCommand>("/position_cmd", 50);           //50 代表了发布者（publisher）的缓存队列大小。当你创建一个发布者时，指定的数字（这里是 50）表示发布者能够缓存未被订阅者接收的消息数量。
 
 
-  mav_cmd_pub = node.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 1);
+  // mav_cmd_pub = node.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 1);
 
   ros::Timer cmd_timer = node.createTimer(ros::Duration(0.01), cmdCallback); // 每0.01s执行一次，这个独立于ros::spin()函数，可以独立于其他线程运行。
 

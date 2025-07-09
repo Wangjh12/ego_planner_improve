@@ -25,9 +25,10 @@ planCombineYawTimeFov_25_02_21是改进后的分支
 
 
 
-#### 视频为改进算法的实机飞行视频
+<!-- #### 视频为改进算法的实机飞行视频
 
 ## 演示视频
 
 <video src="video/realFly.mp4" controls autoplay loop muted width="600">
-</video>
+</video> -->
+![realFly](video/realFly.gif)
